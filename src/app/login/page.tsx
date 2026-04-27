@@ -47,99 +47,122 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <div className="text-4xl mb-2">🎯</div>
-          <h1 className="text-2xl font-bold text-white">TDT4102 Quiz</h1>
-          <p className="text-gray-400 text-sm mt-1">Øv til C++ eksamen</p>
+    <main className="page-shell">
+      <div className="app-card">
+        {/* Header */}
+        <div style={{ padding: "32px 28px 24px" }}>
+          <div className="label" style={{ marginBottom: "10px" }}>TDT4102 · Del 1</div>
+          <h1 className="heading-lg">Logg inn</h1>
+          <p className="body-text" style={{ marginTop: "6px" }}>
+            Lagre progresjon på tvers av enheter
+          </p>
         </div>
 
-        <div className="bg-gray-900 rounded-2xl p-6 shadow-xl border border-gray-800">
-          <div className="flex bg-gray-800 rounded-xl p-1 mb-6">
+        <div className="divider" />
+
+        {/* Tab toggle */}
+        <div style={{ display: "flex", borderBottom: "1px solid var(--border)" }}>
+          {(["login", "register"] as const).map((m) => (
             <button
-              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
-                mode === "login"
-                  ? "bg-indigo-600 text-white"
-                  : "text-gray-400 hover:text-white"
-              }`}
-              onClick={() => setMode("login")}
+              key={m}
+              onClick={() => setMode(m)}
+              style={{
+                flex: 1,
+                padding: "12px",
+                background: "none",
+                border: "none",
+                borderBottom: `2px solid ${mode === m ? "var(--text-primary)" : "transparent"}`,
+                color: mode === m ? "var(--text-primary)" : "var(--text-tertiary)",
+                fontFamily: "var(--font-sans)",
+                fontSize: "13px",
+                fontWeight: mode === m ? 500 : 400,
+                cursor: "pointer",
+                transition: "all 0.15s",
+                marginBottom: "-1px",
+              }}
             >
-              Logg inn
+              {m === "login" ? "Logg inn" : "Registrer"}
             </button>
-            <button
-              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
-                mode === "register"
-                  ? "bg-indigo-600 text-white"
-                  : "text-gray-400 hover:text-white"
-              }`}
-              onClick={() => setMode("register")}
+          ))}
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} style={{ padding: "24px 20px 0" }}>
+          <div style={{ marginBottom: "14px" }}>
+            <label
+              className="label"
+              style={{ display: "block", marginBottom: "6px" }}
             >
-              Registrer
-            </button>
+              Brukernavn
+            </label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="input-field"
+              placeholder="dittbrukernavn"
+              autoComplete="username"
+              required
+            />
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm text-gray-300 mb-1">
-                Brukernavn
-              </label>
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors"
-                placeholder="dittbrukernavn"
-                autoComplete="username"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm text-gray-300 mb-1">
-                Passord
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors"
-                placeholder="••••••••"
-                autoComplete={
-                  mode === "register" ? "new-password" : "current-password"
-                }
-                required
-              />
-            </div>
-
-            {error && (
-              <p className="text-red-400 text-sm bg-red-900/20 rounded-lg px-3 py-2">
-                {error}
-              </p>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-semibold py-3 rounded-xl transition-colors"
+          <div style={{ marginBottom: "16px" }}>
+            <label
+              className="label"
+              style={{ display: "block", marginBottom: "6px" }}
             >
-              {loading
-                ? "Laster..."
-                : mode === "login"
-                ? "Logg inn"
-                : "Opprett konto"}
-            </button>
-          </form>
-
-          <div className="mt-4 pt-4 border-t border-gray-800">
-            <button
-              onClick={() => router.push("/")}
-              className="w-full text-gray-400 hover:text-white text-sm transition-colors py-2"
-            >
-              Fortsett uten innlogging →
-            </button>
+              Passord
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="input-field"
+              placeholder="••••••••"
+              autoComplete={mode === "register" ? "new-password" : "current-password"}
+              required
+            />
           </div>
+
+          {error && (
+            <p style={{
+              fontSize: "13px",
+              color: "var(--wrong)",
+              marginBottom: "14px",
+              padding: "10px 12px",
+              background: "var(--wrong-bg)",
+              borderRadius: "6px",
+              border: "1px solid var(--wrong-border)",
+            }}>
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn-primary"
+            style={{ marginBottom: "20px" }}
+          >
+            {loading
+              ? "Laster..."
+              : mode === "login"
+              ? "Logg inn"
+              : "Opprett konto"}
+          </button>
+        </form>
+
+        <div className="divider" />
+
+        <div style={{ padding: "16px 20px" }}>
+          <button
+            onClick={() => router.push("/")}
+            className="btn-secondary"
+          >
+            Fortsett uten innlogging
+          </button>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

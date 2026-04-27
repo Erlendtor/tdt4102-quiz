@@ -1,16 +1,20 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const ibmPlexSans = IBM_Plex_Sans({
+  weight: ["300", "400", "500", "600"],
   subsets: ["latin"],
+  variable: "--ibm-plex-sans",
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const ibmPlexMono = IBM_Plex_Mono({
+  weight: ["400", "500"],
   subsets: ["latin"],
+  variable: "--ibm-plex-mono",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -30,11 +34,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="no"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col bg-gray-950">
+    <html lang="no" className={`${ibmPlexSans.variable} ${ibmPlexMono.variable}`}>
+      <body>
         <SessionProvider>{children}</SessionProvider>
       </body>
     </html>

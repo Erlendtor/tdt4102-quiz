@@ -9,24 +9,36 @@ export default function BucketIndicator({
   bucket2: number;
   mastered: number;
 }) {
+  const items = [
+    { color: "var(--wrong)", label: "Øving", count: bucket0 },
+    { color: "var(--partial)", label: "Nesten", count: bucket1 },
+    { color: "var(--correct)", label: "Bra", count: bucket2 },
+    { color: "var(--border-strong)", label: "Ferdig", count: mastered },
+  ];
+
   return (
-    <div className="flex gap-3 flex-wrap text-sm">
-      <div className="flex items-center gap-1.5">
-        <div className="w-3 h-3 rounded-full bg-red-500" />
-        <span className="text-gray-300">Trenger øving <span className="font-bold text-white">{bucket0}</span></span>
-      </div>
-      <div className="flex items-center gap-1.5">
-        <div className="w-3 h-3 rounded-full bg-yellow-500" />
-        <span className="text-gray-300">Nesten <span className="font-bold text-white">{bucket1}</span></span>
-      </div>
-      <div className="flex items-center gap-1.5">
-        <div className="w-3 h-3 rounded-full bg-green-500" />
-        <span className="text-gray-300">Mestret <span className="font-bold text-white">{bucket2}</span></span>
-      </div>
-      <div className="flex items-center gap-1.5">
-        <div className="w-3 h-3 rounded-full bg-gray-600" />
-        <span className="text-gray-300">Fullført <span className="font-bold text-white">{mastered}</span></span>
-      </div>
+    <div style={{ display: "flex", gap: "14px", flexWrap: "wrap" }}>
+      {items.map(({ color, label, count }) => (
+        <span key={label} style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+          <span
+            style={{
+              width: "6px",
+              height: "6px",
+              borderRadius: "50%",
+              background: color,
+              flexShrink: 0,
+              display: "inline-block",
+            }}
+          />
+          <span
+            className="label"
+            style={{ letterSpacing: 0, textTransform: "none", fontSize: "11px", color: "var(--text-secondary)" }}
+          >
+            {label}{" "}
+            <strong style={{ color: "var(--text-primary)", fontWeight: 600 }}>{count}</strong>
+          </span>
+        </span>
+      ))}
     </div>
   );
 }

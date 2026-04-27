@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { Question, QuestionProgress } from "@/types";
 import { scoreQuestion, scorePercent, getBucket } from "@/lib/scoring";
 import { questions as allQuestions } from "@/lib/questions";
 import CodeBlock from "@/components/CodeBlock";
-import BucketIndicator from "@/components/BucketIndicator";
 import Link from "next/link";
 
 type State = "answering" | "revealed";
@@ -23,15 +22,9 @@ function pickNextQuestion(
   const active = allQs.filter((q) => !masteredIds.has(q.id));
   if (active.length === 0) return null;
 
-  const bucket0 = active.filter(
-    (q) => (progress.get(q.id)?.bucket ?? 0) === 0
-  );
-  const bucket1 = active.filter(
-    (q) => (progress.get(q.id)?.bucket ?? 0) === 1
-  );
-  const bucket2 = active.filter(
-    (q) => (progress.get(q.id)?.bucket ?? 0) === 2
-  );
+  const bucket0 = active.filter((q) => (progress.get(q.id)?.bucket ?? 0) === 0);
+  const bucket1 = active.filter((q) => (progress.get(q.id)?.bucket ?? 0) === 1);
+  const bucket2 = active.filter((q) => (progress.get(q.id)?.bucket ?? 0) === 2);
 
   const pool: Question[] = [];
   for (let i = 0; i < 6; i++) pool.push(...bucket0);
@@ -42,7 +35,6 @@ function pickNextQuestion(
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
-// Deduplicate variant groups – pick one per group
 function deduplicateGroups(qs: Question[]): Question[] {
   const seen = new Set<string>();
   const result: Question[] = [];
@@ -56,20 +48,42 @@ function deduplicateGroups(qs: Question[]): Question[] {
   return result;
 }
 
+function CheckIcon() {
+  return (
+    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+      <path d="M1.5 5L4 7.5L8.5 2.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function XIcon() {
+  return (
+    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+      <path d="M2 2L8 8M8 2L2 8" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+const BUCKET_ITEMS = [
+  { color: "var(--wrong)",         label: "Øving",  idx: 0 },
+  { color: "var(--partial)",       label: "Nesten", idx: 1 },
+  { color: "var(--correct)",       label: "Bra",    idx: 2 },
+  { color: "var(--border-strong)", label: "Ferdig", idx: -1 },
+] as const;
+
 export default function LearnPage() {
   const { data: session } = useSession();
   const [activeQuestions, setActiveQuestions] = useState<Question[]>([]);
-  const [progress, setProgress] = useState<Map<string, QuestionProgress>>(
-    new Map()
-  );
+  const [progress, setProgress] = useState<Map<string, QuestionProgress>>(new Map());
   const [masteredIds, setMasteredIds] = useState<Set<string>>(new Set());
   const [current, setCurrent] = useState<Question | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [state, setState] = useState<State>("answering");
   const [score, setScore] = useState<number>(0);
   const [done, setDone] = useState(false);
+  const [openExplanations, setOpenExplanations] = useState<Set<string>>(new Set());
+  const [animatingBucket, setAnimatingBucket] = useState<number | null>(null);
 
-  // Load progress from server if logged in
   useEffect(() => {
     const deduped = deduplicateGroups(allQuestions).map(shuffleOptions);
     setActiveQuestions(deduped);
@@ -82,9 +96,7 @@ export default function LearnPage() {
           const mastered = new Set<string>();
           for (const p of data) {
             map.set(p.questionId, p);
-            if (p.bucket === 2 && p.timesInBucket2 >= 2) {
-              mastered.add(p.questionId);
-            }
+            if (p.bucket === 2 && p.timesInBucket2 >= 2) mastered.add(p.questionId);
           }
           setProgress(map);
           setMasteredIds(mastered);
@@ -93,11 +105,9 @@ export default function LearnPage() {
     }
   }, [session]);
 
-  // Pick initial question
   useEffect(() => {
     if (activeQuestions.length > 0 && !current) {
-      const next = pickNextQuestion(activeQuestions, progress, masteredIds);
-      setCurrent(next);
+      setCurrent(pickNextQuestion(activeQuestions, progress, masteredIds));
     }
   }, [activeQuestions, current, progress, masteredIds]);
 
@@ -117,6 +127,14 @@ export default function LearnPage() {
     });
   }
 
+  function toggleExplanation(optId: string) {
+    setOpenExplanations((prev) => {
+      const next = new Set(prev);
+      next.has(optId) ? next.delete(optId) : next.add(optId);
+      return next;
+    });
+  }
+
   async function checkAnswer() {
     if (!current || selected.size === 0) return;
     const pct = scorePercent(current, [...selected]);
@@ -128,9 +146,7 @@ export default function LearnPage() {
     const prevProgress = progress.get(current.id);
     const prevBucket = prevProgress?.bucket ?? 0;
     const prevTimes = prevProgress?.timesInBucket2 ?? 0;
-
-    const newTimes =
-      bucket === 2 ? (prevBucket === 2 ? prevTimes + 1 : 1) : 0;
+    const newTimes = bucket === 2 ? (prevBucket === 2 ? prevTimes + 1 : 1) : 0;
 
     const newProgress: QuestionProgress = {
       questionId: current.id,
@@ -144,221 +160,246 @@ export default function LearnPage() {
     newMap.set(current.id, newProgress);
     setProgress(newMap);
 
-    // Mark as mastered (seen 2+ times in bucket 2)
     if (bucket === 2 && newTimes >= 2) {
       setMasteredIds((prev) => new Set([...prev, current.id]));
     }
+
+    // Animate the bucket that received this question
+    setAnimatingBucket(bucket);
+    setTimeout(() => setAnimatingBucket(null), 500);
+
+    // Default open: wrong selections; correct stays closed
+    const defaultOpen = new Set(
+      current.options.filter((o) => !o.isCorrect && selected.has(o.id)).map((o) => o.id)
+    );
+    setOpenExplanations(defaultOpen);
 
     if (session?.user?.id) {
       fetch("/api/progress", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          questionId: current.id,
-          bucket,
-          timesInBucket2: newTimes,
-          lastScore: pct,
-        }),
+        body: JSON.stringify({ questionId: current.id, bucket, timesInBucket2: newTimes, lastScore: pct }),
       }).catch(() => {});
     }
   }
 
   function nextQuestion() {
     const remaining = activeQuestions.filter((q) => !masteredIds.has(q.id));
-    if (remaining.length === 0) {
-      setDone(true);
-      return;
-    }
+    if (remaining.length === 0) { setDone(true); return; }
     const next = pickNextQuestion(activeQuestions, progress, masteredIds);
     setCurrent(next ? shuffleOptions(next) : null);
     setSelected(new Set());
     setState("answering");
+    setOpenExplanations(new Set());
   }
 
   if (done || (activeQuestions.length > 0 && masteredIds.size >= activeQuestions.length)) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4">
-        <div className="text-center max-w-sm">
-          <div className="text-5xl mb-4">🏆</div>
-          <h2 className="text-2xl font-bold text-white mb-2">
-            Alle spørsmål mestret!
-          </h2>
-          <p className="text-gray-400 mb-6">
-            Du har mestret alle {activeQuestions.length} spørsmålene.
-          </p>
-          <Link
-            href="/"
-            className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-xl inline-block transition-colors"
-          >
-            Tilbake til start
-          </Link>
+      <main className="page-shell">
+        <div className="app-card">
+          <div style={{ padding: "48px 28px", textAlign: "center" }}>
+            <h2 className="heading-lg" style={{ marginBottom: "8px" }}>Alle spørsmål mestret</h2>
+            <p className="body-text" style={{ marginBottom: "28px" }}>
+              Du har gått gjennom alle {activeQuestions.length} spørsmålene.
+            </p>
+            <Link href="/" className="btn-primary" style={{ maxWidth: "220px", margin: "0 auto" }}>
+              Tilbake til start
+            </Link>
+          </div>
         </div>
-      </div>
+      </main>
     );
   }
 
   if (!current) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-        <div className="text-gray-400 animate-pulse">Laster spørsmål...</div>
-      </div>
+      <main className="page-shell">
+        <div className="app-card">
+          <div style={{ padding: "48px 28px", textAlign: "center" }}>
+            <p className="body-text">Laster spørsmål...</p>
+          </div>
+        </div>
+      </main>
     );
   }
 
-  const correctIds = new Set(
-    current.options.filter((o) => o.isCorrect).map((o) => o.id)
-  );
+  const correctIds = new Set(current.options.filter((o) => o.isCorrect).map((o) => o.id));
 
-  function optionStyle(optId: string): string {
-    const base =
-      "w-full text-left px-4 py-3 rounded-xl border transition-all text-sm";
+  function optionClass(optId: string): string {
     if (state === "answering") {
-      return selected.has(optId)
-        ? `${base} border-indigo-500 bg-indigo-900/30 text-white`
-        : `${base} border-gray-700 bg-gray-800/50 text-gray-300 hover:border-gray-500 hover:bg-gray-800 active:bg-gray-700`;
+      return selected.has(optId) ? "option-btn selected" : "option-btn";
     }
     const isSelected = selected.has(optId);
     const isCorrect = correctIds.has(optId);
-    if (isCorrect && isSelected)
-      return `${base} border-green-500 bg-green-900/30 text-green-100`;
-    if (isCorrect && !isSelected)
-      return `${base} border-green-500/60 bg-green-900/10 text-green-200`;
-    if (!isCorrect && isSelected)
-      return `${base} border-red-500 bg-red-900/30 text-red-200`;
-    return `${base} border-gray-700 bg-gray-800/30 text-gray-500`;
+    if (isCorrect && isSelected) return "option-btn correct-selected";
+    if (isCorrect && !isSelected) return "option-btn correct-missed";
+    if (!isCorrect && isSelected) return "option-btn wrong-selected";
+    return "option-btn default-revealed";
   }
 
+  function checkClass(optId: string): string {
+    if (state === "answering") return selected.has(optId) ? "opt-check checked" : "opt-check";
+    if (correctIds.has(optId)) return "opt-check correct";
+    if (selected.has(optId)) return "opt-check wrong";
+    return "opt-check";
+  }
+
+  const pillClass = score === current.maxPoints ? "perfect" : score > 0 ? "partial" : "wrong";
+  const pillLabel = score === current.maxPoints ? "Perfekt" : score > 0 ? "Delvis riktig" : "Feil";
+
   return (
-    <div className="min-h-screen bg-gray-950 flex flex-col">
-      {/* Header */}
-      <div className="p-4 border-b border-gray-800 flex items-center gap-3">
-        <Link href="/" className="text-gray-400 hover:text-white transition-colors text-xl">
-          ←
-        </Link>
-        <div className="flex-1">
-          <BucketIndicator
-            bucket0={bucketCounts[0]}
-            bucket1={bucketCounts[1]}
-            bucket2={bucketCounts[2]}
-            mastered={bucketCounts.mastered}
-          />
-        </div>
-      </div>
+    <main className="page-shell-top">
+      <div className="app-card" style={{ height: "calc(100dvh - 40px)" }}>
 
-      {/* Question */}
-      <div className="flex-1 overflow-auto p-4 max-w-2xl w-full mx-auto">
-        <div className="mb-4">
-          <span className="inline-block text-xs font-medium bg-gray-800 text-gray-300 px-3 py-1 rounded-full border border-gray-700">
-            {current.topic}
-          </span>
-          <span className="ml-2 text-xs text-gray-500">
-            {current.maxPoints} poeng · {current.source}
-          </span>
+        {/* Header — no border */}
+        <div style={{ flexShrink: 0, padding: "12px 20px", display: "flex", alignItems: "center" }}>
+          <Link
+            href="/"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              padding: "5px 12px",
+              border: "1px solid var(--border-strong)",
+              borderRadius: "var(--radius-sm)",
+              fontFamily: "var(--font-sans)",
+              fontSize: "13px",
+              fontWeight: 500,
+              color: "var(--text-secondary)",
+              textDecoration: "none",
+            }}
+          >
+            Avslutt
+          </Link>
         </div>
 
-        <p className="text-white font-medium mb-3 leading-relaxed whitespace-pre-line">
-          {current.stem}
-        </p>
+        {/* Scrollable question area — generous top padding */}
+        <div style={{ flex: 1, overflowY: "auto", padding: "28px 20px 16px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px", flexWrap: "wrap" }}>
+            <span className="tag">{current.topic}</span>
+          </div>
 
-        {current.code && <CodeBlock code={current.code} />}
+          <p className="heading-sm" style={{ marginBottom: "14px", whiteSpace: "pre-line" }}>
+            {current.stem}
+          </p>
 
-        <div className="space-y-2 mt-4">
-          {current.options.map((opt) => (
-            <div key={opt.id}>
-              <button
-                onClick={() => toggleOption(opt.id)}
-                className={optionStyle(opt.id)}
-                disabled={state === "revealed"}
-              >
-                <div className="flex items-start gap-3">
-                  <div
-                    className={`mt-0.5 w-5 h-5 flex-shrink-0 rounded border-2 flex items-center justify-center transition-colors ${
-                      state === "answering"
-                        ? selected.has(opt.id)
-                          ? "border-indigo-500 bg-indigo-500"
-                          : "border-gray-600"
-                        : correctIds.has(opt.id)
-                        ? "border-green-500 bg-green-500"
-                        : selected.has(opt.id)
-                        ? "border-red-500 bg-red-500"
-                        : "border-gray-600"
-                    }`}
-                  >
-                    {(state === "answering"
-                      ? selected.has(opt.id)
-                      : correctIds.has(opt.id) || selected.has(opt.id)) && (
-                      <svg className="w-3 h-3 text-white" viewBox="0 0 12 12" fill="currentColor">
-                        <path d="M10 3L5 8.5 2 5.5" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
+          {current.code && <CodeBlock code={current.code} />}
+
+          {/* Options */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: current.code ? "14px" : "0" }}>
+            {current.options.map((opt) => {
+              const isCorrect = correctIds.has(opt.id);
+              const isOpen = openExplanations.has(opt.id);
+
+              return (
+                <div
+                  key={opt.id}
+                  className={optionClass(opt.id)}
+                  onClick={() => state === "answering" && toggleOption(opt.id)}
+                  style={{ cursor: state === "answering" ? "pointer" : "default" }}
+                >
+                  <div className={checkClass(opt.id)} style={{ flexShrink: 0 }}>
+                    {state === "answering" && selected.has(opt.id) && <CheckIcon />}
+                    {state === "revealed" && isCorrect && <CheckIcon />}
+                    {state === "revealed" && !isCorrect && selected.has(opt.id) && <XIcon />}
+                  </div>
+
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <span>{opt.text}</span>
+
+                    {state === "revealed" && (
+                      <div style={{ marginTop: "8px" }}>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); toggleExplanation(opt.id); }}
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "4px",
+                            background: "none",
+                            border: "none",
+                            padding: 0,
+                            cursor: "pointer",
+                            fontFamily: "var(--font-mono)",
+                            fontSize: "10px",
+                            fontWeight: 500,
+                            letterSpacing: "0.06em",
+                            textTransform: "uppercase",
+                            color: "inherit",
+                            opacity: 0.7,
+                          }}
+                        >
+                          Se begrunnelse
+                          <span style={{
+                            display: "inline-block",
+                            transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+                            transition: "transform 0.15s",
+                            lineHeight: 1,
+                          }}>↓</span>
+                        </button>
+
+                        {isOpen && (
+                          <div
+                            className={isCorrect ? "explanation correct-exp" : "explanation"}
+                            style={{ marginTop: "6px", marginBottom: 0 }}
+                          >
+                            {opt.explanation}
+                          </div>
+                        )}
+                      </div>
                     )}
                   </div>
-                  <span>{opt.text}</span>
                 </div>
-              </button>
+              );
+            })}
+          </div>
 
-              {/* Explanation shown after reveal */}
-              {state === "revealed" && (
-                <div
-                  className={`mt-1 mb-1 px-4 py-2 rounded-lg text-xs ${
-                    correctIds.has(opt.id)
-                      ? "bg-green-900/20 text-green-300 border border-green-800"
-                      : "bg-gray-800/50 text-gray-400 border border-gray-700"
-                  }`}
-                >
-                  {correctIds.has(opt.id) ? "✓ " : "✗ "}
-                  {opt.explanation}
-                </div>
-              )}
+          {state === "revealed" && (
+            <div style={{ marginTop: "14px" }}>
+              <div className={`result-pill ${pillClass}`}>
+                {pillLabel} · {score.toFixed(1)} / {current.maxPoints}p
+              </div>
             </div>
-          ))}
+          )}
         </div>
 
-        {/* Score feedback */}
-        {state === "revealed" && (
-          <div
-            className={`mt-4 p-4 rounded-xl border ${
-              score === current.maxPoints
-                ? "bg-green-900/20 border-green-700 text-green-300"
-                : score > 0
-                ? "bg-yellow-900/20 border-yellow-700 text-yellow-300"
-                : "bg-red-900/20 border-red-700 text-red-300"
-            }`}
-          >
-            <div className="font-semibold text-base">
-              {score === current.maxPoints
-                ? "🎉 Perfekt!"
-                : score > 0
-                ? "👍 Delvis riktig"
-                : "❌ Feil"}
-            </div>
-            <div className="text-sm opacity-80 mt-0.5">
-              {score.toFixed(1)} / {current.maxPoints} poeng
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Bottom actions */}
-      <div className="sticky bottom-0 p-4 bg-gray-950 border-t border-gray-800">
-        <div className="max-w-2xl mx-auto">
+        {/* Footer — no border, bucket status centered below button */}
+        <div style={{ flexShrink: 0, padding: "14px 20px 18px" }}>
           {state === "answering" ? (
-            <button
-              onClick={checkAnswer}
-              disabled={selected.size === 0}
-              className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold py-3.5 rounded-xl transition-colors"
-            >
+            <button onClick={checkAnswer} disabled={selected.size === 0} className="btn-primary">
               Sjekk svar
             </button>
           ) : (
-            <button
-              onClick={nextQuestion}
-              className="w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3.5 rounded-xl transition-colors"
-            >
+            <button onClick={nextQuestion} className="btn-primary">
               Neste spørsmål →
             </button>
           )}
+
+          {/* Bucket status */}
+          <div style={{ display: "flex", justifyContent: "center", gap: "28px", marginTop: "14px", flexWrap: "wrap" }}>
+            {BUCKET_ITEMS.map(({ color, label, idx }) => {
+              const count = idx === -1 ? bucketCounts.mastered : bucketCounts[idx as 0 | 1 | 2];
+              const isAnimating = animatingBucket === idx;
+              return (
+                <span key={label} style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                  <span
+                    style={{ width: "6px", height: "6px", borderRadius: "50%", background: color, flexShrink: 0, display: "inline-block" }}
+                    className={isAnimating ? "bucket-pop" : ""}
+                  />
+                  <span className="label" style={{ letterSpacing: 0, textTransform: "none", fontSize: "11px", color: "var(--text-secondary)" }}>
+                    {label}{" "}
+                    <strong
+                      className={isAnimating ? "bucket-pop" : ""}
+                      style={{ color: "var(--text-primary)", fontWeight: 600 }}
+                    >
+                      {count}
+                    </strong>
+                  </span>
+                </span>
+              );
+            })}
+          </div>
         </div>
+
       </div>
-    </div>
+    </main>
   );
 }
