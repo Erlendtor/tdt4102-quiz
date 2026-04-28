@@ -239,8 +239,11 @@ export default function LearnPage() {
 
   function checkClass(optId: string): string {
     if (state === "answering") return selected.has(optId) ? "opt-check checked" : "opt-check";
-    if (correctIds.has(optId)) return "opt-check correct";
-    if (selected.has(optId)) return "opt-check wrong";
+    const isCorrect = correctIds.has(optId);
+    const isSelected = selected.has(optId);
+    if (isCorrect && isSelected) return "opt-check correct";
+    if (isCorrect && !isSelected) return "opt-check correct-hint";
+    if (isSelected) return "opt-check wrong";
     return "opt-check";
   }
 
@@ -299,7 +302,7 @@ export default function LearnPage() {
                 >
                   <div className={checkClass(opt.id)} style={{ flexShrink: 0 }}>
                     {state === "answering" && selected.has(opt.id) && <CheckIcon />}
-                    {state === "revealed" && isCorrect && <CheckIcon />}
+                    {state === "revealed" && isCorrect && selected.has(opt.id) && <CheckIcon />}
                     {state === "revealed" && !isCorrect && selected.has(opt.id) && <XIcon />}
                   </div>
 

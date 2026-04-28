@@ -280,8 +280,8 @@ export default function ResultsPage() {
                               className={cls}
                               style={{ cursor: "default" }}
                             >
-                              <div className={`opt-check${isCorrect ? " correct" : isSelected ? " wrong" : ""}`}>
-                                {isCorrect && <CheckIcon />}
+                              <div className={`opt-check${isCorrect && isSelected ? " correct" : isCorrect && !isSelected ? " correct-hint" : isSelected ? " wrong" : ""}`}>
+                                {isCorrect && isSelected && <CheckIcon />}
                                 {!isCorrect && isSelected && <XIcon />}
                               </div>
 
