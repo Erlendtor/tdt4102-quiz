@@ -4345,25 +4345,45 @@ int main(int argc, char** argv) {  // argc = ant. argumenter (min. 1 = programna
 }`,
 };
 
+const modelAnswerMap: Record<string, string> = {
+  "d2-ref-1":          "10",
+  "d2-ptr-1":          "1",
+  "d2-arv-1":          "C",
+  "d2-lambda-1":       "10",
+  "d2-auto-ret-1":     "double",
+  "d2-constptr-1":     "Kompileringsfeil – int* kan ikke binde til const int.",
+  "d2-rekursjon-1":    "24",
+  "d2-vector-1":       "3",
+  "d2-uptr-1":         "nullptr",
+  "d2-substr-1":       '"plu"',
+  "d2-template-1":     "template<typename T> void f(T x)",
+  "d2-ub-arr-1":       "Udefinert atferd – rå arrays har ingen grensekontroll.",
+  "d2-loop-cont-1":    "13",
+  "d2-struct-def-1":   "3",
+  "d2-missing-return-1": 'return "null";',
+  "d2-scope-1":        "Kompileringsfeil – i er utenfor skop etter for-løkken.",
+  "d2-delete-arr-1":   "delete[] arr;",
+  "d2-static-var-1":   "123",
+  "d2-exception-1":    "42",
+  "d2-constructor-1":  "Rex",
+};
+
 export const questions: Question[] = rawQuestions.map((q) => ({
   ...q,
   hint: hintMap[q.id],
   codeAnnotated: codeAnnotatedMap[q.id],
+  modelAnswer: modelAnswerMap[q.id],
 }));
 
-export function getRandomQuestions(count: number, recentIds?: Set<string>): Question[] {
+function pickFromGroups(pool: Question[], count: number, recentIds?: Set<string>): Question[] {
   const groupMap = new Map<string, Question[]>();
-
-  for (const q of questions) {
+  for (const q of pool) {
     const group = groupMap.get(q.variantGroupId) ?? [];
     group.push(q);
     groupMap.set(q.variantGroupId, group);
   }
-
   const groups = Array.from(groupMap.values());
-
   const shuffledGroups = [...groups].sort(() => Math.random() - 0.5);
-
   const selected: Question[] = [];
   for (const group of shuffledGroups) {
     if (selected.length >= count) break;
@@ -4376,11 +4396,22 @@ export function getRandomQuestions(count: number, recentIds?: Set<string>): Ques
     } else {
       pick = group[Math.floor(Math.random() * group.length)];
     }
-    const shuffledOptions = [...pick.options].sort(() => Math.random() - 0.5);
-    selected.push({ ...pick, options: shuffledOptions });
+    selected.push({ ...pick, options: [...pick.options].sort(() => Math.random() - 0.5) });
   }
-
   return selected.slice(0, count).sort(() => Math.random() - 0.5);
+}
+
+export function getRandomQuestions(count: number, recentIds?: Set<string>): Question[] {
+  return getRandomDel1Questions(count, recentIds);
+}
+
+export function getRandomDel1Questions(count: number, recentIds?: Set<string>): Question[] {
+  return pickFromGroups(questions.filter((q) => q.source !== "del2"), count, recentIds);
+}
+
+export function getRandomDel2Questions(count: number): Question[] {
+  const pool = [...questions.filter((q) => q.source === "del2")].sort(() => Math.random() - 0.5);
+  return pool.slice(0, count).map((q) => ({ ...q, options: [...q.options].sort(() => Math.random() - 0.5) }));
 }
 
 export function getQuestionById(id: string): Question | undefined {

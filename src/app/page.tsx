@@ -109,7 +109,7 @@ export default async function Home() {
         <div className="page-enter" style={{ padding: "24px 24px 22px", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "16px" }}>
           <div style={{ minWidth: 0 }}>
             <div className="label" style={{ marginBottom: "8px" }}>TDT4102</div>
-            <h1 className="heading-lg" style={{ fontSize: "clamp(26px, 6vw, 38px)" }}>Eksamenstrening Del1</h1>
+            <h1 className="heading-lg" style={{ fontSize: "clamp(26px, 6vw, 38px)" }}>Eksamenstrening</h1>
           </div>
           <div style={{ flexShrink: 0, paddingTop: "2px" }}>
             {session?.user ? (
@@ -205,7 +205,7 @@ export default async function Home() {
                   Eksamensmodus
                 </div>
                 <p style={{ fontSize: "14px", lineHeight: 1.4, color: "var(--text-secondary)", marginBottom: "14px" }}>
-                  12 spørsmål + karakter
+                  Del 1 (12) + Del 2 (8) · karakter
                 </p>
 
                 {recentGrades.length > 0 ? (
@@ -233,6 +233,26 @@ export default async function Home() {
                 ) : null}
               </div>
               <span className="card-cta">Start nå ⟶</span>
+            </div>
+          </Link>
+          </div>
+
+          {/* Del 2 */}
+          <div style={{ width: "100%" }}>
+          <Link href="/learn-del2" className="mode-card" style={{ ...cardStyle, aspectRatio: "auto", minHeight: "110px" }}>
+            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, #0a1628 0%, #0f3460 60%, #1a4a7a 100%)" }} />
+            <div style={{ position: "absolute", inset: 0, padding: "20px 22px 22px", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+              <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "16px" }}>
+                <div>
+                  <div style={{ fontSize: "23px", fontWeight: 700, letterSpacing: "-0.3px", lineHeight: 1.2, color: "#fff", marginBottom: "4px" }}>
+                    Del 2 – Kortsvarsoppgaver
+                  </div>
+                  <p style={{ fontSize: "14px", lineHeight: 1.4, color: "rgba(255,255,255,0.65)", margin: 0 }}>
+                    Flervalg eller fritekst med egenvurdering
+                  </p>
+                </div>
+                <span style={{ color: "rgba(255,255,255,0.8)", fontFamily: "var(--font-mono)", fontSize: "13px", flexShrink: 0 }}>Start nå ⟶</span>
+              </div>
             </div>
           </Link>
           </div>

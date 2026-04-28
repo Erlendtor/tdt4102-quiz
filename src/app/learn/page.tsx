@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useLayoutEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, Suspense } from "react";
 import confetti from "canvas-confetti";
 import { useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import { Question, QuestionProgress } from "@/types";
 import { scoreQuestion, scorePercent, getBucket } from "@/lib/scoring";
 import { questions as allQuestions } from "@/lib/questions";
@@ -115,7 +116,19 @@ const BUCKET_ITEMS = [
   { color: "var(--mastered)", label: "Ferdig", idx: -1 },
 ] as const;
 
-export default function LearnPage() {
+export default function LearnPageWrapper() {
+  return (
+    <Suspense fallback={
+      <main className="page-shell"><div className="app-card"><div style={{ padding: "48px 28px", textAlign: "center" }}><p className="body-text">Laster...</p></div></div></main>
+    }>
+      <LearnPage />
+    </Suspense>
+  );
+}
+
+function LearnPage() {
+  const searchParams = useSearchParams();
+  const isDel2 = searchParams.get("del2") === "1";
   const { data: session } = useSession();
   const [activeQuestions, setActiveQuestions] = useState<Question[]>([]);
   const [progress, setProgress] = useState<Map<string, QuestionProgress>>(new Map());
@@ -155,7 +168,10 @@ export default function LearnPage() {
   const twinMapRef = useRef<Map<string, string>>(new Map());
 
   useEffect(() => {
-    const deduped = deduplicateGroups(allQuestions).map(shuffleOptions);
+    const pool = isDel2
+      ? allQuestions.filter((q) => q.source === "del2")
+      : allQuestions.filter((q) => q.source !== "del2");
+    const deduped = deduplicateGroups(pool).map(shuffleOptions);
     setActiveQuestions(deduped);
 
     if (session?.user?.id) {
@@ -173,7 +189,7 @@ export default function LearnPage() {
         })
         .catch(() => {});
     }
-  }, [session]);
+  }, [session, isDel2]);
 
   useEffect(() => {
     if (activeQuestions.length > 0 && !current) {
@@ -710,7 +726,7 @@ export default function LearnPage() {
         <div style={{ flexShrink: 0, padding: "14px 20px 18px", background: "var(--card)" }}>
           {/* Main button row — square icon btns visible on mobile only */}
           <div style={{ display: "flex", gap: "5px", alignItems: "center" }}>
-            <Link href="/" className="learn-sq-btn" aria-label="Hjem">
+            <Link href={isDel2 ? "/learn-del2" : "/"} className="learn-sq-btn" aria-label="Hjem">
               <svg width="22" height="22" viewBox="0 0 17 17" fill="none">
                 <path d="M2.5 7.5L8.5 2L14.5 7.5V15H11V10.5H6V15H2.5V7.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round"/>
               </svg>

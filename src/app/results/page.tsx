@@ -18,6 +18,10 @@ type QuestionResult = {
   options: Option[];
   selectedOptionIds: string[];
   score: number;
+  source?: string;
+  modelAnswer?: string;
+  textAnswer?: string;
+  selfGrade?: "riktig" | "delvis" | "feil";
 };
 
 type Results = {
@@ -151,6 +155,7 @@ export default function ResultsPage() {
       const selectedIds = new Set(q.selectedOptionIds);
       const qPct = (q.score / q.maxPoints) * 100;
       if (qPct < 100) defaultExpanded.add(q.id);
+      if (q.source === "del2") continue;
       for (const opt of q.options) {
         const isWrongSelected = !opt.isCorrect && selectedIds.has(opt.id);
         const isMissedCorrect = opt.isCorrect && !selectedIds.has(opt.id);
@@ -342,74 +347,128 @@ export default function ResultsPage() {
                             </div>
                             {q.code && <CodeBlock code={q.code} />}
 
-                            <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: q.code ? "10px" : "0" }}>
-                              {q.options.map((opt) => {
-                                const isSelected = selectedIds.has(opt.id);
-                                const isCorrect = correctIds.has(opt.id);
-                                const isOpen = openExplanations.has(opt.id);
+                            {q.source === "del2" ? (
+                              <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: q.code ? "10px" : "0" }}>
+                                {/* User's typed answer */}
+                                <div>
+                                  <div className="label" style={{ marginBottom: "5px" }}>Ditt svar</div>
+                                  <div style={{
+                                    padding: "10px 12px",
+                                    borderRadius: "var(--radius-sm)",
+                                    border: "1px solid var(--border)",
+                                    background: "var(--bg)",
+                                    fontFamily: "var(--font-sans)",
+                                    fontSize: "14px",
+                                    lineHeight: 1.6,
+                                    color: q.textAnswer ? "var(--text-primary)" : "var(--text-tertiary)",
+                                    whiteSpace: "pre-wrap",
+                                  }}>
+                                    {q.textAnswer || "(tomt svar)"}
+                                  </div>
+                                </div>
+                                {/* Model answer */}
+                                <div style={{
+                                  padding: "10px 12px",
+                                  borderRadius: "var(--radius-sm)",
+                                  border: "1px solid var(--border)",
+                                  background: "var(--surface)",
+                                  borderLeft: "3px solid var(--correct-border)",
+                                }}>
+                                  <div className="label" style={{ marginBottom: "5px" }}>Fasit</div>
+                                  <p style={{ fontFamily: "var(--font-mono)", fontSize: "14px", lineHeight: 1.5, margin: 0, color: "var(--text-primary)" }}>
+                                    {q.modelAnswer}
+                                  </p>
+                                </div>
+                                {/* Self-grade pill */}
+                                {q.selfGrade && (
+                                  <div>
+                                    <div className="label" style={{ marginBottom: "5px" }}>Egenvurdering</div>
+                                    <span style={{
+                                      display: "inline-block",
+                                      padding: "4px 12px",
+                                      borderRadius: "99px",
+                                      fontSize: "12px",
+                                      fontWeight: 600,
+                                      fontFamily: "var(--font-sans)",
+                                      background: q.selfGrade === "riktig" ? "var(--correct-bg)" : q.selfGrade === "delvis" ? "var(--partial-bg)" : "var(--wrong-bg)",
+                                      color: q.selfGrade === "riktig" ? "var(--correct)" : q.selfGrade === "delvis" ? "var(--partial)" : "var(--wrong)",
+                                      border: `1px solid ${q.selfGrade === "riktig" ? "var(--correct-border)" : q.selfGrade === "delvis" ? "var(--partial-border)" : "var(--wrong-border)"}`,
+                                    }}>
+                                      {q.selfGrade === "riktig" ? "Riktig" : q.selfGrade === "delvis" ? "Delvis riktig" : "Feil"}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: q.code ? "10px" : "0" }}>
+                                {q.options.map((opt) => {
+                                  const isSelected = selectedIds.has(opt.id);
+                                  const isCorrect = correctIds.has(opt.id);
+                                  const isOpen = openExplanations.has(opt.id);
 
-                                let cls = "option-btn default-revealed";
-                                if (isCorrect && isSelected) cls = "option-btn correct-selected";
-                                else if (isCorrect && !isSelected) cls = "option-btn correct-missed";
-                                else if (!isCorrect && isSelected) cls = "option-btn wrong-selected";
+                                  let cls = "option-btn default-revealed";
+                                  if (isCorrect && isSelected) cls = "option-btn correct-selected";
+                                  else if (isCorrect && !isSelected) cls = "option-btn correct-missed";
+                                  else if (!isCorrect && isSelected) cls = "option-btn wrong-selected";
 
-                                return (
-                                  <div key={opt.id} className={cls} style={{ cursor: "default" }}>
-                                    <div className={`opt-check${isCorrect && isSelected ? " correct" : isCorrect && !isSelected ? " correct-hint" : isSelected ? " wrong" : ""}`}>
-                                      {isCorrect && isSelected && <CheckIcon />}
-                                      {!isCorrect && isSelected && <XIcon />}
-                                    </div>
+                                  return (
+                                    <div key={opt.id} className={cls} style={{ cursor: "default" }}>
+                                      <div className={`opt-check${isCorrect && isSelected ? " correct" : isCorrect && !isSelected ? " correct-hint" : isSelected ? " wrong" : ""}`}>
+                                        {isCorrect && isSelected && <CheckIcon />}
+                                        {!isCorrect && isSelected && <XIcon />}
+                                      </div>
 
-                                    <div style={{ flex: 1, minWidth: 0 }}>
-                                      <span>{opt.text}</span>
+                                      <div style={{ flex: 1, minWidth: 0 }}>
+                                        <span>{opt.text}</span>
 
-                                      <div style={{ marginTop: "8px" }}>
-                                        <button
-                                          onClick={() => toggleExplanation(opt.id)}
-                                          style={{
-                                            display: "inline-flex",
-                                            alignItems: "center",
-                                            gap: "4px",
-                                            background: "none",
-                                            border: "none",
-                                            padding: 0,
-                                            cursor: "pointer",
-                                            fontFamily: "var(--font-mono)",
-                                            fontSize: "10px",
-                                            fontWeight: 500,
-                                            letterSpacing: "0.06em",
-                                            textTransform: "uppercase",
-                                            color: "inherit",
-                                            opacity: 0.7,
-                                          }}
-                                        >
-                                          Se begrunnelse
-                                          <span style={{
-                                            display: "inline-block",
-                                            transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
-                                            transition: "transform 0.15s",
-                                            lineHeight: 1,
-                                          }}>↓</span>
-                                        </button>
+                                        <div style={{ marginTop: "8px" }}>
+                                          <button
+                                            onClick={() => toggleExplanation(opt.id)}
+                                            style={{
+                                              display: "inline-flex",
+                                              alignItems: "center",
+                                              gap: "4px",
+                                              background: "none",
+                                              border: "none",
+                                              padding: 0,
+                                              cursor: "pointer",
+                                              fontFamily: "var(--font-mono)",
+                                              fontSize: "10px",
+                                              fontWeight: 500,
+                                              letterSpacing: "0.06em",
+                                              textTransform: "uppercase",
+                                              color: "inherit",
+                                              opacity: 0.7,
+                                            }}
+                                          >
+                                            Se begrunnelse
+                                            <span style={{
+                                              display: "inline-block",
+                                              transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+                                              transition: "transform 0.15s",
+                                              lineHeight: 1,
+                                            }}>↓</span>
+                                          </button>
 
-                                        <div className={`explanation-wrapper${isOpen ? " open" : ""}`}>
-                                          <div className="explanation-inner">
-                                            <div
-                                              className={isCorrect ? "explanation correct-exp" : "explanation"}
-                                              style={{ marginTop: "6px" }}
-                                            >
-                                              {isCorrect && !selectedIds.has(opt.id)
-                                                ? opt.explanation.replace(/^Riktig\.\s*/i, "")
-                                                : opt.explanation}
+                                          <div className={`explanation-wrapper${isOpen ? " open" : ""}`}>
+                                            <div className="explanation-inner">
+                                              <div
+                                                className={isCorrect ? "explanation correct-exp" : "explanation"}
+                                                style={{ marginTop: "6px" }}
+                                              >
+                                                {isCorrect && !selectedIds.has(opt.id)
+                                                  ? opt.explanation.replace(/^Riktig\.\s*/i, "")
+                                                  : opt.explanation}
+                                              </div>
                                             </div>
                                           </div>
                                         </div>
                                       </div>
                                     </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
+                                  );
+                                })}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>

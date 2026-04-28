@@ -495,6 +495,7 @@ body {
 .mode-cards {
   display: flex;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 @media (max-width: 560px) {
@@ -531,6 +532,9 @@ body {
 }
 .cards-revealed > div:nth-child(2) .mode-card {
   animation: page-enter 0.32s cubic-bezier(0.25, 0, 0.2, 1) 80ms both;
+}
+.cards-revealed > div:nth-child(3) .mode-card {
+  animation: page-enter 0.32s cubic-bezier(0.25, 0, 0.2, 1) 160ms both;
 }
 
 .card-image {

@@ -16,6 +16,7 @@ export type Question = {
   source: string;
   hint?: string;
   codeAnnotated?: string;
+  modelAnswer?: string;
 };
 
 export type Bucket = 0 | 1 | 2;
