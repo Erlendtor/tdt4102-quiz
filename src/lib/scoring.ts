@@ -17,7 +17,7 @@ export function scoreQuestion(
     if (selected && !option.isCorrect) score -= pointsPerOption;
   }
 
-  return Math.max(0, score);
+  return Math.max(0, Math.round(score * 100) / 100);
 }
 
 export function scorePercent(question: Question, selectedOptionIds: string[]): number {

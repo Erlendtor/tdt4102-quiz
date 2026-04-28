@@ -288,7 +288,7 @@ export default function LearnPage() {
 
       setFlyingScore({ sx, sy, midX, midY, ex, ey, label: scoreLabel, color: scoreColor });
 
-      const FLY = 520;
+      const FLY = 400;
       // Dot pop just before landing
       setTimeout(() => {
         setAnimatingBucket(targetIdx!);
@@ -687,7 +687,7 @@ export default function LearnPage() {
           color: flyingScore.color,
           pointerEvents: "none",
           zIndex: 9999,
-          animation: "score-fly 520ms cubic-bezier(0.4, 0, 0.2, 1) forwards",
+          animation: "score-fly 400ms cubic-bezier(0.22, 1, 0.36, 1) forwards",
           ["--fly-midX" as string]: `${flyingScore.midX - flyingScore.sx}px`,
           ["--fly-midY" as string]: `${flyingScore.midY - flyingScore.sy}px`,
           ["--fly-ex" as string]: `${flyingScore.ex - flyingScore.sx}px`,
