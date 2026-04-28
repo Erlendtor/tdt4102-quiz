@@ -110,9 +110,8 @@ function fireConfetti(canvas: HTMLCanvasElement, light = false) {
 }
 
 const BUCKET_ITEMS = [
-  { color: "var(--wrong)",         label: "Øving",  idx: 0 },
-  { color: "var(--partial)",       label: "Nesten", idx: 1 },
-  { color: "var(--correct)",       label: "Bra",    idx: 2 },
+  { color: "var(--wrong)",    label: "Øving",  idx: 0  },
+  { color: "var(--correct)",  label: "Klart",  idx: 2  },
   { color: "var(--mastered)", label: "Ferdig", idx: -1 },
 ] as const;
 

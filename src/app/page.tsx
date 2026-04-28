@@ -8,9 +8,8 @@ import HomeLoader from "@/components/HomeLoader";
 import HomeCardReveal from "@/components/HomeCardReveal";
 
 const BUCKET_ITEMS = [
-  { color: "var(--wrong)",         label: "Øving",  key: 0  },
-  { color: "var(--partial)",       label: "Nesten", key: 1  },
-  { color: "var(--correct)",       label: "Bra",    key: 2  },
+  { color: "var(--wrong)",    label: "Øving",  key: 0  },
+  { color: "var(--correct)",  label: "Klart",  key: 2  },
   { color: "var(--mastered)", label: "Ferdig", key: -1 },
 ] as const;
 
