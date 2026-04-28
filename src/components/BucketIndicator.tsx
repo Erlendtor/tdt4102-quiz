@@ -13,7 +13,7 @@ export default function BucketIndicator({
     { color: "var(--wrong)", label: "Øving", count: bucket0 },
     { color: "var(--partial)", label: "Nesten", count: bucket1 },
     { color: "var(--correct)", label: "Bra", count: bucket2 },
-    { color: "var(--border-strong)", label: "Ferdig", count: mastered },
+    { color: "var(--mastered)", label: "Ferdig", count: mastered },
   ];
 
   return (

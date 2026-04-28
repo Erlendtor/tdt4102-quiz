@@ -4,12 +4,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { questions } from "@/lib/questions";
 import HomeFooter from "@/components/HomeFooter";
+import HomeLoader from "@/components/HomeLoader";
 
 const BUCKET_ITEMS = [
   { color: "var(--wrong)",         label: "Øving",  key: 0  },
   { color: "var(--partial)",       label: "Nesten", key: 1  },
   { color: "var(--correct)",       label: "Bra",    key: 2  },
-  { color: "var(--border-strong)", label: "Ferdig", key: -1 },
+  { color: "var(--mastered)", label: "Ferdig", key: -1 },
 ] as const;
 
 const GRADE_COLORS: Record<string, string> = {
@@ -39,7 +40,6 @@ const glassStyle: React.CSSProperties = {
   WebkitBackdropFilter: "blur(18px) saturate(130%)",
   background: "rgba(255, 255, 255, 0.72)",
   padding: "16px 16px 20px",
-  minHeight: "108px",
   display: "flex",
   flexDirection: "column",
   justifyContent: "flex-end",
@@ -96,7 +96,8 @@ export default async function Home() {
 
   return (
     <main className="page-shell">
-      <div className="app-card" style={{ minWidth: "min(640px, calc(100vw - 32px))" }}>
+      <div className="app-card" style={{ minWidth: "min(640px, calc(100vw - 32px))", display: "flex", flexDirection: "column" }}>
+        <HomeLoader />
 
         {/* Header */}
         <div className="page-enter" style={{ padding: "24px 24px 22px", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "16px" }}>
@@ -142,13 +143,15 @@ export default async function Home() {
         </div>
 
         {/* Mode cards */}
-        <div className="mode-cards" style={{ padding: "0 20px 20px" }}>
+        <div className="mode-cards" style={{ padding: "0 20px 32px" }}>
 
           {/* Læringsmodus */}
           <Link href="/learn" className="mode-card page-enter" style={{ ...cardStyle, animationDelay: "60ms" }}>
-            <Image src="/øving.jpg" alt="Læringsmodus" fill sizes="50vw" style={{ objectFit: "cover" }} />
+            <div className="card-image">
+              <Image src="/øving2.jpg" alt="Læringsmodus" fill sizes="50vw" style={{ objectFit: "cover" }} />
+            </div>
 
-            <div style={glassStyle}>
+            <div className="card-glass" style={glassStyle}>
               <div style={{ fontSize: "22px", fontWeight: 700, letterSpacing: "-0.3px", lineHeight: 1.2, color: "var(--text-primary)", marginBottom: "4px" }}>
                 Læringsmodus
               </div>
@@ -180,9 +183,11 @@ export default async function Home() {
 
           {/* Eksamensmodus */}
           <Link href="/exam" className="mode-card page-enter" style={{ ...cardStyle, animationDelay: "120ms" }}>
-            <Image src="/eksamen.jpg" alt="Eksamensmodus" fill sizes="50vw" style={{ objectFit: "cover" }} />
+            <div className="card-image">
+              <Image src="/eksamen2.png" alt="Eksamensmodus" fill sizes="50vw" style={{ objectFit: "cover" }} />
+            </div>
 
-            <div style={glassStyle}>
+            <div className="card-glass" style={glassStyle}>
               <div style={{ fontSize: "22px", fontWeight: 700, letterSpacing: "-0.3px", lineHeight: 1.2, color: "var(--text-primary)", marginBottom: "4px" }}>
                 Eksamensmodus
               </div>

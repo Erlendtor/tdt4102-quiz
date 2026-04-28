@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 function FlagIcon() {
   return (
@@ -42,20 +43,27 @@ export default function HomeFooter() {
   return (
     <>
       <div style={{
-        padding: "0 24px 32px",
+        padding: "0 24px 28px",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        marginTop: "8px",
+        marginTop: "auto",
       }}>
         <span style={{
-          fontFamily: "var(--font-mono)",
-          fontSize: "11px",
+          fontFamily: "var(--font-sans)",
+          fontSize: "12px",
           opacity: 0.3,
           color: "var(--text-primary)",
-          letterSpacing: "0.03em",
         }}>
-          Laget av Erlend Torgersen
+          Designet av{" "}
+          <Link
+            href="https://astarlabs.no"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: "2px" }}
+          >
+            Astar LABS
+          </Link>
         </span>
 
         <button
@@ -67,12 +75,11 @@ export default function HomeFooter() {
             background: "none",
             border: "none",
             cursor: "pointer",
-            fontFamily: "var(--font-mono)",
-            fontSize: "11px",
+            fontFamily: "var(--font-sans)",
+            fontSize: "12px",
             opacity: 0.3,
             color: "var(--text-primary)",
             padding: 0,
-            letterSpacing: "0.03em",
             transition: "opacity 0.12s",
           }}
           onMouseEnter={e => (e.currentTarget.style.opacity = "0.6")}
