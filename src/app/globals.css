@@ -269,8 +269,9 @@ body {
 }
 
 .opt-check.correct-hint {
-  border-color: var(--correct-border);
-  background: transparent;
+  background: var(--correct);
+  border-color: var(--correct);
+  opacity: 0.35;
 }
 
 .opt-check.wrong {

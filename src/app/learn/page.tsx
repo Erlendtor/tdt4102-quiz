@@ -251,6 +251,8 @@ export default function LearnPage() {
 
   const pillClass = score === current.maxPoints ? "perfect" : score > 0 ? "partial" : "wrong";
   const pillLabel = score === current.maxPoints ? "Perfekt" : score > 0 ? "Delvis riktig" : "Feil";
+  const totalCorrect = correctIds.size;
+  const selectedCorrect = [...selected].filter((id) => correctIds.has(id)).length;
 
   return (
     <main className="page-shell-top">
@@ -304,7 +306,7 @@ export default function LearnPage() {
                 >
                   <div className={checkClass(opt.id)} style={{ flexShrink: 0 }}>
                     {state === "answering" && selected.has(opt.id) && <CheckIcon />}
-                    {state === "revealed" && isCorrect && selected.has(opt.id) && <CheckIcon />}
+                    {state === "revealed" && isCorrect && <CheckIcon />}
                     {state === "revealed" && !isCorrect && selected.has(opt.id) && <XIcon />}
                   </div>
 
@@ -360,7 +362,7 @@ export default function LearnPage() {
           {state === "revealed" && (
             <div style={{ marginTop: "14px" }}>
               <div className={`result-pill ${pillClass}`}>
-                {pillLabel} · {score.toFixed(1)} / {current.maxPoints}p
+                {pillLabel} · {selectedCorrect}/{totalCorrect} riktige svar
               </div>
             </div>
           )}
