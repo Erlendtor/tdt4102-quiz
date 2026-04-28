@@ -679,7 +679,7 @@ void process() {
         text: "Sikre at man ikke kan initialisere et objekt av baseklassen.",
         isCorrect: false,
         explanation:
-          "Feil (delvis). En ren virtuell destruktør gjør klassen abstrakt, men dette er en bieffekt av å gjøre destruktøren ren virtuell, ikke det primære formålet.",
+          "Feil. En ren virtuell destruktør gjør klassen abstrakt, men dette er en bieffekt av å gjøre destruktøren ren virtuell, ikke det primære formålet.",
       },
       {
         id: "d",
@@ -1293,9 +1293,9 @@ int* z = new int{*x};
       {
         id: "d",
         text: "Et std::unordered_set har ikke duplikate verdier.",
-        isCorrect: false,
+        isCorrect: true,
         explanation:
-          "Feil (dette er faktisk riktig!). std::unordered_set tillater ikke duplikater. Sett (set/unordered_set) lagrer unike elementer per definisjon.",
+          "Riktig. std::unordered_set tillater ikke duplikater – sett lagrer alltid unike elementer per definisjon.",
       },
     ],
   },
