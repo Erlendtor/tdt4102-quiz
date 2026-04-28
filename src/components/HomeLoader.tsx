@@ -18,6 +18,7 @@ export default function HomeLoader() {
 
     Promise.all([min, load("/øving3.jpg"), load("/eksamen3.png")]).then(() => {
       setFading(true);
+      window.dispatchEvent(new CustomEvent("home-loaded"));
       setTimeout(() => setGone(true), 380);
     });
   }, []);

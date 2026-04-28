@@ -515,6 +515,16 @@ body {
   background: var(--surface);
 }
 
+.mode-cards:not(.cards-revealed) .mode-card {
+  opacity: 0;
+}
+.cards-revealed > div:nth-child(1) .mode-card {
+  animation: page-enter 0.32s cubic-bezier(0.25, 0, 0.2, 1) both;
+}
+.cards-revealed > div:nth-child(2) .mode-card {
+  animation: page-enter 0.32s cubic-bezier(0.25, 0, 0.2, 1) 80ms both;
+}
+
 .card-image {
   position: absolute;
   inset: 0;
@@ -549,10 +559,12 @@ body {
   opacity: 0;
   pointer-events: none;
   white-space: nowrap;
-  transition: opacity 0.55s cubic-bezier(0.25, 0, 0.2, 1);
+  transform: translateY(16px);
+  transition: opacity 0.55s cubic-bezier(0.25, 0, 0.2, 1), transform 0.55s cubic-bezier(0.25, 0, 0.2, 1);
 }
 .mode-card:hover .card-cta {
   opacity: 0.55;
+  transform: translateY(0);
 }
 
 

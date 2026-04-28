@@ -5,6 +5,7 @@ import Image from "next/image";
 import { questions } from "@/lib/questions";
 import HomeFooter from "@/components/HomeFooter";
 import HomeLoader from "@/components/HomeLoader";
+import HomeCardReveal from "@/components/HomeCardReveal";
 
 const BUCKET_ITEMS = [
   { color: "var(--wrong)",         label: "Øving",  key: 0  },
@@ -48,7 +49,7 @@ const glassStyle: React.CSSProperties = {
 const cardWrapStyle: React.CSSProperties = {
   flex: 1,
   aspectRatio: "3 / 4",
-  filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.10)) drop-shadow(0 6px 18px rgba(0,0,0,0.11)) drop-shadow(0 20px 44px rgba(0,0,0,0.09))",
+  filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.06)) drop-shadow(0 8px 20px rgba(0,0,0,0.05))",
 };
 
 const cardStyle: React.CSSProperties = {
@@ -149,11 +150,11 @@ export default async function Home() {
         </div>
 
         {/* Mode cards */}
-        <div className="mode-cards" style={{ padding: "0 20px 32px" }}>
+        <HomeCardReveal>
 
           {/* Læringsmodus */}
           <div style={cardWrapStyle}>
-          <Link href="/learn" className="mode-card page-enter" style={{ ...cardStyle, animationDelay: "60ms" }}>
+          <Link href="/learn" className="mode-card" style={cardStyle}>
             <div className="card-image">
               <Image src="/øving3.jpg" alt="Læringsmodus" fill sizes="50vw" style={{ objectFit: "cover" }} />
             </div>
@@ -194,7 +195,7 @@ export default async function Home() {
 
           {/* Eksamensmodus */}
           <div style={cardWrapStyle}>
-          <Link href="/exam" className="mode-card page-enter" style={{ ...cardStyle, animationDelay: "120ms" }}>
+          <Link href="/exam" className="mode-card" style={cardStyle}>
             <div className="card-image">
               <Image src="/eksamen3.png" alt="Eksamensmodus" fill sizes="50vw" style={{ objectFit: "cover" }} />
             </div>
@@ -237,7 +238,7 @@ export default async function Home() {
           </Link>
           </div>
 
-        </div>
+        </HomeCardReveal>
 
         <HomeFooter />
       </div>
