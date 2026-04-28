@@ -407,8 +407,6 @@ export default function LearnPage() {
             transition: "opacity 0.05s",
             background: "var(--card)",
             borderBottomLeftRadius: "var(--radius-md)",
-            borderLeft: "1px solid var(--border)",
-            borderBottom: "1px solid var(--border)",
             padding: "13px 18px 11px",
           }}>
             <span ref={scoreRef} style={{
