@@ -249,7 +249,6 @@ body {
   border-color: var(--wrong-border);
   background: var(--wrong-bg);
   color: var(--text-tertiary);
-  opacity: 0.6;
 }
 
 .option-btn.default-revealed {

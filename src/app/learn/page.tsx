@@ -169,9 +169,11 @@ export default function LearnPage() {
     setAnimatingBucket(bucket);
     setTimeout(() => setAnimatingBucket(null), 500);
 
-    // Default open: wrong selections; correct stays closed
+    // Default open: wrong selections + correct answers the user missed
     const defaultOpen = new Set(
-      current.options.filter((o) => !o.isCorrect && selected.has(o.id)).map((o) => o.id)
+      current.options
+        .filter((o) => (!o.isCorrect && selected.has(o.id)) || (o.isCorrect && !selected.has(o.id)))
+        .map((o) => o.id)
     );
     setOpenExplanations(defaultOpen);
 
