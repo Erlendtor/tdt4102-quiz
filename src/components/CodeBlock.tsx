@@ -9,7 +9,7 @@ export default function CodeBlock({ code }: { code: string }) {
       <SyntaxHighlighter
         language="cpp"
         style={vscDarkPlus}
-        customStyle={{ margin: 0, borderRadius: "0.5rem", fontSize: "0.82rem" }}
+        customStyle={{ margin: 0, borderRadius: "0.5rem", fontSize: "14px" }}
         showLineNumbers
       >
         {code}

@@ -2454,9 +2454,195 @@ const hintMap: Record<string, string> = {
   "v24v2-q6": "En klasse kan inneholde mange ulike ting – data og funksjoner, samt statiske varianter av begge.",
 };
 
+const codeAnnotatedMap: Record<string, string> = {
+  "v24v1-q3": `namespace foo {             // navnerom 'foo' – er i globalt skop
+    int x;                  // variabel x tilhører foo-skopet (ikke lokalt)
+    int bar() { return x; } // bar() aksesseres utenfra som foo::bar()
+}
+
+int f(int y) {              // funksjon f – y er lokal parameter til f
+    int z = 0;              // z er lokal i f(), IKKE begrenset til for-løkken
+    for (int i = 0; i < 10; i++) { // i er lokal til for-løkken
+        z += i * y;         // z og y er tilgjengelige her
+    }
+    return z;               // z tilgjengelig her – lever i hele f()
+}`,
+
+  "v24v1-q4": `class A {
+    int *ptr;           // privat rå peker – ingen automatisk ressursstyring
+public:
+    A(int val) {        // konstruktør: anskaffer ressurs med new
+        ptr = new int(val); // allokerer int på heap
+    }
+
+    void delete() {     // manuell frigjøring – dette er IKKE en destruktør
+        delete ptr;     // kalles ikke automatisk → ikke RAII
+    }
+};                      // ingen ~A() → ingen automatisk frigjøring av ptr`,
+
+  "v24v2-q5": `int* foo(int a) {
+    int *ptr = new int(a); // allokerer int på heap
+    return ptr;            // returnerer peker – eierskap overføres IKKE
+}
+
+void bar(int b) {
+    int* ptr = foo(b);         // mottar peker, men delete kalles aldri → lekkasje!
+    std::vector<int> vec;      // RAII-objekt: frigjør eget heap-minne automatisk
+    vec.push_back(b);          // legger til element; vec eier det
+}                              // vec destrueres → dens minne frigjøres
+                               // ptr frigjøres IKKE → minnelekkasje!
+
+int main() {
+    bar(5);  // kaller bar med argument 5
+    return 0;
+}`,
+
+  "custom-raii-1": `class Buffer {
+    double *data;              // rå peker til heap-allokert array
+public:
+    Buffer(int size) {         // konstruktør: anskaffer ressurs (RAII steg 1)
+        data = new double[size]; // allokerer array på heap
+    }
+
+    ~Buffer() {                // destruktør: frigjør ressurs automatisk (RAII steg 2)
+        delete[] data;         // delete[] fordi data ble allokert med new[]
+    }
+};
+
+void process() {
+    Buffer buf(100);                        // buf på stack; 100 doubles på heap
+    throw std::runtime_error("Feil!");     // unntak → stack unwinding starter
+}                                          // ~Buffer() kalles → ingen lekkasje`,
+
+  "v24v1-q7": `int a = 10;    // heltallsvariabel a med verdi 10, lagret på stack
+int* b = &a;   // b er en peker; inneholder ADRESSEN til a (ikke verdien)
+               // *b gir verdien på adressen (10)
+               // b++ endrer ADRESSEN lagret i b (ikke verdien den peker til)
+               // *(b++) – b inkrementeres, deretter leses gammel adresse`,
+
+  "v24v1-q8": `double* p1 = new double{3.14}; // allokerer 3.14 på heap; p1 = adressen
+double* p2 = p1;               // grunn kopiering: p2 = p1 = SAMME adresse
+*p1 = 9.86;                    // endrer verdien begge peker på → 9.86
+*p2 = 1.77;                    // endrer SAMME minnelokasjon → 1.77
+                                // etter linje 4: *p1 == *p2 == 1.77`,
+
+  "v24v2-q10": `double* euler1 = new double{0.577};   // allokerer 0.577 på heap
+double* euler2 = new double{*euler1}; // *euler1 = 0.577 → ny allokering med
+                                       // KOPIERT VERDI = dyp kopiering
+                                       // euler1 og euler2 peker på SEPARATE objekter
+*euler1 = 2.718;                       // endrer kun euler1 (euler2 upåvirket)
+*euler2 = 0.596;                       // endrer kun euler2 (euler1 upåvirket)`,
+
+  "custom-kopiering-1": `int* x = new int{42};   // allokerer int 42 på heap; x = adressen
+int* y = x;             // grunn kopiering: y = x = SAMME adresse
+int* z = new int{*x};   // dyp kopiering: ny int med verdi 42 → eget objekt
+*x = 99;                // endrer det delte objektet → *y = 99 også
+                        // z peker på eget objekt → *z er fortsatt 42`,
+
+  "v25v2-q6": `class Member {   // standardsynlighet i class er private
+    string name;                                     // privat
+    string surname;                                  // privat
+    int age;                                         // privat
+    Member() : name{"Somebody"}, surname{"OfSomebody"}, age{100} {} // default-konstruktør
+    Member(int _age, string _name, string _surname)      // parametrisert konstruktør
+        : name{_name}, surname{_surname}, age{_age} {}   // initialiseringsliste
+    Member(const Member &m)                              // kopikonstruktør
+        : name{m.name}, surname{m.surname}, age{m.age} {} // kopierer alle felt
+};`,
+
+  "v25v1-q3": `class A {
+    int* a = nullptr;        // initialisert til null for sikkerhet
+public:
+    A() {
+        a = new int{100};    // allokerer ÉN int (ikke array) – bruk delete, ikke delete[]
+    }
+    A(unsigned int n) {
+        a = new int{n};      // allokerer ÉN int med verdi n
+    }
+    ~A() {
+        delete[] a;          // BUG: delete[] på enkelt-objekt → udefinert atferd!
+    }                        // riktig: delete a;
+};
+
+void f() {
+    A instance;                                 // instance på stack
+    throw std::runtime_error("Oh noes! :(");   // unntak → ~A() kalles automatisk
+}`,
+
+  "lf-q6": `int* values = new int[3] {1, 2, 3}; // allokerer array én gang på heap
+for (int i = 0; i < 3; i++) {
+    delete[] values;                 // FEIL: sletter SAMME minne 3 ganger!
+}                                    // → double free → udefinert atferd / krasj`,
+
+  "lf-q7a": `#include <memory>
+
+std::unique_ptr<Book> createBook() {
+    std::unique_ptr<Book> book = new Book(); // Book allokeres på heap; book eier det
+    return book;                              // eierskap flyttes ut (move semantics)
+}
+
+int func() {
+    {
+        auto cppBook = createBook(); // cppBook eier Book-objektet på heap
+    }                                 // cppBook ut av skop → ~unique_ptr() → heap frigjøres
+    return 0;
+}`,
+
+  "v25v2-q5": `int b(int n);           // fremoverdeklarasjon: kun signatur, ingen kropp
+                        // kompilatoren vet nå at b() finnes
+
+int a(int n) {          // a() defineres her; kan kalle b() pga. deklarasjonen over
+    return b(n);        // kall til b med argument n
+}
+
+int b(int n) {          // b() defineres her – etter a(), men deklarert øverst
+    return 42 * n;      // returnerer 42 ganger n
+}`,
+
+  "v25v2-q3": `std::random_device device;                          // ekte entropi (ikke brukt her!)
+std::default_random_engine engine{0};               // PRNG seeded med FAST tall 0
+                                                    // → alltid nøyaktig samme sekvens
+std::uniform_int_distribution<int> diceDistribution(0, 20); // heltall 0–20
+
+for(long long i = 0; i < 100; i++) {               // 100 iterasjoner
+    std::cout << "Your roll for initiative was: "
+              << diceDistribution(engine)+1 << std::endl; // 0–20 +1 = 1–21
+}`,
+
+  "lf-q2": `constexpr int increment = 1;  // kompileringstidskonstant
+
+constexpr int incrementValue(int value) { return value + increment; }; // kan evalueres ved kompilering
+
+constexpr void func() {
+    int v1 = 10;                          // IKKE constexpr → kjøretidsverdi
+    int v2 = incrementValue(v1);          // v1 er kjøretid → v2 heller ikke constexpr
+    constexpr int v3 = incrementValue(1); // 1 er konstant → v3 = 2 (evaluert ved kompilering)
+    constexpr int v4 = v3 + 3;            // v3 er constexpr → v4 = 5 (OK)
+}`,
+
+  "v25v2-q12": `struct B { int b; };  // B.b er IKKE initialisert → udefinert verdi
+
+int C(int c = 5) { return c; }  // default-parameter: C() → returnerer 5
+
+int main(int argc, char** argv) {  // argc = ant. argumenter (min. 1 = programnavnet)
+    int a;                               // UINITIALISERT → udefinert verdi (UB)
+    std::cout << a << std::endl;         // linje 6: udefinert oppførsel!
+
+    B instance;                          // instance.b er UINITIALISERT → udefinert
+    std::cout << instance.b << std::endl; // linje 9: udefinert oppførsel!
+
+    int c = C();                         // C() uten arg → default 5 → c = 5
+    std::cout << c << std::endl;         // linje 12: skriver alltid ut 5
+
+    std::cout << argc << std::endl;      // linje 14: uten args → argc = 1
+    return 0;
+}`,
+};
+
 export const questions: Question[] = rawQuestions.map((q) => ({
   ...q,
   hint: hintMap[q.id],
+  codeAnnotated: codeAnnotatedMap[q.id],
 }));
 
 export function getRandomQuestions(count: number): Question[] {

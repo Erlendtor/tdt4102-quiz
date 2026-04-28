@@ -80,18 +80,18 @@ body {
   padding: 20px 16px;
 }
 
-/* Learn-mode shell — 20% top margin on desktop */
+/* Learn-mode shell — 8vh top and bottom margin on desktop */
 .page-shell-learn {
   min-height: 100dvh;
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: 10vh 16px 40px;
+  padding: 8vh 16px 8vh;
 }
 
 /* Learn card bounds — desktop only */
 .app-card-learn {
-  min-height: 800px;
+  max-height: calc(100dvh - 16vh);
 }
 
 /* Typography system */
@@ -336,22 +336,16 @@ body {
   border: 1px solid var(--wrong-border);
 }
 
-/* Explanation box */
+/* Explanation — plain text, no box */
 .explanation {
-  padding: 10px 12px;
-  border-radius: 4px;
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.55;
-  border-left: 2px solid var(--border);
   color: var(--text-secondary);
-  background: var(--surface);
   margin-top: 4px;
   animation: reveal 0.18s ease;
 }
 
 .explanation.correct-exp {
-  border-left-color: var(--correct);
-  background: var(--correct-bg);
   color: var(--correct);
 }
 
@@ -421,14 +415,25 @@ body {
   opacity: 0;
 }
 
-/* Bucket count pop animation */
+/* Bucket dot pop animation */
 @keyframes bucket-pop {
   0%   { transform: scale(1); }
-  45%  { transform: scale(1.7); }
+  45%  { transform: scale(1.9); }
   100% { transform: scale(1); }
 }
 .bucket-pop {
   animation: bucket-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: inline-block;
+}
+
+/* Bucket number flip-in animation */
+@keyframes num-flip {
+  0%   { opacity: 0; transform: translateY(-5px) scale(0.85); }
+  70%  { opacity: 1; transform: translateY(1px) scale(1.08); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.num-flip {
+  animation: num-flip 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   display: inline-block;
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { Question, QuestionProgress } from "@/types";
 import { scoreQuestion, scorePercent, getBucket } from "@/lib/scoring";
@@ -85,6 +85,12 @@ export default function LearnPage() {
   const [animatingBucket, setAnimatingBucket] = useState<number | null>(null);
   const [hintOpen, setHintOpen] = useState(false);
   const [exiting, setExiting] = useState(false);
+  const pendingUpdateRef = useRef<{
+    questionId: string;
+    newProgress: QuestionProgress;
+    bucket: number;
+    shouldMaster: boolean;
+  } | null>(null);
 
   useEffect(() => {
     const deduped = deduplicateGroups(allQuestions).map(shuffleOptions);
@@ -137,7 +143,7 @@ export default function LearnPage() {
     });
   }
 
-  async function checkAnswer() {
+  function checkAnswer() {
     if (!current || selected.size === 0) return;
     const pct = scorePercent(current, [...selected]);
     const rawScore = scoreQuestion(current, [...selected]);
@@ -158,17 +164,13 @@ export default function LearnPage() {
       attempts: (prevProgress?.attempts ?? 0) + 1,
     };
 
-    const newMap = new Map(progress);
-    newMap.set(current.id, newProgress);
-    setProgress(newMap);
-
-    if (bucket === 2 && newTimes >= 2) {
-      setMasteredIds((prev) => new Set([...prev, current.id]));
-    }
-
-    // Animate the bucket that received this question
-    setAnimatingBucket(bucket);
-    setTimeout(() => setAnimatingBucket(null), 500);
+    // Stage the update — applied with animation when user clicks "Neste spørsmål"
+    pendingUpdateRef.current = {
+      questionId: current.id,
+      newProgress,
+      bucket,
+      shouldMaster: bucket === 2 && newTimes >= 2,
+    };
 
     // Default open: wrong selections + correct answers the user missed
     const defaultOpen = new Set(
@@ -177,22 +179,45 @@ export default function LearnPage() {
         .map((o) => o.id)
     );
     setOpenExplanations(defaultOpen);
-
-    if (session?.user?.id) {
-      fetch("/api/progress", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ questionId: current.id, bucket, timesInBucket2: newTimes, lastScore: pct }),
-      }).catch(() => {});
-    }
   }
 
   function nextQuestion() {
+    // Apply staged bucket update with animation before transitioning
+    const pending = pendingUpdateRef.current;
+    let nextProgress = progress;
+    let nextMastered = masteredIds;
+
+    if (pending) {
+      const progressMap = new Map(progress);
+      progressMap.set(pending.questionId, pending.newProgress);
+      nextProgress = progressMap;
+      setProgress(progressMap);
+
+      if (pending.shouldMaster) {
+        nextMastered = new Set([...masteredIds, pending.questionId]);
+        setMasteredIds(nextMastered);
+      }
+
+      setAnimatingBucket(pending.bucket);
+      setTimeout(() => setAnimatingBucket(null), 500);
+
+      if (session?.user?.id) {
+        const p = pending.newProgress;
+        fetch("/api/progress", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ questionId: p.questionId, bucket: p.bucket, timesInBucket2: p.timesInBucket2, lastScore: p.lastScore }),
+        }).catch(() => {});
+      }
+
+      pendingUpdateRef.current = null;
+    }
+
     setExiting(true);
     setTimeout(() => {
-      const remaining = activeQuestions.filter((q) => !masteredIds.has(q.id));
+      const remaining = activeQuestions.filter((q) => !nextMastered.has(q.id));
       if (remaining.length === 0) { setDone(true); return; }
-      const next = pickNextQuestion(activeQuestions, progress, masteredIds);
+      const next = pickNextQuestion(activeQuestions, nextProgress, nextMastered);
       setCurrent(next ? shuffleOptions(next) : null);
       setSelected(new Set());
       setState("answering");
@@ -271,11 +296,21 @@ export default function LearnPage() {
             <span className="tag">{current.topic}</span>
           </div>
 
-          <p className="heading-sm" style={{ marginBottom: "14px", whiteSpace: "pre-line" }}>
-            {current.stem}
-          </p>
+          <div style={{ marginBottom: "14px" }}>
+            {current.stem.split("\n\n").map((part, i) => (
+              <p key={i} className="heading-sm" style={{ marginTop: i > 0 ? "4px" : 0 }}>
+                {part}
+              </p>
+            ))}
+          </div>
 
-          {current.code && <CodeBlock code={current.code} />}
+          {current.code && (
+            <CodeBlock
+              code={state === "revealed" && score < current.maxPoints && current.codeAnnotated
+                ? current.codeAnnotated
+                : current.code}
+            />
+          )}
 
           {/* Options */}
           <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: current.code ? "14px" : "0" }}>
@@ -344,14 +379,6 @@ export default function LearnPage() {
               );
             })}
           </div>
-
-          {state === "revealed" && (
-            <div style={{ marginTop: "14px" }}>
-              <div className={`result-pill ${pillClass}`}>
-                {pillLabel} · {selectedCorrect}/{totalCorrect} riktige · {score.toFixed(1)}/{current.maxPoints}p
-              </div>
-            </div>
-          )}
 
           {/* Hint toggle — only shown while answering */}
           {state === "answering" && current.hint && (
@@ -422,7 +449,8 @@ export default function LearnPage() {
               style={{
                 display: "inline-flex",
                 alignItems: "center",
-                padding: "5px 12px",
+                justifyContent: "center",
+                padding: "10px 16px",
                 border: "1px solid var(--border-strong)",
                 borderRadius: "var(--radius-sm)",
                 fontFamily: "var(--font-sans)",
@@ -436,7 +464,7 @@ export default function LearnPage() {
               Avslutt
             </Link>
 
-            <div style={{ display: "flex", gap: "24px", flexWrap: "wrap", justifyContent: "center" }}>
+            <div style={{ display: "flex", gap: "20px", flexWrap: "wrap", justifyContent: "center" }}>
               {BUCKET_ITEMS.map(({ color, label, idx }) => {
                 const count = idx === -1 ? bucketCounts.mastered : bucketCounts[idx as 0 | 1 | 2];
                 const isAnimating = animatingBucket === idx;
@@ -446,10 +474,11 @@ export default function LearnPage() {
                       style={{ width: "6px", height: "6px", borderRadius: "50%", background: color, flexShrink: 0, display: "inline-block" }}
                       className={isAnimating ? "bucket-pop" : ""}
                     />
-                    <span className="label" style={{ letterSpacing: 0, textTransform: "none", fontSize: "11px", color: "var(--text-secondary)" }}>
+                    <span style={{ fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--text-secondary)" }}>
                       {label}{" "}
                       <strong
-                        className={isAnimating ? "bucket-pop" : ""}
+                        key={isAnimating ? `${count}-anim` : count}
+                        className={isAnimating ? "num-flip" : ""}
                         style={{ color: "var(--text-primary)", fontWeight: 600 }}
                       >
                         {count}
@@ -460,7 +489,24 @@ export default function LearnPage() {
               })}
             </div>
 
-            <div />
+            <div
+              className={state === "revealed" ? `result-pill ${pillClass}` : ""}
+              style={{
+                justifySelf: "end",
+                opacity: state === "revealed" ? 1 : 0,
+                transition: "opacity 0.2s ease",
+                padding: "10px 16px",
+                fontSize: "13px",
+                animation: state === "revealed" ? undefined : "none",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {state === "revealed" && (
+                <>
+                  {pillLabel} · {selectedCorrect}/{totalCorrect} riktige · {score.toFixed(1)}/{current.maxPoints}p
+                </>
+              )}
+            </div>
           </div>
         </div>
 

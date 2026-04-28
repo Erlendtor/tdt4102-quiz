@@ -15,6 +15,7 @@ export type Question = {
   variantGroupId: string;
   source: string;
   hint?: string;
+  codeAnnotated?: string;
 };
 
 export type Bucket = 0 | 1 | 2;

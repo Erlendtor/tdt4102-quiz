@@ -258,9 +258,13 @@ export default function ResultsPage() {
 
                     {/* Stem */}
                     <div style={{ padding: "12px 14px" }}>
-                      <p className="heading-sm" style={{ marginBottom: "10px", whiteSpace: "pre-line", fontSize: "14px" }}>
-                        {q.stem}
-                      </p>
+                      <div style={{ marginBottom: "10px" }}>
+                        {q.stem.split("\n\n").map((part, i) => (
+                          <p key={i} className="heading-sm" style={{ fontSize: "14px", marginTop: i > 0 ? "3px" : 0 }}>
+                            {part}
+                          </p>
+                        ))}
+                      </div>
                       {q.code && <CodeBlock code={q.code} />}
 
                       <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: q.code ? "10px" : "0" }}>
