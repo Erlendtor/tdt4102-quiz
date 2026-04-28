@@ -36,11 +36,11 @@ export default async function Home() {
 
   return (
     <main className="page-shell">
-      <div className="app-card">
+      <div className="app-card">2
         {/* Header */}
         <div style={{ padding: "28px 24px 20px" }}>
           <div className="label" style={{ marginBottom: "8px" }}>TDT4102</div>
-          <h1 className="heading-lg">Eksamenstrening</h1>
+          <h1 className="heading-lg">Eksamenstrening Del1</h1>
         </div>
 
         <div className="divider" />
