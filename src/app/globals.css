@@ -539,6 +539,24 @@ body {
   transform: translateY(-10px);
 }
 
+.card-cta {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.mode-card:hover .card-cta {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 /* Scrollbar minimal */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
