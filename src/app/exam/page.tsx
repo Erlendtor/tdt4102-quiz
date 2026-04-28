@@ -25,10 +25,19 @@ export default function ExamPage() {
   const questions = useMemo(() => getRandomQuestions(QUESTION_COUNT), []);
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<Map<string, Set<string>>>(new Map());
+  const [flagged, setFlagged] = useState<Set<string>>(new Set());
   const [submitting, setSubmitting] = useState(false);
 
   const q = questions[current];
   const currentSelected = answers.get(q.id) ?? new Set<string>();
+
+  function toggleFlag() {
+    setFlagged((prev) => {
+      const next = new Set(prev);
+      next.has(q.id) ? next.delete(q.id) : next.add(q.id);
+      return next;
+    });
+  }
 
   function toggleOption(optId: string) {
     setAnswers((prev) => {
@@ -126,14 +135,15 @@ export default function ExamPage() {
         <div style={{ flexShrink: 0, padding: "14px 20px 18px", background: "var(--card)" }}>
           {/* Prev / Next / Submit */}
           <div style={{ display: "flex", gap: "8px", marginBottom: "12px" }}>
-            <button
-              onClick={() => setCurrent((c) => Math.max(0, c - 1))}
-              disabled={current === 0}
-              className="btn-secondary"
-              style={{ width: "auto", padding: "13px 18px" }}
-            >
-              ←
-            </button>
+            {current > 0 && (
+              <button
+                onClick={() => setCurrent((c) => c - 1)}
+                className="btn-secondary"
+                style={{ width: "auto", padding: "13px 18px" }}
+              >
+                ←
+              </button>
+            )}
 
             {current < QUESTION_COUNT - 1 ? (
               <button
@@ -159,24 +169,44 @@ export default function ExamPage() {
             )}
           </div>
 
-          {/* Bottom row: house left, nav dots */}
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <Link href="/" className="footer-icon-btn" aria-label="Hjem" style={{ flexShrink: 0, transform: "translateY(-3px)" }}>
+          {/* Bottom row: house | nav dots | flag */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center" }}>
+            <Link href="/" className="footer-icon-btn" aria-label="Hjem" style={{ justifySelf: "start", transform: "translateY(-3px)" }}>
               <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
                 <path d="M2.5 7.5L8.5 2L14.5 7.5V15H11V10.5H6V15H2.5V7.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round"/>
               </svg>
             </Link>
-            <div style={{ display: "flex", gap: "5px", flexWrap: "wrap" }}>
+
+            <div style={{ display: "flex", gap: "4px", flexWrap: "wrap", justifyContent: "center" }}>
               {questions.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setCurrent(i)}
-                  className={`nav-dot${i === current ? " active" : answers.has(questions[i].id) ? " answered" : ""}`}
+                  className={`nav-dot${i === current ? " active" : flagged.has(questions[i].id) ? " flagged" : answers.has(questions[i].id) ? " answered" : ""}`}
                 >
                   {i + 1}
                 </button>
               ))}
             </div>
+
+            <button
+              onClick={toggleFlag}
+              className="footer-icon-btn"
+              aria-label="Flagg spørsmål"
+              style={{ justifySelf: "end", transform: "translateY(-3px)", color: flagged.has(q.id) ? "#3B82F6" : undefined }}
+            >
+              <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
+                <line x1="4.5" y1="2" x2="4.5" y2="15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                <path
+                  d="M4.5 3L13 5.5L4.5 8Z"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinejoin="round"
+                  fill="currentColor"
+                  fillOpacity={flagged.has(q.id) ? 1 : 0}
+                />
+              </svg>
+            </button>
           </div>
         </div>
       </div>

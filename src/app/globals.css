@@ -408,6 +408,12 @@ body {
   color: var(--text-primary);
 }
 
+.nav-dot.flagged {
+  background: #3B82F6;
+  border-color: #3B82F6;
+  color: #FFFFFF;
+}
+
 /* Fade-slide in — used for explanations, result pill */
 @keyframes reveal {
   from { opacity: 0; transform: translateY(5px); }
