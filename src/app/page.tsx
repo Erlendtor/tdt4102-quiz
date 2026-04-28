@@ -39,6 +39,10 @@ const glassStyle: React.CSSProperties = {
   WebkitBackdropFilter: "blur(18px) saturate(130%)",
   background: "rgba(255, 255, 255, 0.72)",
   padding: "16px 16px 20px",
+  minHeight: "108px",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "flex-end",
 };
 
 const cardStyle: React.CSSProperties = {
@@ -95,7 +99,7 @@ export default async function Home() {
       <div className="app-card" style={{ minWidth: "min(640px, calc(100vw - 32px))" }}>
 
         {/* Header */}
-        <div style={{ padding: "24px 24px 22px", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "16px" }}>
+        <div className="page-enter" style={{ padding: "24px 24px 22px", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "16px" }}>
           <div style={{ minWidth: 0 }}>
             <div className="label" style={{ marginBottom: "8px" }}>TDT4102</div>
             <h1 className="heading-lg" style={{ fontSize: "clamp(26px, 6vw, 38px)" }}>Eksamenstrening Del1</h1>
@@ -141,7 +145,7 @@ export default async function Home() {
         <div className="mode-cards" style={{ padding: "0 20px 20px" }}>
 
           {/* Læringsmodus */}
-          <Link href="/learn" className="mode-card" style={cardStyle}>
+          <Link href="/learn" className="mode-card page-enter" style={{ ...cardStyle, animationDelay: "60ms" }}>
             <Image src="/øving.jpg" alt="Læringsmodus" fill sizes="50vw" style={{ objectFit: "cover" }} />
 
             <div style={glassStyle}>
@@ -175,7 +179,7 @@ export default async function Home() {
           </Link>
 
           {/* Eksamensmodus */}
-          <Link href="/exam" className="mode-card" style={cardStyle}>
+          <Link href="/exam" className="mode-card page-enter" style={{ ...cardStyle, animationDelay: "120ms" }}>
             <Image src="/eksamen.jpg" alt="Eksamensmodus" fill sizes="50vw" style={{ objectFit: "cover" }} />
 
             <div style={glassStyle}>

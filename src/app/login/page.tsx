@@ -8,6 +8,7 @@ import Link from "next/link";
 export default function LoginPage() {
   const router = useRouter();
   const [mode, setMode] = useState<"login" | "register" | null>(null);
+  const [visible, setVisible] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -22,6 +23,7 @@ export default function LoginPage() {
     } else {
       setMode("login");
     }
+    requestAnimationFrame(() => setVisible(true));
   }, []);
 
   function switchMode(next: "login" | "register") {
@@ -68,11 +70,15 @@ export default function LoginPage() {
 
   if (!mode) return null;
 
+  const enter = (delay: string): React.CSSProperties => visible
+    ? { animation: "page-enter 0.32s cubic-bezier(0.25, 0, 0.2, 1) both", animationDelay: delay }
+    : { opacity: 0 };
+
   return (
     <main className="page-shell">
-      <div className="app-card">
+      <div className="app-card" style={{ maxWidth: "400px" }}>
         {/* Header */}
-        <div style={{ padding: "32px 28px 24px" }}>
+        <div style={{ padding: "32px 28px 24px", ...enter("0ms") }}>
           <h1 className="heading-lg">
             {mode === "login" ? "Logg inn" : "Opprett konto"}
           </h1>
@@ -85,7 +91,7 @@ export default function LoginPage() {
 
         {/* Form */}
         <form onSubmit={handleSubmit} style={{ padding: "24px 20px 20px" }}>
-          <div style={{ marginBottom: "14px" }}>
+          <div style={{ marginBottom: "14px", ...enter("60ms") }}>
             <label className="label" style={{ display: "block", marginBottom: "6px" }}>
               Brukernavn
             </label>
@@ -100,7 +106,7 @@ export default function LoginPage() {
             />
           </div>
 
-          <div style={{ marginBottom: mode === "register" ? "14px" : "0" }}>
+          <div style={{ marginBottom: mode === "register" ? "14px" : "0", ...enter("110ms") }}>
             <label className="label" style={{ display: "block", marginBottom: "6px" }}>
               Passord
             </label>
@@ -116,7 +122,7 @@ export default function LoginPage() {
           </div>
 
           {mode === "register" && (
-            <div>
+            <div style={enter("160ms")}>
               <label className="label" style={{ display: "block", marginBottom: "6px" }}>
                 Bekreft passord
               </label>
@@ -147,7 +153,7 @@ export default function LoginPage() {
           )}
 
           {/* Switch link */}
-          <div style={{ marginTop: "20px", textAlign: "center" }}>
+          <div style={{ marginTop: "20px", textAlign: "center", ...enter("190ms") }}>
             <button
               type="button"
               onClick={() => switchMode(mode === "login" ? "register" : "login")}
@@ -167,7 +173,7 @@ export default function LoginPage() {
           </div>
 
           {/* Action row: home sq + submit */}
-          <div style={{ display: "flex", gap: "5px", alignItems: "center", marginTop: "12px" }}>
+          <div style={{ display: "flex", gap: "5px", alignItems: "center", marginTop: "12px", ...enter("220ms") }}>
             <Link href="/" className="learn-sq-btn" aria-label="Hjem">
               <svg width="22" height="22" viewBox="0 0 17 17" fill="none">
                 <path d="M2.5 7.5L8.5 2L14.5 7.5V15H11V10.5H6V15H2.5V7.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round"/>
