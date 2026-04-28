@@ -491,16 +491,14 @@ body {
   text-align: left;
   padding: 16px;
   background: #FFFFFF;
-  border: 1px solid var(--border);
   border-radius: var(--radius-md);
   text-decoration: none;
   color: var(--text-primary);
   cursor: pointer;
-  transition: border-color 0.12s, background 0.12s;
+  transition: background 0.12s;
 }
 
 .mode-card:hover {
-  border-color: var(--text-primary);
   background: var(--surface);
 }
 
@@ -542,6 +540,8 @@ body {
 .learn-sq-btn:hover { color: var(--text-primary); border-color: var(--text-primary); }
 
 @media (max-width: 600px) {
+  body { background: #FFFFFF; }
+
   .page-shell, .page-shell-top {
     padding: 0;
     align-items: flex-start;
@@ -562,7 +562,22 @@ body {
     height: 100dvh;
   }
 
-  /* Learn footer: show square flanking buttons, hide desktop icon buttons */
+  /* Learn/exam footer: show square flanking buttons, hide desktop icon buttons */
   .learn-sq-btn { display: flex; }
   .learn-desktop-only { display: none !important; }
+
+  /* Exam nav dots: full-width grid, no wrapping */
+  .exam-bottom-row { display: block !important; }
+  .exam-nav-dots {
+    display: grid !important;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 3px;
+    width: 100%;
+    flex-wrap: unset;
+    justify-content: unset;
+  }
+  .exam-nav-dots .nav-dot {
+    width: 100%;
+    min-width: 0;
+  }
 }

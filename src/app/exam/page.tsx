@@ -133,8 +133,14 @@ export default function ExamPage() {
 
         {/* Footer */}
         <div style={{ flexShrink: 0, padding: "14px 20px 18px", background: "var(--card)" }}>
-          {/* Prev / Next / Submit */}
-          <div style={{ display: "flex", gap: "8px", marginBottom: "12px" }}>
+          {/* Main action row — home/flag sq buttons visible on mobile only */}
+          <div style={{ display: "flex", gap: "10px", alignItems: "stretch", marginBottom: "12px" }}>
+            <Link href="/" className="learn-sq-btn" aria-label="Hjem">
+              <svg width="22" height="22" viewBox="0 0 17 17" fill="none">
+                <path d="M2.5 7.5L8.5 2L14.5 7.5V15H11V10.5H6V15H2.5V7.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round"/>
+              </svg>
+            </Link>
+
             {current > 0 && (
               <button
                 onClick={() => setCurrent((c) => c - 1)}
@@ -146,38 +152,40 @@ export default function ExamPage() {
             )}
 
             {current < QUESTION_COUNT - 1 ? (
-              <button
-                onClick={() => setCurrent((c) => c + 1)}
-                className="btn-primary"
-                style={{ flex: 1 }}
-              >
+              <button onClick={() => setCurrent((c) => c + 1)} className="btn-primary" style={{ flex: 1 }}>
                 Neste →
               </button>
             ) : (
-              <button
-                onClick={handleSubmit}
-                disabled={!allAnswered || submitting}
-                className="btn-primary"
-                style={{ flex: 1 }}
-              >
-                {submitting
-                  ? "Sender..."
-                  : !allAnswered
-                  ? `${QUESTION_COUNT - answeredCount} spørsmål gjenstår`
-                  : "Lever eksamen"}
+              <button onClick={handleSubmit} disabled={!allAnswered || submitting} className="btn-primary" style={{ flex: 1 }}>
+                {submitting ? "Sender..." : !allAnswered ? `${QUESTION_COUNT - answeredCount} gjenstår` : "Lever eksamen"}
               </button>
             )}
+
+            <button
+              onClick={toggleFlag}
+              className="learn-sq-btn"
+              aria-label="Flagg spørsmål"
+              style={{
+                color: flagged.has(q.id) ? "#3B82F6" : undefined,
+                borderColor: flagged.has(q.id) ? "#3B82F6" : undefined,
+              }}
+            >
+              <svg width="22" height="22" viewBox="0 0 17 17" fill="none">
+                <line x1="4.5" y1="2" x2="4.5" y2="15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                <path d="M4.5 3L13 5.5L4.5 8Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" fill="currentColor" fillOpacity={flagged.has(q.id) ? 1 : 0}/>
+              </svg>
+            </button>
           </div>
 
           {/* Bottom row: house | nav dots | flag */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center" }}>
-            <Link href="/" className="footer-icon-btn" aria-label="Hjem" style={{ justifySelf: "start", transform: "translateY(-3px)" }}>
+          <div className="exam-bottom-row" style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center" }}>
+            <Link href="/" className="footer-icon-btn learn-desktop-only" aria-label="Hjem" style={{ justifySelf: "start", transform: "translateY(-3px)" }}>
               <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
                 <path d="M2.5 7.5L8.5 2L14.5 7.5V15H11V10.5H6V15H2.5V7.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round"/>
               </svg>
             </Link>
 
-            <div style={{ display: "flex", gap: "4px", flexWrap: "wrap", justifyContent: "center" }}>
+            <div className="exam-nav-dots" style={{ display: "flex", gap: "4px", flexWrap: "wrap", justifyContent: "center" }}>
               {questions.map((_, i) => (
                 <button
                   key={i}
@@ -191,20 +199,13 @@ export default function ExamPage() {
 
             <button
               onClick={toggleFlag}
-              className="footer-icon-btn"
+              className="footer-icon-btn learn-desktop-only"
               aria-label="Flagg spørsmål"
               style={{ justifySelf: "end", transform: "translateY(-3px)", color: flagged.has(q.id) ? "#3B82F6" : undefined }}
             >
               <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
                 <line x1="4.5" y1="2" x2="4.5" y2="15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                <path
-                  d="M4.5 3L13 5.5L4.5 8Z"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinejoin="round"
-                  fill="currentColor"
-                  fillOpacity={flagged.has(q.id) ? 1 : 0}
-                />
+                <path d="M4.5 3L13 5.5L4.5 8Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" fill="currentColor" fillOpacity={flagged.has(q.id) ? 1 : 0}/>
               </svg>
             </button>
           </div>
