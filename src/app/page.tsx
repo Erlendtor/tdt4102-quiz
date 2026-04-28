@@ -154,11 +154,11 @@ export default async function Home() {
             <div className="card-glass" style={glassStyle}>
               <span className="card-cta">Start nå →</span>
               <div className="card-glass-content">
-                <div style={{ fontSize: "22px", fontWeight: 700, letterSpacing: "-0.3px", lineHeight: 1.2, color: "var(--text-primary)", marginBottom: "4px" }}>
+                <div style={{ fontSize: "25px", fontWeight: 700, letterSpacing: "-0.3px", lineHeight: 1.2, color: "var(--text-primary)", marginBottom: "4px" }}>
                   Læringsmodus
                 </div>
-                <p style={{ fontSize: "13px", lineHeight: 1.4, color: "var(--text-secondary)", marginBottom: "8px" }}>
-                  tilbakemeldinger underveis + forklaringer
+                <p style={{ fontSize: "14px", lineHeight: 1.4, color: "var(--text-secondary)", marginBottom: "8px" }}>
+                  Tilbakemeldinger underveis + forklaringer
                 </p>
 
                 {bucketStats ? (
@@ -193,10 +193,10 @@ export default async function Home() {
             <div className="card-glass" style={glassStyle}>
               <span className="card-cta">Start nå →</span>
               <div className="card-glass-content">
-                <div style={{ fontSize: "22px", fontWeight: 700, letterSpacing: "-0.3px", lineHeight: 1.2, color: "var(--text-primary)", marginBottom: "4px" }}>
+                <div style={{ fontSize: "25px", fontWeight: 700, letterSpacing: "-0.3px", lineHeight: 1.2, color: "var(--text-primary)", marginBottom: "4px" }}>
                   Eksamensmodus
                 </div>
-                <p style={{ fontSize: "13px", lineHeight: 1.4, color: "var(--text-secondary)", marginBottom: "10px" }}>
+                <p style={{ fontSize: "14px", lineHeight: 1.4, color: "var(--text-secondary)", marginBottom: "10px" }}>
                   12 spørsmål + karakter
                 </p>
 
