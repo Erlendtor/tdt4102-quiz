@@ -256,7 +256,7 @@ export default function LearnPage() {
 
   return (
     <main className="page-shell-top">
-      <div className="app-card" style={{ height: "calc(100dvh - 40px)" }}>
+      <div className="app-card" style={{ minHeight: "600px" }}>
 
         {/* Header — no border */}
         <div style={{ flexShrink: 0, padding: "12px 20px", display: "flex", alignItems: "center" }}>
@@ -279,8 +279,8 @@ export default function LearnPage() {
           </Link>
         </div>
 
-        {/* Scrollable question area — generous top padding */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "28px 20px 16px" }}>
+        {/* Question area */}
+        <div style={{ padding: "28px 20px 16px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px", flexWrap: "wrap" }}>
             <span className="tag">{current.topic}</span>
           </div>
