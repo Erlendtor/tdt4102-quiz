@@ -88,28 +88,13 @@ export default function ExamPage() {
 
   const answeredCount = answers.size;
   const allAnswered = answeredCount === QUESTION_COUNT;
-  const pct = Math.round(((current + 1) / QUESTION_COUNT) * 100);
 
   return (
-    <main className="page-shell-top">
-      <div className="app-card" style={{ height: "calc(100dvh - 40px)" }}>
-        {/* Header */}
-        <div style={{
-          flexShrink: 0,
-          padding: "10px 16px",
-          borderBottom: "1px solid var(--border)",
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-        }}>
-          <Link href="/" style={{ color: "var(--text-tertiary)", textDecoration: "none", fontSize: "18px", lineHeight: 1 }}>
-            ←
-          </Link>
-          <span className="label">Spørsmål {current + 1} av {QUESTION_COUNT}</span>
-        </div>
+    <main className="page-shell-learn">
+      <div className="app-card app-card-learn">
 
         {/* Scrollable question */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "24px 16px 16px" }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: "20px 20px 16px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px", flexWrap: "wrap" }}>
             <span className="tag">{q.topic}</span>
             <span className="label">{q.maxPoints}p</span>
@@ -137,14 +122,10 @@ export default function ExamPage() {
           </div>
         </div>
 
-        {/* Footer nav */}
-        <div style={{
-          flexShrink: 0,
-          padding: "12px 16px",
-          borderTop: "1px solid var(--border)",
-        }}>
+        {/* Footer */}
+        <div style={{ flexShrink: 0, padding: "14px 20px 18px", background: "var(--card)" }}>
           {/* Prev / Next / Submit */}
-          <div style={{ display: "flex", gap: "8px", marginBottom: "10px" }}>
+          <div style={{ display: "flex", gap: "8px", marginBottom: "12px" }}>
             <button
               onClick={() => setCurrent((c) => Math.max(0, c - 1))}
               disabled={current === 0}
@@ -178,17 +159,24 @@ export default function ExamPage() {
             )}
           </div>
 
-          {/* Nav dots centered */}
-          <div style={{ display: "flex", gap: "5px", flexWrap: "wrap", justifyContent: "center" }}>
-            {questions.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrent(i)}
-                className={`nav-dot${i === current ? " active" : answers.has(questions[i].id) ? " answered" : ""}`}
-              >
-                {i + 1}
-              </button>
-            ))}
+          {/* Bottom row: house left, nav dots */}
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <Link href="/" className="footer-icon-btn" aria-label="Hjem" style={{ flexShrink: 0, transform: "translateY(-3px)" }}>
+              <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
+                <path d="M2.5 7.5L8.5 2L14.5 7.5V15H11V10.5H6V15H2.5V7.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round"/>
+              </svg>
+            </Link>
+            <div style={{ display: "flex", gap: "5px", flexWrap: "wrap" }}>
+              {questions.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrent(i)}
+                  className={`nav-dot${i === current ? " active" : answers.has(questions[i].id) ? " answered" : ""}`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
