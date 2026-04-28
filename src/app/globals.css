@@ -439,11 +439,13 @@ body {
   display: inline-block;
 }
 
-/* Confetti fall — particles shoot from corner and fall down */
+/* Confetti fall — rectangular pieces tumble in the wind as they fall */
 @keyframes confetti-fall {
-  0%   { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); }
-  18%  { opacity: 1; }
-  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.5) rotate(var(--rot)); }
+  0%   { opacity: 1; transform: translate(0, 0) rotate(0deg) scaleX(1); }
+  22%  { transform: translate(calc(var(--dx) * 0.22), calc(var(--dy) * 0.18)) rotate(calc(var(--rot) * 0.32)) scaleX(0.08); }
+  48%  { transform: translate(calc(var(--dx) * 0.5), calc(var(--dy) * 0.46)) rotate(calc(var(--rot) * 0.6)) scaleX(1); }
+  74%  { opacity: 1; transform: translate(calc(var(--dx) * 0.78), calc(var(--dy) * 0.76)) rotate(calc(var(--rot) * 0.84)) scaleX(0.12); }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scaleX(0.8); }
 }
 
 /* Bucket number flip-in animation */
@@ -464,9 +466,13 @@ body {
   100% { transform: translate(var(--fly-ex),   var(--fly-ey))   scale(0.18);  opacity: 0; }
 }
 
-/* New question slide in from right */
+/* New question slide in from right or left */
 @keyframes slide-from-right {
   from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes slide-from-left {
+  from { opacity: 0; transform: translateX(-20px); }
   to   { opacity: 1; transform: translateX(0); }
 }
 

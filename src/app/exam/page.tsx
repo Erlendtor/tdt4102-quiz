@@ -27,9 +27,24 @@ export default function ExamPage() {
   const [answers, setAnswers] = useState<Map<string, Set<string>>>(new Map());
   const [flagged, setFlagged] = useState<Set<string>>(new Set());
   const [submitting, setSubmitting] = useState(false);
+  const [exiting, setExiting] = useState(false);
+  const [entering, setEntering] = useState(false);
+  const [direction, setDirection] = useState<"right" | "left">("right");
 
   const q = questions[current];
   const currentSelected = answers.get(q.id) ?? new Set<string>();
+
+  function navigateTo(idx: number) {
+    if (idx === current) return;
+    setDirection(idx > current ? "right" : "left");
+    setExiting(true);
+    setTimeout(() => {
+      setCurrent(idx);
+      setExiting(false);
+      setEntering(true);
+      setTimeout(() => setEntering(false), 500);
+    }, 140);
+  }
 
   function toggleFlag() {
     setFlagged((prev) => {
@@ -103,32 +118,47 @@ export default function ExamPage() {
       <div className="app-card app-card-learn">
 
         {/* Scrollable question */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "20px 20px 16px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px", flexWrap: "wrap" }}>
-            <span className="tag">{q.topic}</span>
-            <span className="label">{q.maxPoints}p</span>
-          </div>
-
-          <p className="heading-sm" style={{ marginBottom: "14px", whiteSpace: "pre-line" }}>
-            {q.stem}
-          </p>
-
-          {q.code && <CodeBlock code={q.code} />}
-
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: q.code ? "14px" : "0" }}>
-            {q.options.map((opt) => (
-              <button
-                key={opt.id}
-                onClick={() => toggleOption(opt.id)}
-                className={currentSelected.has(opt.id) ? "option-btn selected" : "option-btn"}
-              >
-                <div className={currentSelected.has(opt.id) ? "opt-check checked" : "opt-check"}>
-                  {currentSelected.has(opt.id) && <CheckIcon />}
+        <div className={`question-content${exiting ? " exiting" : ""}`} style={{ flex: 1, overflowY: "auto", padding: "20px 20px 16px" }}>
+          {(() => {
+            const anim = direction === "left" ? "slide-from-left" : "slide-from-right";
+            const enterStyle = (delay: string) => entering
+              ? { animation: `${anim} 0.26s cubic-bezier(0.25, 0, 0.2, 1) both`, animationDelay: delay }
+              : {};
+            return (
+              <>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px", flexWrap: "wrap", ...enterStyle("0ms") }}>
+                  <span className="tag">{q.topic}</span>
+                  <span className="label">{q.maxPoints}p</span>
                 </div>
-                <span>{opt.text}</span>
-              </button>
-            ))}
-          </div>
+
+                <p className="heading-sm" style={{ marginBottom: "14px", whiteSpace: "pre-line", ...enterStyle("0ms") }}>
+                  {q.stem}
+                </p>
+
+                {q.code && (
+                  <div style={enterStyle("35ms")}>
+                    <CodeBlock code={q.code} />
+                  </div>
+                )}
+
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: q.code ? "14px" : "0" }}>
+                  {q.options.map((opt, i) => (
+                    <button
+                      key={opt.id}
+                      onClick={() => toggleOption(opt.id)}
+                      className={currentSelected.has(opt.id) ? "option-btn selected" : "option-btn"}
+                      style={enterStyle(`${55 + i * 32}ms`)}
+                    >
+                      <div className={currentSelected.has(opt.id) ? "opt-check checked" : "opt-check"}>
+                        {currentSelected.has(opt.id) && <CheckIcon />}
+                      </div>
+                      <span>{opt.text}</span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            );
+          })()}
         </div>
 
         {/* Footer */}
@@ -142,7 +172,7 @@ export default function ExamPage() {
             </Link>
 
 {current < QUESTION_COUNT - 1 ? (
-              <button onClick={() => setCurrent((c) => c + 1)} className="btn-primary" style={{ flex: 1 }}>
+              <button onClick={() => navigateTo(current + 1)} className="btn-primary" style={{ flex: 1 }}>
                 Neste →
               </button>
             ) : (
@@ -172,7 +202,7 @@ export default function ExamPage() {
             {questions.map((_, i) => (
               <button
                 key={i}
-                onClick={() => setCurrent(i)}
+                onClick={() => navigateTo(i)}
                 className={`nav-dot${i === current ? " active" : flagged.has(questions[i].id) ? " flagged" : answers.has(questions[i].id) ? " answered" : ""}`}
               >
                 {i + 1}
