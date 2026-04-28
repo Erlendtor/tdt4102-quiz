@@ -1,10 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import confetti from "canvas-confetti";
 import { useRouter } from "next/navigation";
 import { Option } from "@/types";
 import CodeBlock from "@/components/CodeBlock";
 import Link from "next/link";
+
+const CONFETTI_COLORS = ["#FF3B5C", "#FFD60A", "#0A84FF", "#30D158", "#FF9500", "#BF5AF2", "#5AC8FA"];
 
 type QuestionResult = {
   id: string;
@@ -72,8 +75,56 @@ export default function ResultsPage() {
   const router = useRouter();
   const [results, setResults] = useState<Results | null>(null);
   const [showDetails, setShowDetails] = useState(false);
-  // Per-option explanation toggles in the detailed review
   const [openExplanations, setOpenExplanations] = useState<Set<string>>(new Set());
+  const gradeRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!results) return;
+    const grade = results.grade;
+    if (!["A", "B", "C"].includes(grade)) return;
+
+    const fire = () => {
+      const el = gradeRef.current;
+      const rect = el?.getBoundingClientRect();
+      const ox = rect ? (rect.left + rect.width / 2) / window.innerWidth : 0.5;
+      const oy = rect ? (rect.top + rect.height / 2) / window.innerHeight : 0.2;
+
+      if (grade === "C") {
+        confetti({ particleCount: 35, spread: 70, origin: { x: ox, y: oy }, colors: CONFETTI_COLORS, scalar: 0.9, startVelocity: 28 });
+      }
+
+      if (grade === "B") {
+        confetti({ particleCount: 90, spread: 80, startVelocity: 38, origin: { x: ox, y: oy }, colors: CONFETTI_COLORS, scalar: 1.1 });
+        setTimeout(() => {
+          confetti({ particleCount: 55, spread: 60, startVelocity: 26, origin: { x: ox, y: oy }, colors: CONFETTI_COLORS, scalar: 1.0 });
+        }, 280);
+      }
+
+      if (grade === "A") {
+        const end = Date.now() + 4500;
+        const burst = () => {
+          if (Date.now() > end) return;
+          confetti({
+            particleCount: 45,
+            spread: 360,
+            startVelocity: 28 + Math.random() * 18,
+            ticks: 90,
+            origin: { x: ox + (Math.random() - 0.5) * 0.28, y: oy + (Math.random() - 0.5) * 0.15 },
+            colors: CONFETTI_COLORS,
+            shapes: ["square"],
+            gravity: 0.65,
+            scalar: 1.2,
+            drift: (Math.random() - 0.5) * 0.4,
+          });
+          setTimeout(burst, 220);
+        };
+        burst();
+      }
+    };
+
+    requestAnimationFrame(fire);
+  }, [results]);
+
 
   useEffect(() => {
     const stored = sessionStorage.getItem("examResults");
@@ -122,7 +173,7 @@ export default function ResultsPage() {
         {/* Grade hero */}
         <div style={{ padding: "28px 28px 20px", textAlign: "center" }}>
           <div className="label" style={{ marginBottom: "12px" }}>Eksamensresultat</div>
-          <div style={{
+          <div ref={gradeRef} style={{
             fontSize: "96px",
             fontWeight: 700,
             lineHeight: 1,

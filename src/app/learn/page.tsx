@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import confetti from "canvas-confetti";
 import { useSession } from "next-auth/react";
 import { Question, QuestionProgress } from "@/types";
 import { scoreQuestion, scorePercent, getBucket } from "@/lib/scoring";
@@ -64,49 +65,37 @@ function XIcon() {
   );
 }
 
-type ConfettiParticle = { dx: string; dy: string; rot: string; color: string; delay: string; w: string; h: string; swing: string };
+const CONFETTI_COLORS = ["#FF3B5C", "#FFD60A", "#0A84FF", "#30D158", "#FF9500", "#BF5AF2", "#5AC8FA"];
 
-const LEFT_CONFETTI: ConfettiParticle[] = [
-  { dx: "32px",  dy: "155px", rot: "180deg",  color: "#FF3B5C", delay: "0ms",  w: "10px", h: "24px", swing:  "22px" },
-  { dx: "95px",  dy: "115px", rot: "-130deg", color: "#FFD60A", delay: "14ms", w: "9px",  h: "21px", swing: "-26px" },
-  { dx: "50px",  dy: "210px", rot: "250deg",  color: "#0A84FF", delay: "5ms",  w: "7px",  h: "30px", swing:  "18px" },
-  { dx: "125px", dy: "155px", rot: "-80deg",  color: "#30D158", delay: "26ms", w: "13px", h: "27px", swing: "-22px" },
-  { dx: "30px",  dy: "280px", rot: "170deg",  color: "#FF9500", delay: "4ms",  w: "9px",  h: "26px", swing:  "30px" },
-  { dx: "82px",  dy: "95px",  rot: "-220deg", color: "#BF5AF2", delay: "36ms", w: "11px", h: "22px", swing: "-16px" },
-  { dx: "20px",  dy: "185px", rot: "110deg",  color: "#5AC8FA", delay: "11ms", w: "8px",  h: "32px", swing:  "24px" },
-  { dx: "138px", dy: "210px", rot: "-155deg", color: "#FF3B5C", delay: "20ms", w: "10px", h: "25px", swing: "-28px" },
-  { dx: "62px",  dy: "305px", rot: "310deg",  color: "#FFD60A", delay: "7ms",  w: "8px",  h: "28px", swing:  "20px" },
-  { dx: "108px", dy: "128px", rot: "-65deg",  color: "#0A84FF", delay: "42ms", w: "12px", h: "22px", swing: "-24px" },
-  { dx: "38px",  dy: "235px", rot: "230deg",  color: "#30D158", delay: "17ms", w: "14px", h: "30px", swing:  "32px" },
-  { dx: "78px",  dy: "165px", rot: "-290deg", color: "#FF9500", delay: "33ms", w: "9px",  h: "26px", swing: "-20px" },
-  { dx: "118px", dy: "108px", rot: "80deg",   color: "#BF5AF2", delay: "52ms", w: "11px", h: "24px", swing:  "18px" },
-  { dx: "24px",  dy: "255px", rot: "-350deg", color: "#5AC8FA", delay: "9ms",  w: "7px",  h: "32px", swing: "-22px" },
-  { dx: "68px",  dy: "190px", rot: "145deg",  color: "#FF3B5C", delay: "28ms", w: "13px", h: "28px", swing:  "26px" },
-  { dx: "110px", dy: "140px", rot: "-115deg", color: "#FFD60A", delay: "46ms", w: "10px", h: "23px", swing: "-18px" },
-  { dx: "44px",  dy: "320px", rot: "270deg",  color: "#0A84FF", delay: "19ms", w: "8px",  h: "30px", swing:  "28px" },
-  { dx: "90px",  dy: "172px", rot: "-190deg", color: "#30D158", delay: "65ms", w: "12px", h: "26px", swing: "-30px" },
-];
-
-const RIGHT_CONFETTI: ConfettiParticle[] = [
-  { dx: "-32px",  dy: "155px", rot: "-180deg", color: "#FF3B5C", delay: "0ms",  w: "10px", h: "24px", swing: "-22px" },
-  { dx: "-95px",  dy: "115px", rot: "130deg",  color: "#FFD60A", delay: "14ms", w: "9px",  h: "21px", swing:  "26px" },
-  { dx: "-50px",  dy: "210px", rot: "-250deg", color: "#0A84FF", delay: "5ms",  w: "7px",  h: "30px", swing: "-18px" },
-  { dx: "-125px", dy: "155px", rot: "80deg",   color: "#30D158", delay: "26ms", w: "13px", h: "27px", swing:  "22px" },
-  { dx: "-30px",  dy: "280px", rot: "-170deg", color: "#FF9500", delay: "4ms",  w: "9px",  h: "26px", swing: "-30px" },
-  { dx: "-82px",  dy: "95px",  rot: "220deg",  color: "#BF5AF2", delay: "36ms", w: "11px", h: "22px", swing:  "16px" },
-  { dx: "-20px",  dy: "185px", rot: "-110deg", color: "#5AC8FA", delay: "11ms", w: "8px",  h: "32px", swing: "-24px" },
-  { dx: "-138px", dy: "210px", rot: "155deg",  color: "#FF3B5C", delay: "20ms", w: "10px", h: "25px", swing:  "28px" },
-  { dx: "-62px",  dy: "305px", rot: "-310deg", color: "#FFD60A", delay: "7ms",  w: "8px",  h: "28px", swing: "-20px" },
-  { dx: "-108px", dy: "128px", rot: "65deg",   color: "#0A84FF", delay: "42ms", w: "12px", h: "22px", swing:  "24px" },
-  { dx: "-38px",  dy: "235px", rot: "-230deg", color: "#30D158", delay: "17ms", w: "14px", h: "30px", swing: "-32px" },
-  { dx: "-78px",  dy: "165px", rot: "290deg",  color: "#FF9500", delay: "33ms", w: "9px",  h: "26px", swing:  "20px" },
-  { dx: "-118px", dy: "108px", rot: "-80deg",  color: "#BF5AF2", delay: "52ms", w: "11px", h: "24px", swing: "-18px" },
-  { dx: "-24px",  dy: "255px", rot: "350deg",  color: "#5AC8FA", delay: "9ms",  w: "7px",  h: "32px", swing:  "22px" },
-  { dx: "-68px",  dy: "190px", rot: "-145deg", color: "#FF3B5C", delay: "28ms", w: "13px", h: "28px", swing: "-26px" },
-  { dx: "-110px", dy: "140px", rot: "115deg",  color: "#FFD60A", delay: "46ms", w: "10px", h: "23px", swing:  "18px" },
-  { dx: "-44px",  dy: "320px", rot: "-270deg", color: "#0A84FF", delay: "19ms", w: "8px",  h: "30px", swing: "-28px" },
-  { dx: "-90px",  dy: "172px", rot: "190deg",  color: "#30D158", delay: "65ms", w: "12px", h: "26px", swing:  "30px" },
-];
+function fireConfetti() {
+  // Pop from top-right corner
+  confetti({
+    particleCount: 90,
+    angle: 210,
+    spread: 80,
+    startVelocity: 58,
+    origin: { x: 1, y: 0 },
+    colors: CONFETTI_COLORS,
+    shapes: ["square"],
+    gravity: 0.85,
+    scalar: 1.3,
+    drift: -0.4,
+  });
+  // Pop from top (slightly right of center)
+  setTimeout(() => {
+    confetti({
+      particleCount: 55,
+      angle: 265,
+      spread: 65,
+      startVelocity: 38,
+      origin: { x: 0.65, y: 0 },
+      colors: CONFETTI_COLORS,
+      shapes: ["square"],
+      gravity: 1.0,
+      scalar: 1.1,
+    });
+  }, 120);
+}
 
 const BUCKET_ITEMS = [
   { color: "var(--wrong)",         label: "Øving",  idx: 0 },
@@ -127,6 +116,7 @@ export default function LearnPage() {
   const [done, setDone] = useState(false);
   const [openExplanations, setOpenExplanations] = useState<Set<string>>(new Set());
   const [animatingBucket, setAnimatingBucket] = useState<number | null>(null);
+  const [rippleKey, setRippleKey] = useState(0);
   const [hintOpen, setHintOpen] = useState(false);
   const [exiting, setExiting] = useState(false);
   const [entering, setEntering] = useState(false);
@@ -182,6 +172,10 @@ export default function LearnPage() {
     }
   }, [current]);
 
+  useEffect(() => {
+    if (done) fireConfetti();
+  }, [done]);
+
   const bucketCounts = {
     0: activeQuestions.filter((q) => (progress.get(q.id)?.bucket ?? 0) === 0 && !masteredIds.has(q.id)).length,
     1: activeQuestions.filter((q) => (progress.get(q.id)?.bucket ?? 0) === 1 && !masteredIds.has(q.id)).length,
@@ -212,6 +206,7 @@ export default function LearnPage() {
     const rawScore = scoreQuestion(current, [...selected]);
     setScore(rawScore);
     setState("revealed");
+    if (rawScore === current.maxPoints) fireConfetti();
 
     const bucket = getBucket(pct);
     const prevProgress = progress.get(current.id);
@@ -262,6 +257,7 @@ export default function LearnPage() {
 
     function applyAndTransition() {
       if (pending) {
+        setRippleKey(k => k + 1);
         setProgress(progressMap);
         if (pending.shouldMaster) setMasteredIds(newMastered);
         if (session?.user?.id) {
@@ -443,50 +439,6 @@ export default function LearnPage() {
           </div>
         )}
 
-        {/* Confetti from both top corners on perfect score */}
-        {state === "revealed" && score === current.maxPoints && (
-          <>
-            {LEFT_CONFETTI.map((p, i) => (
-              <span key={`lc${i}`} style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: p.w,
-                height: p.h,
-                borderRadius: "2px",
-                background: p.color,
-                pointerEvents: "none",
-                zIndex: 3,
-                animation: "confetti-fall 2.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards",
-                animationDelay: p.delay,
-                ["--dx" as string]: p.dx,
-                ["--dy" as string]: p.dy,
-                ["--rot" as string]: p.rot,
-                ["--swing" as string]: p.swing,
-              } as React.CSSProperties} />
-            ))}
-            {RIGHT_CONFETTI.map((p, i) => (
-              <span key={`rc${i}`} style={{
-                position: "absolute",
-                top: 0,
-                right: 0,
-                width: p.w,
-                height: p.h,
-                borderRadius: "2px",
-                background: p.color,
-                pointerEvents: "none",
-                zIndex: 3,
-                animation: "confetti-fall 2.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards",
-                animationDelay: p.delay,
-                ["--dx" as string]: p.dx,
-                ["--dy" as string]: p.dy,
-                ["--rot" as string]: p.rot,
-                ["--swing" as string]: p.swing,
-              } as React.CSSProperties} />
-            ))}
-          </>
-        )}
-
         {/* Question area */}
         <div className={`question-content${exiting ? " exiting" : ""}`} style={{ flex: 1, overflowY: "auto", padding: "20px 20px 16px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px", flexWrap: "wrap" }}>
@@ -658,7 +610,7 @@ export default function LearnPage() {
 
           {/* Bottom row: bucket counts */}
           <div className="learn-bucket-row" style={{ display: "flex", gap: "20px", flexWrap: "wrap", justifyContent: "center", marginTop: "14px" }}>
-              {BUCKET_ITEMS.map(({ color, label, idx }) => {
+              {BUCKET_ITEMS.map(({ color, label, idx }, listIdx) => {
                 const count = idx === -1 ? bucketCounts.mastered : bucketCounts[idx as 0 | 1 | 2];
                 const isAnimating = animatingBucket === idx;
                 return (
@@ -671,9 +623,9 @@ export default function LearnPage() {
                     <span style={{ fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--text-secondary)" }}>
                       {label}{" "}
                       <strong
-                        key={isAnimating ? `${count}-anim` : count}
-                        className={isAnimating ? "num-flip" : ""}
-                        style={{ color: "var(--text-primary)", fontWeight: 600 }}
+                        key={rippleKey > 0 ? `${rippleKey}-${listIdx}` : label}
+                        className={rippleKey > 0 ? "num-flip" : ""}
+                        style={{ color: "var(--text-primary)", fontWeight: 600, animationDelay: `${listIdx * 45}ms` }}
                       >
                         {count}
                       </strong>
