@@ -137,6 +137,7 @@ export default function LearnPage() {
   const bucketDotRefs = useRef<Record<number, HTMLSpanElement | null>>({});
   const optionRefs = useRef<(HTMLDivElement | null)[]>([]);
   const flipTops = useRef<number[]>([]);
+  const scoreHiddenRef = useRef(false);
 
   useEffect(() => {
     const deduped = deduplicateGroups(allQuestions).map(shuffleOptions);
@@ -228,6 +229,7 @@ export default function LearnPage() {
 
   function checkAnswer() {
     if (!current || selected.size === 0) return;
+    scoreHiddenRef.current = false;
     flipTops.current = optionRefs.current.map(el => el?.getBoundingClientRect().top ?? 0);
     const pct = scorePercent(current, [...selected]);
     const rawScore = scoreQuestion(current, [...selected]);
@@ -357,6 +359,7 @@ export default function LearnPage() {
 
       // On landing: remove clone, apply updates, transition
       setTimeout(() => {
+        scoreHiddenRef.current = true;
         setFlyingScore(null);
         applyAndTransition();
       }, FLY);
@@ -472,7 +475,7 @@ export default function LearnPage() {
             right: 0,
             zIndex: 2,
             pointerEvents: "none",
-            opacity: flyingScore ? 0 : 1,
+            opacity: (flyingScore || scoreHiddenRef.current) ? 0 : 1,
             transition: "none",
             background: "var(--card)",
             borderBottomLeftRadius: "var(--radius-md)",
