@@ -49,6 +49,7 @@ const cardStyle: React.CSSProperties = {
   background: "var(--surface)",
   display: "block",
   borderRadius: "var(--radius-md)",
+  clipPath: "inset(0 round var(--radius-md))",
 };
 
 export default async function Home() {
@@ -146,20 +147,19 @@ export default async function Home() {
               <div style={{ fontSize: "22px", fontWeight: 700, letterSpacing: "-0.3px", lineHeight: 1.2, color: "var(--text-primary)", marginBottom: "4px" }}>
                 Læringsmodus
               </div>
-              <p style={{ fontSize: "13px", lineHeight: 1.4, color: "var(--text-secondary)", marginBottom: "10px" }}>
+              <p style={{ fontSize: "13px", lineHeight: 1.4, color: "var(--text-secondary)", marginBottom: "8px" }}>
                 tilbakemeldinger underveis + forklaringer
               </p>
 
               {bucketStats ? (
-                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", rowGap: "4px" }}>
                   {BUCKET_ITEMS.map(({ color, label, key }) => {
                     const count = key === -1 ? bucketStats!.mastered : bucketStats![key as 0 | 1 | 2];
                     return (
-                      <span key={label} style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                        <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: color, flexShrink: 0, display: "inline-block" }} />
-                        <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--text-secondary)" }}>
-                          {label}{" "}
-                          <strong style={{ color: "var(--text-primary)", fontWeight: 600 }}>{count}</strong>
+                      <span key={label} style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                        <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: color, flexShrink: 0, display: "inline-block" }} />
+                        <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
+                          {label} <strong style={{ color: "var(--text-primary)", fontWeight: 600 }}>{count}</strong>
                         </span>
                       </span>
                     );
