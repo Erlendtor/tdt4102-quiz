@@ -39,7 +39,7 @@ const glassStyle: React.CSSProperties = {
   backdropFilter: "blur(18px) saturate(130%)",
   WebkitBackdropFilter: "blur(18px) saturate(130%)",
   background: "rgba(255, 255, 255, 0.72)",
-  padding: "16px 16px 20px",
+  padding: "16px 16px 28px",
   display: "flex",
   flexDirection: "column",
   justifyContent: "flex-end",
