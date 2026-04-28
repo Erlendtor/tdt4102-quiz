@@ -105,7 +105,7 @@ export default async function Home() {
         <HomeLoader />
 
         {/* Header */}
-        <div className="page-enter" style={{ padding: "24px 24px 22px", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "16px" }}>
+        <div className="page-enter home-header" style={{ padding: "24px 24px 22px", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "16px" }}>
           <div style={{ minWidth: 0 }}>
             <div className="label" style={{ marginBottom: "8px" }}>TDT4102</div>
             <h1 className="heading-lg" style={{ fontSize: "clamp(26px, 6vw, 38px)" }}>Eksamenstrening</h1>

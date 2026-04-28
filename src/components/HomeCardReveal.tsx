@@ -12,7 +12,7 @@ export default function HomeCardReveal({ children }: { children: React.ReactNode
   }, []);
 
   return (
-    <div ref={ref} className="mode-cards" style={{ padding: "0 20px 32px" }}>
+    <div ref={ref} className="mode-cards" style={{ paddingBottom: "32px" }}>
       {children}
     </div>
   );
