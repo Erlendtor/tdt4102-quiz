@@ -151,7 +151,7 @@ export default async function Home() {
         <HomeCardReveal>
 
           {/* Læringsmodus Del 1 */}
-          <div style={cardWrapStyle}>
+          <div className="top-card-wrap" style={cardWrapStyle}>
           <Link href="/learn" className="mode-card" style={cardStyle}>
             <div className="card-image">
               <Image src="/øving3.jpg" alt="Læringsmodus Del 1" fill sizes="50vw" style={{ objectFit: "cover" }} />
@@ -192,10 +192,10 @@ export default async function Home() {
           </div>
 
           {/* Læringsmodus Del 2 */}
-          <div style={cardWrapStyle}>
+          <div className="top-card-wrap" style={cardWrapStyle}>
           <Link href="/learn-del2" className="mode-card" style={cardStyle}>
             <div className="card-image">
-              <Image src="/læring del2.png" alt="Læringsmodus Del 2" fill sizes="50vw" style={{ objectFit: "cover" }} />
+              <Image src="/læring del2 3.png" alt="Læringsmodus Del 2" fill sizes="50vw" style={{ objectFit: "cover" }} />
             </div>
 
             <div className="card-glass" style={glassStyle}>

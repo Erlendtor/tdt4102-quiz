@@ -502,6 +502,10 @@ body {
   .mode-cards {
     flex-direction: column;
   }
+  .top-card-wrap {
+    width: 100%;
+    aspect-ratio: 3 / 2;
+  }
 }
 
 /* Mode card — clickable link card on home */
