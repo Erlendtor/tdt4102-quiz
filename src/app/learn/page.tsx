@@ -616,19 +616,35 @@ export default function LearnPage() {
 
         {/* Footer */}
         <div style={{ flexShrink: 0, padding: "14px 20px 18px", background: "var(--card)" }}>
-          {state === "answering" ? (
-            <button onClick={checkAnswer} disabled={selected.size === 0} className="btn-primary">
-              Sjekk svar
+          {/* Main button row — square icon btns visible on mobile only */}
+          <div style={{ display: "flex", gap: "10px", alignItems: "stretch" }}>
+            <Link href="/" className="learn-sq-btn" aria-label="Hjem">
+              <svg width="22" height="22" viewBox="0 0 17 17" fill="none">
+                <path d="M2.5 7.5L8.5 2L14.5 7.5V15H11V10.5H6V15H2.5V7.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round"/>
+              </svg>
+            </Link>
+
+            {state === "answering" ? (
+              <button onClick={checkAnswer} disabled={selected.size === 0} className="btn-primary" style={{ flex: 1 }}>
+                Sjekk svar
+              </button>
+            ) : (
+              <button onClick={nextQuestion} className="btn-primary" style={{ flex: 1 }}>
+                Neste spørsmål →
+              </button>
+            )}
+
+            <button onClick={skipQuestion} className="learn-sq-btn" aria-label="Hopp over">
+              <svg width="22" height="22" viewBox="0 0 17 17" fill="none">
+                <path d="M3 8.5H13M13 8.5L9 4.5M13 8.5L9 12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <line x1="14.5" y1="4" x2="14.5" y2="13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
             </button>
-          ) : (
-            <button onClick={nextQuestion} className="btn-primary">
-              Neste spørsmål →
-            </button>
-          )}
+          </div>
 
           {/* Bottom row: home icon left, buckets center, skip right */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", marginTop: "14px" }}>
-            <Link href="/" className="footer-icon-btn" aria-label="Hjem" style={{ justifySelf: "start", transform: "translateY(-3px)" }}>
+            <Link href="/" className="footer-icon-btn learn-desktop-only" aria-label="Hjem" style={{ justifySelf: "start", transform: "translateY(-3px)" }}>
               <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
                 <path d="M2.5 7.5L8.5 2L14.5 7.5V15H11V10.5H6V15H2.5V7.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round"/>
               </svg>
@@ -660,7 +676,7 @@ export default function LearnPage() {
               })}
             </div>
 
-            <button onClick={skipQuestion} className="footer-icon-btn" aria-label="Hopp over" style={{ justifySelf: "end", transform: "translateY(-3px)" }}>
+            <button onClick={skipQuestion} className="footer-icon-btn learn-desktop-only" aria-label="Hopp over" style={{ justifySelf: "end", transform: "translateY(-3px)" }}>
               <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
                 <path d="M3 8.5H13M13 8.5L9 4.5M13 8.5L9 12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 <line x1="14.5" y1="4" x2="14.5" y2="13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>

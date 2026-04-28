@@ -496,14 +496,12 @@ body {
   text-decoration: none;
   color: var(--text-primary);
   cursor: pointer;
-  transition: border-color 0.12s, background 0.12s, transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
-  will-change: transform;
+  transition: border-color 0.12s, background 0.12s;
 }
 
 .mode-card:hover {
   border-color: var(--text-primary);
   background: var(--surface);
-  transform: scale(1.02);
 }
 
 /* Scrollbar minimal */
@@ -526,6 +524,23 @@ body {
 }
 .footer-icon-btn:hover { color: var(--text-primary); }
 
+/* Square icon buttons flanking the main button in learn footer — mobile only */
+.learn-sq-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  background: var(--card);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: color 0.12s, border-color 0.12s;
+}
+.learn-sq-btn:hover { color: var(--text-primary); border-color: var(--text-primary); }
+
 @media (max-width: 600px) {
   .page-shell, .page-shell-top {
     padding: 0;
@@ -547,4 +562,7 @@ body {
     height: 100dvh;
   }
 
+  /* Learn footer: show square flanking buttons, hide desktop icon buttons */
+  .learn-sq-btn { display: flex; }
+  .learn-desktop-only { display: none !important; }
 }
