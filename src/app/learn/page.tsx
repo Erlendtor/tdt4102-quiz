@@ -634,12 +634,6 @@ export default function LearnPage() {
               </button>
             )}
 
-            <button onClick={skipQuestion} className="learn-sq-btn" aria-label="Hopp over">
-              <svg width="22" height="22" viewBox="0 0 17 17" fill="none">
-                <path d="M3 8.5H13M13 8.5L9 4.5M13 8.5L9 12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                <line x1="14.5" y1="4" x2="14.5" y2="13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              </svg>
-            </button>
           </div>
 
           {/* Bottom row: bucket counts */}

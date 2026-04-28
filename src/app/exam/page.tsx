@@ -141,17 +141,7 @@ export default function ExamPage() {
               </svg>
             </Link>
 
-            {current > 0 && (
-              <button
-                onClick={() => setCurrent((c) => c - 1)}
-                className="btn-secondary"
-                style={{ width: "auto", padding: "13px 18px" }}
-              >
-                ←
-              </button>
-            )}
-
-            {current < QUESTION_COUNT - 1 ? (
+{current < QUESTION_COUNT - 1 ? (
               <button onClick={() => setCurrent((c) => c + 1)} className="btn-primary" style={{ flex: 1 }}>
                 Neste →
               </button>
