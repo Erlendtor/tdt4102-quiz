@@ -161,7 +161,7 @@ export default async function Home() {
                 </p>
 
                 {bucketStats ? (
-                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", rowGap: "4px" }}>
+                  <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", rowGap: "6px" }}>
                     {BUCKET_ITEMS.map(({ color, label, key }) => {
                       const count = key === -1 ? bucketStats!.mastered : bucketStats![key as 0 | 1 | 2];
                       return (
