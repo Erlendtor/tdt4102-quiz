@@ -3336,724 +3336,824 @@ int main() {
   },
 
   // ─── DEL 2 ────────────────────────────────────────────────────────────────
+  // Eksamensoppgaver fra V24v1, V24v2, V25v1, V25v2 – kortsvarsoppgaver
+
+  // ── V24 Variant 1 ─────────────────────────────────────────────────────────
 
   {
-    id: "d2-ref-1",
-    variantGroupId: "d2-ref-1",
+    id: "v24v1-d2-q13",
+    variantGroupId: "v24v1-d2-q13",
     source: "del2",
-    topic: "Pekere",
-    stem: "Hva skrives ut?",
+    topic: "Feil og unntak",
     maxPoints: 5,
-    code: `int a = 5;\nint& b = a;\nb = 10;\nstd::cout << a;`,
-    options: [
-      {
-        id: "a",
-        text: "5",
-        isCorrect: false,
-        explanation: "b er en referanse til a, ikke en kopi. Endring via b påvirker a.",
-      },
-      {
-        id: "b",
-        text: "10",
-        isCorrect: true,
-        explanation: "Riktig. b er et alias for a – de deler samme minneplass.",
-      },
-      {
-        id: "c",
-        text: "0",
-        isCorrect: false,
-        explanation: "Ingen resetting skjer.",
-      },
-      {
-        id: "d",
-        text: "Kompileringsfeil",
-        isCorrect: false,
-        explanation: "Koden er gyldig C++.",
-      },
-    ],
+    stem: "Hva blir skrevet til skjerm når programmet kjører? Hvorfor er dette resultatet?",
+    modelAnswer: `"The character" skrives ut (linje 13 i c()), deretter kaster at(size()) et std::out_of_range-unntak. out_of_range er en underklasse av std::logic_error, ikke std::runtime_error, så catch(std::runtime_error&) i b() fanger det ikke. Unntaket propagerer opp til catch(std::exception&) i a() som skriver "Oh no! Something happened!".
+
+Utskrift:
+The character
+Oh no! Something happened!`,
+    code: `class Secret {
+public:
+    static void b() {
+        try {
+            c("Hello World!");
+        } catch (const std::runtime_error& e) {
+            std::cerr << e.what() << std::endl;
+        }
+    }
+private:
+    static void c(std::string characters) {
+        std::cout << "The character " << std::endl;
+        std::cout << characters.at(characters.size()) << std::endl;
+        std::cout << " is at the end of the string" << std::endl;
+        throw std::runtime_error("Whoops!");
+    }
+};
+void a() {
+    try {
+        Secret::b();
+    } catch (std::exception& e) {
+        std::cerr << "Oh no! Something happened!" << std::endl;
+    }
+}
+int main(void) {
+    a();
+    return 0;
+}`,
+    options: [],
   },
 
   {
-    id: "d2-ptr-1",
-    variantGroupId: "d2-ptr-1",
+    id: "v24v1-d2-q14",
+    variantGroupId: "v24v1-d2-q14",
     source: "del2",
-    topic: "Pekere",
-    stem: "Hva skrives ut?",
+    topic: "Funksjoner",
     maxPoints: 5,
-    code: `int arr[] = {3, 1, 4};\nint* p = arr + 1;\nstd::cout << *p;`,
-    options: [
-      {
-        id: "a",
-        text: "3",
-        isCorrect: false,
-        explanation: "arr+0 peker på det første elementet.",
-      },
-      {
-        id: "b",
-        text: "1",
-        isCorrect: true,
-        explanation: "Riktig. arr+1 peker på indeks 1, som har verdien 1.",
-      },
-      {
-        id: "c",
-        text: "4",
-        isCorrect: false,
-        explanation: "arr+2 ville gitt 4.",
-      },
-      {
-        id: "d",
-        text: "Udefinert atferd",
-        isCorrect: false,
-        explanation: "Indeks 1 er innenfor arrayen.",
-      },
-    ],
+    stem: "Forklar kort hvorfor funksjoner er nyttige.",
+    modelAnswer: `• Separerer programlogikken – koden deles opp i håndterbare deler.
+• Bidrar til bedre lesbarhet.
+• Motiverer gjenbruk av kode – samme funksjon kan kalles flere steder.
+• Gjør testing av koden enklere (ref. enhetstesting).`,
+    options: [],
   },
 
   {
-    id: "d2-arv-1",
-    variantGroupId: "d2-arv-1",
+    id: "v24v1-d2-q15",
+    variantGroupId: "v24v1-d2-q15",
     source: "del2",
-    topic: "Arv og abstrakte klasser",
-    stem: "Hva skrives ut?",
+    topic: "Funksjoner og argumenter",
     maxPoints: 5,
-    code: `struct Base {\n    virtual void f() { std::cout << "B"; }\n};\nstruct Child : Base {\n    void f() override { std::cout << "C"; }\n};\nBase* p = new Child();\np->f();`,
-    options: [
-      {
-        id: "a",
-        text: "B",
-        isCorrect: false,
-        explanation: "f() er virtuell – Child::f() kalles via vtable.",
-      },
-      {
-        id: "b",
-        text: "C",
-        isCorrect: true,
-        explanation: "Riktig. Virtuell dispatch velger Child::f() siden p peker til et Child-objekt.",
-      },
-      {
-        id: "c",
-        text: "BC",
-        isCorrect: false,
-        explanation: "Bare én implementasjon kalles.",
-      },
-      {
-        id: "d",
-        text: "Kompileringsfeil",
-        isCorrect: false,
-        explanation: "Oppkast fra Child* til Base* er implisitt.",
-      },
-    ],
+    stem: "Hvordan blir argumentet arr gitt til funksjonen calculateSum? Syns du dette er et godt valg eller ville du ha gjort det på en annen måte? Begrunn svaret kort.",
+    modelAnswer: `Argumentet arr gis via referanse (pass-by-reference).
+
+Det er bedre enn pass-by-value siden arrayet er stort og kopiering er kostbart. Derimot ville pass-by-const-reference vært enda bedre, siden funksjonen ikke endrer arrayet – const garanterer dette og signaliserer det tydelig til leseren.`,
+    code: `int calculateSum(std::array<int, 10000>& arr) {
+    int sum = 0;
+    for (int i = 0; i < 10000; ++i) {
+        sum += arr[i];
+    }
+    return sum;
+}`,
+    options: [],
   },
 
   {
-    id: "d2-lambda-1",
-    variantGroupId: "d2-lambda-1",
+    id: "v24v1-d2-q16",
+    variantGroupId: "v24v1-d2-q16",
     source: "del2",
-    topic: "Skop",
-    stem: "Hva skrives ut?",
+    topic: "Beholdere",
     maxPoints: 5,
-    code: `int n = 5;\nauto f = [n]() { return n * 2; };\nn = 100;\nstd::cout << f();`,
-    options: [
-      {
-        id: "a",
-        text: "10",
-        isCorrect: true,
-        explanation: "Riktig. [n] fanger n by value når lambda opprettes (n=5). Endring etterpå påvirker ikke kopien.",
-      },
-      {
-        id: "b",
-        text: "200",
-        isCorrect: false,
-        explanation: "Det ville vært tilfelle med [&n] (capture by reference).",
-      },
-      {
-        id: "c",
-        text: "5",
-        isCorrect: false,
-        explanation: "Funksjonen returnerer n*2, ikke n.",
-      },
-      {
-        id: "d",
-        text: "Kompileringsfeil",
-        isCorrect: false,
-        explanation: "Lambda-syntaksen er gyldig.",
-      },
-    ],
+    stem: "Hvorfor bør man ikke bruke []-operatoren til å indeksere et std::map eller et std::unordered_map? Hva burde man gjøre i stedet for?",
+    modelAnswer: `[]-operatoren vil implisitt legge inn et nytt element med standardverdi dersom nøkkelen ikke finnes i beholderen. Dette kan introdusere uønskede elementer og skjulte feil.
+
+I stedet bør man bruke:
+• std::at() for å lese verdier (kaster std::out_of_range hvis nøkkelen ikke finnes).
+• std::insert() for å skrive nye verdier.`,
+    options: [],
   },
 
   {
-    id: "d2-auto-ret-1",
-    variantGroupId: "d2-auto-ret-1",
+    id: "v24v1-d2-q17",
+    variantGroupId: "v24v1-d2-q17",
     source: "del2",
-    topic: "Typekonvertering",
-    stem: "Hva er returtypen til f?",
+    topic: "Lagring og pekere",
     maxPoints: 5,
-    code: `auto f(int x, double y) {\n    return x + y;\n}`,
-    options: [
-      {
-        id: "a",
-        text: "int",
-        isCorrect: false,
-        explanation: "int + double gir double, ikke int.",
-      },
-      {
-        id: "b",
-        text: "float",
-        isCorrect: false,
-        explanation: "Ingen float er involvert.",
-      },
-      {
-        id: "c",
-        text: "double",
-        isCorrect: true,
-        explanation: "Riktig. int + double → double. auto utleder double.",
-      },
-      {
-        id: "d",
-        text: "auto",
-        isCorrect: false,
-        explanation: "auto er et nøkkelord for typeutledning, ikke en faktisk type.",
-      },
-    ],
+    stem: "Hvorfor er verdiene til a og b ulike?",
+    modelAnswer: `Når man aksesserer element på indeks 1 via en peker, beregnes adressen som: startadresse + 1 × sizeof(elementtype).
+
+For int* numbers: elementstørrelsen er sizeof(int) = 4 bytes, så indeks 1 er 4 bytes frem.
+For char* characters: elementstørrelsen er sizeof(char) = 1 byte, så indeks 1 er 1 byte frem.
+
+Siden de peker på samme minneblokk men tolker størrelsen ulikt, lander de på ulike minneadresser og får ulike verdier.`,
+    code: `void foo(void* ptr) {
+    int* numbers = static_cast<int*>(ptr);
+    int a = numbers[1];
+
+    char* characters = static_cast<char*>(ptr);
+    char b = characters[1];
+}
+
+int main(void) {
+    char* ptr = new char[]{"hello there"};
+    foo(ptr);
+    delete[] ptr;
+    return 0;
+}`,
+    options: [],
   },
 
   {
-    id: "d2-constptr-1",
-    variantGroupId: "d2-constptr-1",
+    id: "v24v1-d2-q18",
+    variantGroupId: "v24v1-d2-q18",
     source: "del2",
-    topic: "Pekere",
-    stem: "Hva skjer på linje 2?",
-    maxPoints: 5,
-    code: `const int x = 5;\nint* p = &x;   // linje 2`,
-    options: [
-      {
-        id: "a",
-        text: "p peker på x",
-        isCorrect: false,
-        explanation: "Konverteringen er ikke tillatt.",
-      },
-      {
-        id: "b",
-        text: "Kompileringsfeil",
-        isCorrect: true,
-        explanation: "Riktig. Man kan ikke binde int* til const int – det ville fjernet const-beskyttelsen.",
-      },
-      {
-        id: "c",
-        text: "*p == 5",
-        isCorrect: false,
-        explanation: "Koden kompilerer ikke.",
-      },
-      {
-        id: "d",
-        text: "Udefinert atferd",
-        isCorrect: false,
-        explanation: "Feilen oppdages av kompilatoren, ikke ved kjøretid.",
-      },
-    ],
+    topic: "Klasser og arv",
+    maxPoints: 10,
+    stem: `(a) Hvorfor kompilerer ikke koden? Forklar kort.
+
+(b) Hva må gjøres for at koden skal skrive ut "Hello from B!" gitt at du ikke kan endre noe i main?`,
+    modelAnswer: `(a) Koden kompilerer ikke fordi vi bruker override på greeting() i B, men greeting() i A er ikke deklarert virtual. override-nøkkelordet krever at baseklassefunksjonen er virtuell.
+
+(b) Man må legge til virtual foran greeting() i klassen A:
+virtual void greeting() { ... }
+
+Da aktiveres virtuell dispatch, og a->greeting() vil kalle B::greeting().`,
+    code: `#include <iostream>
+
+class A {
+public:
+    void greeting() {
+        std::cout << "Hello from A!" << std::endl;
+    }
+};
+
+class B : public A {
+public:
+    void greeting() override {
+        std::cout << "Hello from B!" << std::endl;
+    }
+};
+
+int main(void) {
+    A* a = new B();
+    a->greeting();
+    delete a;
+    return EXIT_SUCCESS;
+}`,
+    options: [],
   },
 
   {
-    id: "d2-rekursjon-1",
-    variantGroupId: "d2-rekursjon-1",
+    id: "v24v1-d2-q19",
+    variantGroupId: "v24v1-d2-q19",
     source: "del2",
-    topic: "Løkker",
-    stem: "Hva skrives ut?",
+    topic: "Constexpr-funksjoner",
     maxPoints: 5,
-    code: `int f(int n) {\n    if (n <= 1) return 1;\n    return n * f(n - 1);\n}\nstd::cout << f(4);`,
-    options: [
-      {
-        id: "a",
-        text: "4",
-        isCorrect: false,
-        explanation: "f(4) = 4·3·2·1 = 24.",
-      },
-      {
-        id: "b",
-        text: "10",
-        isCorrect: false,
-        explanation: "10 = 4+3+2+1 (sum), men funksjonen ganger.",
-      },
-      {
-        id: "c",
-        text: "16",
-        isCorrect: false,
-        explanation: "16 = 4², men dette er ikke potensregning.",
-      },
-      {
-        id: "d",
-        text: "24",
-        isCorrect: true,
-        explanation: "Riktig. f(4) = 4·f(3) = 4·3·2·1 = 24 (fakultet).",
-      },
-    ],
+    stem: "Forklar kort hva en constexpr-funksjon er og hvorfor det kan være nyttig å bruke det.",
+    modelAnswer: `En constexpr-funksjon er en funksjon som kompilatoren kan evaluere ved kompileringstid dersom argumentene er kjent ved kompileringstid. Resultatet erstattes da med en konstant verdi i den kompilerte koden, uten kjøretidsevaluering.
+
+Dette kan øke ytelsen (unngår kjøretidskall) og gjøre koden mer lesbar ved å kommunisere at verdien er en kompileringstidskonstant.`,
+    options: [],
   },
 
   {
-    id: "d2-vector-1",
-    variantGroupId: "d2-vector-1",
-    source: "del2",
-    topic: "Beholdere (STL)",
-    stem: "Hva skrives ut?",
-    maxPoints: 5,
-    code: `std::vector<int> v = {1, 2, 3};\nv.push_back(4);\nv.pop_back();\nstd::cout << v.size();`,
-    options: [
-      {
-        id: "a",
-        text: "2",
-        isCorrect: false,
-        explanation: "push_back og pop_back balanserer hverandre; størrelsen er fortsatt 3.",
-      },
-      {
-        id: "b",
-        text: "3",
-        isCorrect: true,
-        explanation: "Riktig. Starter med 3, push til 4, pop tilbake til 3.",
-      },
-      {
-        id: "c",
-        text: "4",
-        isCorrect: false,
-        explanation: "pop_back fjerner elementet push_back la til.",
-      },
-      {
-        id: "d",
-        text: "0",
-        isCorrect: false,
-        explanation: "pop_back fjerner bare ett element.",
-      },
-    ],
-  },
-
-  {
-    id: "d2-uptr-1",
-    variantGroupId: "d2-uptr-1",
-    source: "del2",
-    topic: "Smartpekere",
-    stem: "Hva er verdien av a.get() etter linje 2?",
-    maxPoints: 5,
-    code: `auto a = std::make_unique<int>(5); // linje 1\nauto b = std::move(a);             // linje 2`,
-    options: [
-      {
-        id: "a",
-        text: "5",
-        isCorrect: false,
-        explanation: "a.get() gir adressen (pekeren), ikke den lagrede verdien.",
-      },
-      {
-        id: "b",
-        text: "nullptr",
-        isCorrect: true,
-        explanation: "Riktig. std::move overfører eierskapet til b. a.get() er nullptr etterpå.",
-      },
-      {
-        id: "c",
-        text: "Kompileringsfeil",
-        isCorrect: false,
-        explanation: "std::move på unique_ptr er gyldig – det er den eneste måten å overføre eierskap.",
-      },
-      {
-        id: "d",
-        text: "Udefinert atferd",
-        isCorrect: false,
-        explanation: "get() på en tom unique_ptr er veldefinert og returnerer nullptr.",
-      },
-    ],
-  },
-
-  {
-    id: "d2-substr-1",
-    variantGroupId: "d2-substr-1",
-    source: "del2",
-    topic: "Egendefinerte typer",
-    stem: "Hva skrives ut?",
-    maxPoints: 5,
-    code: `std::string s = "cplusplus";\nstd::cout << s.substr(1, 3);`,
-    options: [
-      {
-        id: "a",
-        text: "\"cpl\"",
-        isCorrect: false,
-        explanation: "substr(1,3) starter på indeks 1, ikke 0.",
-      },
-      {
-        id: "b",
-        text: "\"plu\"",
-        isCorrect: true,
-        explanation: "Riktig. substr(pos, len): fra indeks 1 ('p'), lengde 3 → \"plu\".",
-      },
-      {
-        id: "c",
-        text: "\"lus\"",
-        isCorrect: false,
-        explanation: "Det ville vært substr(2, 3).",
-      },
-      {
-        id: "d",
-        text: "\"plus\"",
-        isCorrect: false,
-        explanation: "Lengden er 3, ikke 4.",
-      },
-    ],
-  },
-
-  {
-    id: "d2-template-1",
-    variantGroupId: "d2-template-1",
+    id: "v24v1-d2-q20",
+    variantGroupId: "v24v1-d2-q20",
     source: "del2",
     topic: "Templates",
-    stem: "Hvilken syntaks er riktig for å deklarere en funksjonstemplate?",
-    maxPoints: 5,
-    options: [
-      {
-        id: "a",
-        text: "template<T> void f(T x)",
-        isCorrect: false,
-        explanation: "Mangler typename eller class foran T.",
-      },
-      {
-        id: "b",
-        text: "template<typename T> void f(T x)",
-        isCorrect: true,
-        explanation: "Riktig. typename (eller class) er påkrevd foran typeparameternavnet.",
-      },
-      {
-        id: "c",
-        text: "template void f<T>(T x)",
-        isCorrect: false,
-        explanation: "Ugyldig syntaks – <T> hører til template<>, ikke funksjonsnavnet.",
-      },
-      {
-        id: "d",
-        text: "void<T> f(T x)",
-        isCorrect: false,
-        explanation: "Ugyldig syntaks.",
-      },
-    ],
+    maxPoints: 10,
+    stem: `(a) Endre funksjonen add til en template-funksjon så den kan kalles med flere datatyper enn int. Du kan velge å skrive kode eller fortelle hvilke linjer du vil endre og hvordan.
+
+(b) Vil template-funksjonen du skrev fungere for alle typer?`,
+    modelAnswer: `(a) template<typename T>
+T add(T a, T b) {
+    return a + b;
+}
+
+(b) Nei. Template-funksjonen vil ikke fungere for typer som ikke har +-operatoren definert (f.eks. egendefinerte klasser uten operator+).`,
+    code: `int add(int a, int b) {
+    return a + b;
+}`,
+    options: [],
   },
 
   {
-    id: "d2-ub-arr-1",
-    variantGroupId: "d2-ub-arr-1",
+    id: "v24v1-d2-q21",
+    variantGroupId: "v24v1-d2-q21",
     source: "del2",
-    topic: "Minnehåndtering",
-    stem: "Hva skjer når koden kjøres?",
+    topic: "Inn/ut-datahåndtering",
     maxPoints: 5,
-    code: `int arr[3] = {1, 2, 3};\narr[5] = 99;`,
-    options: [
-      {
-        id: "a",
-        text: "Kompileringsfeil",
-        isCorrect: false,
-        explanation: "Kompilatoren advarer kanskje, men koden kompilerer.",
-      },
-      {
-        id: "b",
-        text: "std::out_of_range-unntak",
-        isCorrect: false,
-        explanation: "Rå arrays kaster ikke unntak – det gjør .at() på vector.",
-      },
-      {
-        id: "c",
-        text: "Udefinert atferd",
-        isCorrect: true,
-        explanation: "Riktig. Rå arrays sjekker ikke grenser. Skriving utenfor er udefinert atferd.",
-      },
-      {
-        id: "d",
-        text: "arr[5] settes til 0",
-        isCorrect: false,
-        explanation: "Ingenting begrenser skrivingen – resultatet er udefinert.",
-      },
-    ],
+    stem: "Forklar kort hvorfor man må gi parameteren std::ostream som en referanse når man overlaster <<-operatoren.",
+    modelAnswer: `For å kunne bruke <<-operatoren med alle typer utstrømmer som arver fra std::ostream, inkludert std::cout og std::ofstream. Dersom man brukte std::ofstream, ville operatoren kun fungere med filstrømmer.
+
+I tillegg må referansen returneres slik at man kan kjede sammen utskrifter:
+std::cout << a << b << std::endl;`,
+    options: [],
   },
 
   {
-    id: "d2-loop-cont-1",
-    variantGroupId: "d2-loop-cont-1",
+    id: "v24v1-d2-q22",
+    variantGroupId: "v24v1-d2-q22",
+    source: "del2",
+    topic: "Kontrollstrukturer",
+    maxPoints: 5,
+    stem: `Hvorfor blir "Hello World!" printet to ganger selv om flag = false?`,
+    modelAnswer: `En do-while-løkke utfører alltid kroppen minst én gang, uavhengig av betingelsen – betingelsen sjekkes etter første kjøring.
+
+I første gjennomgang: "Hello World!" skrives ut, deretter settes flag = !false = true.
+Betingelsen (flag) er nå true, løkken kjøres én gang til.
+Etter andre gjennomgang: flag = !true = false. Betingelsen er false – løkken stopper.`,
+    code: `void printHelloWorld() {
+    bool flag = false;
+
+    do {
+        std::cout << "Hello World!" << std::endl;
+        flag = !flag;
+    } while (flag);
+}`,
+    options: [],
+  },
+
+  // ── V24 Variant 2 ─────────────────────────────────────────────────────────
+
+  {
+    id: "v24v2-d2-q13",
+    variantGroupId: "v24v2-d2-q13",
+    source: "del2",
+    topic: "Testing",
+    maxPoints: 5,
+    stem: "Forklar kort forskjellen på enhetstesting (unit testing), systemtesting (system testing) og regresjonstesting (regression testing).",
+    modelAnswer: `Enhetstesting: Test av enkeltdeler av programmet, f.eks. én funksjon eller én klasse. Feil er lette å lokalisere.
+
+Systemtesting: Test av hele systemet i sammenheng. Feil er vanskeligere å lokalisere.
+
+Regresjonstesting: Kombinerer enhets- og systemtesting for å sjekke at endringer man har gjort ikke har introdusert nye feil i kode som tidligere fungerte.`,
+    options: [],
+  },
+
+  {
+    id: "v24v2-d2-q14",
+    variantGroupId: "v24v2-d2-q14",
+    source: "del2",
+    topic: "Variabler",
+    maxPoints: 5,
+    stem: "Hva skjer når man bruker auto nøkkelordet til å deklarere en variabel, og når kan det være nyttig å bruke det?",
+    modelAnswer: `Kompilatoren utleder automatisk typen til variabelen fra verdien den tilordnes (typededuksjon). Variabelen får den eksakte typen til uttrykket på høyre side.
+
+Det er nyttig når typen er lang og komplisert, f.eks. ved deklarasjon av iteratorer:
+auto it = myMap.begin(); // i stedet for std::map<std::string,int>::iterator it = ...`,
+    options: [],
+  },
+
+  {
+    id: "v24v2-d2-q15",
+    variantGroupId: "v24v2-d2-q15",
+    source: "del2",
+    topic: "Funksjoner og argumenter",
+    maxPoints: 5,
+    stem: "Hvordan blir argumentene gitt til funksjonen scale? Syns du dette er et godt valg eller ville du gjort det på en annen måte? Begrunn svaret kort.",
+    modelAnswer: `Begge argumenter gis via referanse (pass-by-reference).
+
+For number er dette nødvendig siden funksjonen endrer verdien til argumentet.
+
+For factor er det ikke optimalt – factor endres ikke og er én enkel skalar. Pass-by-value ville vært bedre: det er billig å kopiere og kommuniserer tydelig at factor ikke endres.`,
+    code: `void scale(double& number, double& factor) {
+    number = number * factor;
+}`,
+    options: [],
+  },
+
+  {
+    id: "v24v2-d2-q16",
+    variantGroupId: "v24v2-d2-q16",
+    source: "del2",
+    topic: "Referanser",
+    maxPoints: 5,
+    stem: "Forklar kort hvorfor referanser er nyttige.",
+    modelAnswer: `• Man kan lage funksjoner som endrer argumenter direkte (uten å returnere).
+• Man kan lage funksjoner med "flere returverdier" via referanseparametere.
+• Man unngår unødvendig og kostbar kopiering av store objekter.
+• Const-referanser lar oss lese store objekter effektivt uten å gi mulighet for endring.`,
+    options: [],
+  },
+
+  {
+    id: "v24v2-d2-q17",
+    variantGroupId: "v24v2-d2-q17",
+    source: "del2",
+    topic: "Beholdere",
+    maxPoints: 5,
+    stem: "Hvorfor gir det mening at std::map ikke støtter std::push_back()?",
+    modelAnswer: `Elementene i et std::map er alltid sortert etter nøkkel, ikke innsatt i noen bestemt brukerbestemt rekkefølge. push_back() er ment for å legge til et element bakerst i en sekvens, noe som ikke gir mening for en sortert nøkkel-verdi-beholder der elementene plasseres etter nøkkelverdi.`,
+    options: [],
+  },
+
+  {
+    id: "v24v2-d2-q18",
+    variantGroupId: "v24v2-d2-q18",
+    source: "del2",
+    topic: "Lagring og pekere",
+    maxPoints: 5,
+    stem: "I hvilket minneområde blir de ulike variablene og tilhørende data lagret?",
+    modelAnswer: `• print (global bool): statisk lager
+• vec og a (std::vector): kontrollinformasjon på stakk, heap-data (innholdet) på heap
+• b (int-array / std::map): stakk
+• diffN (int): stakk
+• ptr (int*): selve pekervariabelen på stakk, minnet den peker på (new int) på heap`,
+    code: `#include <iostream>
+#include <vector>
+#include <map>
+
+bool print = true;
+
+int f(std::vector<int>& vec, std::map<int, int> map, int n) {
+    return vec[n] - map[n];
+}
+
+int main(void) {
+    std::vector<int> a = {1, 3, 18};
+    int b[] = {4, 9, 2};
+
+    int diffN = f(a, b, 1);
+
+    int* ptr = new int(1);
+    *ptr = diffN;
+
+    if (print) {
+        std::cout << *ptr << std::endl;
+    }
+
+    delete ptr;
+    return 0;
+}`,
+    options: [],
+  },
+
+  {
+    id: "v24v2-d2-q19",
+    variantGroupId: "v24v2-d2-q19",
+    source: "del2",
+    topic: "Klasser og arv",
+    maxPoints: 10,
+    stem: `(a) Hvorfor kompilerer ikke koden? Forklar kort.
+
+(b) Hva må gjøres for å løse problemet gitt at du ikke kan endre noe i main?`,
+    modelAnswer: `(a) Koden kompilerer ikke fordi vi prøver å lage et objekt av den abstrakte klassen B. B arver den rene virtuelle funksjonen foo() = 0 fra A uten å overstyre den, noe som gjør B abstrakt.
+
+(b) Den rene virtuelle funksjonen foo() må overstyres (implementeres) i klassen B:
+void foo() override { std::cout << "foo" << std::endl; }`,
+    code: `#include <iostream>
+
+class A {
+private:
+    int x;
+    int y;
+public:
+    virtual void foo() = 0;
+    virtual void bar() const;
+    A(int x_, int y_) : x(x_), y(y_) {}
+};
+
+class B : public A {
+public:
+    B(int x_, int y_) : A(x_, y_) {}
+    void bar() const override {
+        std::cout << "bar" << std::endl;
+    }
+};
+
+class C : public B {
+public:
+    C(int x_, int y_) : B(x_, y_) {}
+    void foo() override {
+        std::cout << "foo" << std::endl;
+    }
+};
+
+int main(void) {
+    B b(3, 4);
+    C c(5, 6);
+    c.foo();
+    b.bar();
+    return 0;
+}`,
+    options: [],
+  },
+
+  {
+    id: "v24v2-d2-q20",
+    variantGroupId: "v24v2-d2-q20",
+    source: "del2",
+    topic: "Header-filer",
+    maxPoints: 5,
+    stem: "Under er kode i tre filer f1.h, f2.h og main.cpp. Hva er problemet og hva ville du gjort for å fikse det uten å fjerne eller flytte på koden som står der?",
+    modelAnswer: `Problemet er at funksjonen get_pi() defineres to ganger i main.cpp: én gang via #include "f1.h" direkte, og én gang indirekte via #include "f2.h" (som inkluderer f1.h). Dette gir en multiple definition-feil under kompilering/linking.
+
+Løsning: Legg til #pragma once øverst i f1.h. Da inkluderes f1.h kun én gang per kompileringsenhet.`,
+    code: `// f1.h
+double get_pi() {
+    return 3.14;
+}
+
+// f2.h
+#include "f1.h"
+
+double area(double r) {
+    double pi = get_pi();
+    return r * pi * pi;
+}
+
+// main.cpp
+#include "f1.h"
+#include "f2.h"
+#include <iostream>
+
+int main() {
+    std::cout << area(5.0) << std::endl;
+    return 0;
+}`,
+    options: [],
+  },
+
+  {
+    id: "v24v2-d2-q21",
+    variantGroupId: "v24v2-d2-q21",
+    source: "del2",
+    topic: "Templates",
+    maxPoints: 10,
+    stem: `(a) Endre Point-klassen til en template-klasse slik at vi kan ha ulike datatyper for koordinatene x og y. Du kan velge å skrive kode eller fortelle hvilke linjer du vil endre og hvordan.
+
+(b) Hva kan være fordelen ved å ha Point som en template-klasse?`,
+    modelAnswer: `(a) template<typename T>
+class Point {
+    T x = 0;
+    T y = 0;
+public:
+    T getX() {
+        return x;
+    }
+    T getY() {
+        return y;
+    }
+};
+
+(b) Koden kan gjenbrukes for ulike typer koordinater (f.eks. int, float, double) uten å måtte skrive separate klasser for hver type.`,
+    code: `class Point {
+    int x = 0;
+    int y = 0;
+public:
+    int getX() {
+        return x;
+    }
+
+    int getY() {
+        return y;
+    }
+};`,
+    options: [],
+  },
+
+  {
+    id: "v24v2-d2-q22",
+    variantGroupId: "v24v2-d2-q22",
+    source: "del2",
+    topic: "Inn/ut-datahåndtering",
+    maxPoints: 5,
+    stem: "Forklar kort forskjellen mellom virkemåten til >>-operatoren og get_line().",
+    modelAnswer: `>>-operatoren leser inndata frem til en typekonflikt eller whitespace (mellomrom, tabulator, linjeskift). For eksempel leser den kun ett ord om gangen fra en tekststrøm.
+
+get_line() leser en hel linje med tekst (inkludert mellomrom) og stopper ved linjeskifttegnet (\n). Linjeskiftet konsumeres men lagres ikke i strengen.`,
+    options: [],
+  },
+
+  // ── V25 Variant 1 ─────────────────────────────────────────────────────────
+
+  {
+    id: "v25v1-d2-q13",
+    variantGroupId: "v25v1-d2-q13",
+    source: "del2",
+    topic: "Feilsøking",
+    maxPoints: 5,
+    stem: "Denne funksjonen inneholder en bugg. Beskriv problemet, og forklar hvordan det kan løses.",
+    modelAnswer: `Buggen er at variabelen sum ikke er initialisert. Den har en udefinert verdi (garbage value) ved oppstart, noe som gir udefinert atferd – resultatet av funksjonen er uforutsigbart.
+
+Løsning: Initialiser sum til 0:
+int sum = 0;`,
+    code: `int computeSum(const std::vector<int>& list) {
+    int sum;
+    for(int i = 1; i <= list.size(); i += 1) {
+        sum += list.at(i - 1);
+    }
+    return sum;
+}`,
+    options: [],
+  },
+
+  {
+    id: "v25v1-d2-q14",
+    variantGroupId: "v25v1-d2-q14",
     source: "del2",
     topic: "Løkker",
-    stem: "Hva skrives ut?",
     maxPoints: 5,
-    code: `for (int i = 0; i < 5; i++) {\n    if (i % 2 == 0) continue;\n    std::cout << i;\n}`,
-    options: [
-      {
-        id: "a",
-        text: "02468",
-        isCorrect: false,
-        explanation: "continue hopper over partall, ikke oddetall.",
-      },
-      {
-        id: "b",
-        text: "13",
-        isCorrect: true,
-        explanation: "Riktig. i=0,2,4 hoppes over (partall). i=1 og i=3 skrives ut.",
-      },
-      {
-        id: "c",
-        text: "135",
-        isCorrect: false,
-        explanation: "i=5 er aldri inni løkken (betingelsen er i < 5).",
-      },
-      {
-        id: "d",
-        text: "01234",
-        isCorrect: false,
-        explanation: "continue hopper over partallene.",
-      },
-    ],
+    stem: "Løkken kjører aldri ferdig. Forklar hvorfor, og hvordan problemet kan løses.",
+    modelAnswer: `Betingelsen i >= 0 er alltid sann fordi i er av typen unsigned int, som aldri kan bli negativ. Når i er 0 og dekrementeres (i--), wrapper verdien rundt til det største mulige unsigned int-tallet (typisk 4294967295), og løkken fortsetter i det uendelige.
+
+Løsning: Endre unsigned int til int:
+for(int i = 10; i >= 0; i--)`,
+    code: `for(unsigned int i = 10; i >= 0; i--) {
+    std::cout << i << std::endl;
+}`,
+    options: [],
   },
 
   {
-    id: "d2-struct-def-1",
-    variantGroupId: "d2-struct-def-1",
+    id: "v25v1-d2-q15",
+    variantGroupId: "v25v1-d2-q15",
     source: "del2",
-    topic: "Verdier og initialisering",
-    stem: "Hva skrives ut?",
+    topic: "Byggeverktøy",
     maxPoints: 5,
-    code: `struct Point { int x = 1; int y = 2; };\nPoint p;\nstd::cout << p.x + p.y;`,
-    options: [
-      {
-        id: "a",
-        text: "0",
-        isCorrect: false,
-        explanation: "x og y er initialisert med standardverdier 1 og 2.",
-      },
-      {
-        id: "b",
-        text: "1",
-        isCorrect: false,
-        explanation: "p.x=1, p.y=2 → summen er 3.",
-      },
-      {
-        id: "c",
-        text: "3",
-        isCorrect: true,
-        explanation: "Riktig. Default member initializers gir x=1 og y=2. 1+2=3.",
-      },
-      {
-        id: "d",
-        text: "Udefinert atferd",
-        isCorrect: false,
-        explanation: "Begge felt er eksplisitt initialisert.",
-      },
-    ],
+    stem: `Meson-programmet "konfigurerer" et prosjekt. Hva er resultatet (produktet) av denne prosessen? Hva kan være en grunn til å bruke Meson i et prosjekt?`,
+    modelAnswer: `Resultatet av konfigureringen er et sett med byggefiler (f.eks. for byggeverktøyet Ninja) som beskriver nøyaktig hvordan prosjektet skal kompileres og lenkes.
+
+Grunner til å bruke Meson:
+• Forenkler byggeprosessen – man slipper å skrive komplekse Makefiler.
+• Håndterer avhengigheter automatisk.
+• Gjør det enklere å bygge prosjektet på tvers av ulike plattformer og operativsystemer.`,
+    options: [],
   },
 
   {
-    id: "d2-missing-return-1",
-    variantGroupId: "d2-missing-return-1",
+    id: "v25v1-d2-q16",
+    variantGroupId: "v25v1-d2-q16",
     source: "del2",
-    topic: "Deklarasjon og definisjon",
-    stem: "Hva skal stå på ___ for at funksjonen er korrekt?",
+    topic: "Referanser",
     maxPoints: 5,
-    code: `std::string fortegn(int n) {\n    if (n > 0) return "positiv";\n    if (n < 0) return "negativ";\n    ___\n}`,
-    options: [
-      {
-        id: "a",
-        text: "return;",
-        isCorrect: false,
-        explanation: "return; er bare gyldig i void-funksjoner.",
-      },
-      {
-        id: "b",
-        text: "return 0;",
-        isCorrect: false,
-        explanation: "0 er ikke konverterbart til std::string.",
-      },
-      {
-        id: "c",
-        text: "return \"null\";",
-        isCorrect: true,
-        explanation: "Riktig. Tilfellet n==0 må returnere en std::string.",
-      },
-      {
-        id: "d",
-        text: "break;",
-        isCorrect: false,
-        explanation: "break brukes i løkker og switch, ikke i vanlige funksjoner.",
-      },
-    ],
+    stem: `Beskriv en situasjon hvor det er ønskelig å bruke "pass-by-const-reference" fremfor "pass-by-reference".`,
+    modelAnswer: `Pass-by-const-reference er ønskelig når man vil sende et stort objekt til en funksjon uten å kopiere det (for effektivitet), men funksjonen ikke trenger å endre på objektet.
+
+Eksempel: void print(const std::vector<int>& data)
+
+Her er data stor og kopiering er kostbar. const-referansen gir lesbar tilgang uten kopiering, og const hindrer utilsiktet endring.`,
+    options: [],
   },
 
   {
-    id: "d2-scope-1",
-    variantGroupId: "d2-scope-1",
+    id: "v25v1-d2-q17",
+    variantGroupId: "v25v1-d2-q17",
     source: "del2",
-    topic: "Skop",
-    stem: "Hva skjer på siste linje?",
+    topic: "Inn/ut-datahåndtering",
     maxPoints: 5,
-    code: `for (int i = 0; i < 3; i++) {}\nstd::cout << i;`,
-    options: [
-      {
-        id: "a",
-        text: "3 skrives ut",
-        isCorrect: false,
-        explanation: "i er ikke tilgjengelig utenfor for-løkkens skop.",
-      },
-      {
-        id: "b",
-        text: "0 skrives ut",
-        isCorrect: false,
-        explanation: "i eksisterer ikke etter løkken.",
-      },
-      {
-        id: "c",
-        text: "Kompileringsfeil",
-        isCorrect: true,
-        explanation: "Riktig. i er deklarert i for-løkkens skop og er utilgjengelig etter }.",
-      },
-      {
-        id: "d",
-        text: "Udefinert atferd",
-        isCorrect: false,
-        explanation: "Feilen oppdages av kompilatoren.",
-      },
-    ],
+    stem: "Når utskriftoperatoren (<<) skal overlastes, må et av parameterene være en instans av std::ostream. Forklar hvorfor denne ikke bør være en instanse av std::ofstream i stedet.",
+    modelAnswer: `std::ofstream er en spesifikk strømtype som kun skriver til filer. Dersom man bruker std::ofstream som parameter, kan <<-operatoren kun brukes med filstrømmer.
+
+Ved å bruke std::ostream (basisklassen som std::cout og std::ofstream begge arver fra) fungerer operatoren med alle utstrømtyper. Slik kan man f.eks. skrive til terminalen (std::cout) og til fil (std::ofstream) med samme operator.`,
+    options: [],
   },
 
   {
-    id: "d2-delete-arr-1",
-    variantGroupId: "d2-delete-arr-1",
+    id: "v25v1-d2-q18",
+    variantGroupId: "v25v1-d2-q18",
     source: "del2",
     topic: "Minnehåndtering",
-    stem: "Hva er galt med koden?",
     maxPoints: 5,
-    code: `int* arr = new int[5];\ndelete arr;`,
-    options: [
-      {
-        id: "a",
-        text: "Skal bruke delete[]",
-        isCorrect: true,
-        explanation: "Riktig. new int[n] allokerer et array og må frigjøres med delete[], ikke delete.",
-      },
-      {
-        id: "b",
-        text: "arr er ikke initialisert",
-        isCorrect: false,
-        explanation: "new int[5] returnerer en gyldig peker.",
-      },
-      {
-        id: "c",
-        text: "new[] er ugyldig",
-        isCorrect: false,
-        explanation: "new[] er standard C++ for heap-allokering av arrays.",
-      },
-      {
-        id: "d",
-        text: "Ingenting er galt",
-        isCorrect: false,
-        explanation: "delete på array-minne er udefinert atferd.",
-      },
-    ],
+    stem: "Skriv en funksjon som forårsaker en minnelekkasje (memory leak).",
+    modelAnswer: `void leak() {
+    int* ptr = new int{5};
+    // delete ptr; mangler
+}
+
+En minnelekkasje oppstår fordi minnet allokert med new aldri frigjøres med delete. Når funksjonen returnerer, mister programmet pekeren til minneblokken, men minnet er fortsatt reservert og utilgjengelig for resten av programmet.`,
+    options: [],
   },
 
   {
-    id: "d2-static-var-1",
-    variantGroupId: "d2-static-var-1",
+    id: "v25v1-d2-q19",
+    variantGroupId: "v25v1-d2-q19",
     source: "del2",
-    topic: "Skop",
-    stem: "Hva skrives ut?",
+    topic: "Kopiering",
     maxPoints: 5,
-    code: `void f() {\n    static int count = 0;\n    count++;\n    std::cout << count;\n}\nf(); f(); f();`,
-    options: [
-      {
-        id: "a",
-        text: "111",
-        isCorrect: false,
-        explanation: "En statisk lokal variabel lever mellom kall og initialiseres bare én gang.",
-      },
-      {
-        id: "b",
-        text: "012",
-        isCorrect: false,
-        explanation: "count++ øker FØR utskrift – verdiene er 1, 2, 3.",
-      },
-      {
-        id: "c",
-        text: "123",
-        isCorrect: true,
-        explanation: "Riktig. count starter på 0 og økes for hvert kall: 1, 2, 3.",
-      },
-      {
-        id: "d",
-        text: "Kompileringsfeil",
-        isCorrect: false,
-        explanation: "static lokale variabler er gyldig C++.",
-      },
-    ],
+    stem: "Hva er forskjellen mellom en dyp kopi (deep copy), og en overfladisk kopi (shallow copy)?",
+    modelAnswer: `Grunn kopi (shallow copy): Kopierer kun pekeren (minneadressen), ikke dataene den peker på. Begge pekerne refererer til samme objekt i minnet – endring via én peker påvirker den andre.
+
+Dyp kopi (deep copy): Kopierer selve dataene til et nytt minnested. De to pekerne refererer til separate objekter – endringer i én påvirker ikke den andre.`,
+    options: [],
   },
 
   {
-    id: "d2-exception-1",
-    variantGroupId: "d2-exception-1",
+    id: "v25v1-d2-q20",
+    variantGroupId: "v25v1-d2-q20",
     source: "del2",
-    topic: "Unntakshåndtering",
-    stem: "Hva skrives ut?",
-    maxPoints: 5,
-    code: `try {\n    throw 42;\n} catch (std::string& e) {\n    std::cout << "string";\n} catch (int e) {\n    std::cout << e;\n}`,
-    options: [
-      {
-        id: "a",
-        text: "string",
-        isCorrect: false,
-        explanation: "42 er et int, ikke en std::string.",
-      },
-      {
-        id: "b",
-        text: "42",
-        isCorrect: true,
-        explanation: "Riktig. throw 42 kaster int. catch(string&) matcher ikke; catch(int e) matcher og printer 42.",
-      },
-      {
-        id: "c",
-        text: "Ingenting",
-        isCorrect: false,
-        explanation: "Unntaket fanges av catch(int e).",
-      },
-      {
-        id: "d",
-        text: "Programmet krasjer",
-        isCorrect: false,
-        explanation: "Unntaket er fanget – std::terminate kalles ikke.",
-      },
-    ],
+    topic: "Kontrollstrukturer",
+    maxPoints: 10,
+    stem: "Omskriv prefixSum()-funksjonen til én enkel løkke i main()-funksjonen.",
+    modelAnswer: `std::vector<int> numbers = {1, 6, 3, 8, 4, 6, 3, 3, 2, 7};
+for (int i = 1; i < (int)numbers.size(); i++) {
+    numbers.at(i) = numbers.at(i) + numbers.at(i - 1);
+}`,
+    code: `#include <vector>
+
+int prefixSum(std::vector<int>& vec, int index) {
+    if(index == 0) {
+        return vec.at(0);
+    }
+    vec.at(index) = vec.at(index) + prefixSum(vec, index - 1);
+    return vec.at(index);
+}
+
+int main() {
+    std::vector<int> numbers = {1, 6, 3, 8, 4, 6, 3, 3, 2, 7};
+    prefixSum(numbers, numbers.size() - 1);
+    return 0;
+}`,
+    options: [],
   },
 
   {
-    id: "d2-constructor-1",
-    variantGroupId: "d2-constructor-1",
+    id: "v25v1-d2-q21",
+    variantGroupId: "v25v1-d2-q21",
     source: "del2",
-    topic: "Konstruktører",
-    stem: "Hva skrives ut?",
+    topic: "Ytelse",
     maxPoints: 5,
-    code: `struct Dog {\n    std::string name;\n    Dog(std::string n) : name{n} {}\n};\nDog d{"Rex"};\nstd::cout << d.name;`,
-    options: [
-      {
-        id: "a",
-        text: "n",
-        isCorrect: false,
-        explanation: "n er parameternavnet, ikke verdien som lagres.",
-      },
-      {
-        id: "b",
-        text: "Rex",
-        isCorrect: true,
-        explanation: "Riktig. Konstruktøren initialiserer name med argumentet \"Rex\".",
-      },
-      {
-        id: "c",
-        text: "Dog",
-        isCorrect: false,
-        explanation: "Dog er klassenavnet, ikke verdien av name.",
-      },
-      {
-        id: "d",
-        text: "Kompileringsfeil",
-        isCorrect: false,
-        explanation: "Koden er gyldig C++.",
-      },
-    ],
+    stem: "Dette programmet kjører mye raskere når linjen som er kommentert ut blir tatt med i programmet. Forklar hvorfor.",
+    modelAnswer: `vec.reserve(length) reserverer plass til length elementer på forhånd, uten å endre størrelsen (size).
+
+Uten reserve(): Hver gang vektoren er full og push_back() kalles, må vektoren re-allokere et nytt og større minneområde og kopiere alle eksisterende elementer dit. Dette skjer O(log n) ganger og er svært kostbart for 1 milliard elementer.
+
+Med reserve(): All nødvendig plass allokeres én gang. push_back() kan alltid legge til elementer uten re-allokering.`,
+    code: `std::vector<int> vec;
+const unsigned long length = 1000000000;
+
+// vec.reserve(length);
+
+for(unsigned long i = 0; i < length; i++) {
+    vec.push_back(5);
+}`,
+    options: [],
+  },
+
+  {
+    id: "v25v1-d2-q22",
+    variantGroupId: "v25v1-d2-q22",
+    source: "del2",
+    topic: "Header-filer",
+    maxPoints: 10,
+    stem: "Hva gjør #pragma once direktivet, og hva er hovedproblemet som den løser?",
+    modelAnswer: `#pragma once er et preprosessordirektiv som sikrer at en header-fil kun inkluderes én gang per kompileringsenhet, selv om den inkluderes indirekte via flere andre header-filer.
+
+Hovedproblemet det løser er dobbel inkludering (multiple inclusion): dersom en header inkluderes to ganger i samme kompileringsenhet, vil klasser og funksjoner defineres to ganger, noe som gir kompileringsfeil.
+
+Alternativet er include-guards (#ifndef / #define / #endif), men #pragma once er kortere og mindre feilutsatt.`,
+    options: [],
+  },
+
+  // ── V25 Variant 2 ─────────────────────────────────────────────────────────
+
+  {
+    id: "v25v2-d2-q13",
+    variantGroupId: "v25v2-d2-q13",
+    source: "del2",
+    topic: "Referanser og pekere",
+    maxPoints: 5,
+    stem: "Gi en likhet og et forskjell mellom en referanse og en peker.",
+    modelAnswer: `Likhet: Begge gir tilgang til et objekt uten å kopiere det – de peker til/refererer samme minnested.
+
+Forskjell: En peker kan re-assignes til å peke på andre objekter og kan være nullptr. En referanse er alltid bundet til det samme objektet fra initialisering og kan ikke re-assignes eller være "null".`,
+    options: [],
+  },
+
+  {
+    id: "v25v2-d2-q14",
+    variantGroupId: "v25v2-d2-q14",
+    source: "del2",
+    topic: "Constexpr",
+    maxPoints: 5,
+    stem: "En funksjon returnerer en verdi med datatype constexpr float. Forklar hva constexpr forteller deg i denne situasjonen.",
+    modelAnswer: `constexpr på returtypen betyr at funksjonen potensielt kan evalueres av kompilatoren ved kompileringstid, ikke ved kjøretid – dersom alle argumenter er kjent ved kompileringstid. Resultatet erstattes da med en konstant verdi i den kompilerte koden.
+
+Dette kan øke ytelsen ved å eliminere kjøretidskall, og kommuniserer tydelig at resultatet er en kompileringstidskonstant.`,
+    options: [],
+  },
+
+  {
+    id: "v25v2-d2-q15",
+    variantGroupId: "v25v2-d2-q15",
+    source: "del2",
+    topic: "Klasser og tilgangsnivå",
+    maxPoints: 5,
+    stem: "Forklar under hvilke betingelser en metode som er markert public, private, eller protected kan kalles.",
+    modelAnswer: `public: Kan kalles fra hvorsomhelst – fra klassen selv, fra barneklasser, og fra ekstern kode utenfor klassen.
+
+private: Kan bare kalles fra innsiden av klassen selv. Ikke tilgjengelig for barneklasser eller ekstern kode.
+
+protected: Kan kalles fra klassen selv og fra barneklasser (arvede klasser), men ikke fra ekstern kode.`,
+    options: [],
+  },
+
+  {
+    id: "v25v2-d2-q16",
+    variantGroupId: "v25v2-d2-q16",
+    source: "del2",
+    topic: "Inn/ut-datahåndtering",
+    maxPoints: 5,
+    stem: "Forklar hvordan funksjonsoverlasting gjør det mulig å skrive ut verdier med ulike datatyper (f.eks. std::string eller int) med utskrift-operatoren (<<).",
+    modelAnswer: `Funksjonsoverlasting lar oss definere flere versjoner av <<-operatoren med ulike parametertyper. Kompilatoren velger automatisk riktig versjon basert på typen til argumentet ved kompileringstid.
+
+Standardbiblioteket definerer separate overlastinger for int, double, std::string, osv. Slik kan den samme operatoren (<<) brukes for alle disse typene uten at kallet er tvetydig.`,
+    options: [],
+  },
+
+  {
+    id: "v25v2-d2-q17",
+    variantGroupId: "v25v2-d2-q17",
+    source: "del2",
+    topic: "Ytelse",
+    maxPoints: 5,
+    stem: "Du er gitt et program som kjører tregt og blir spurt å gjøre den raskere. Gi to eksempler på faktorer som kan gjøre at et program kjører langt tregere enn det som teoretisk hadde vært mulig.",
+    modelAnswer: `1. Unødvendig re-allokering av minne: F.eks. push_back() på en std::vector uten reserve() fører til gjentatte kopieringer av alle elementer ettersom kapasiteten overskrides.
+
+2. Cache-misser: Tilfeldig (ikke-sekvensielt) minneaksess gir hyppige cache-misser, noe som gjør at data må hentes fra RAM (mye langsommere enn cache).
+
+Andre eksempler: unødvendig kopiering av store objekter ved pass-by-value, bruk av []-operatoren på std::map (implisitt innsetting), overbruk av virtuelle funksjoner i kritiske indre løkker.`,
+    options: [],
+  },
+
+  {
+    id: "v25v2-d2-q18",
+    variantGroupId: "v25v2-d2-q18",
+    source: "del2",
+    topic: "Callbacks",
+    maxPoints: 5,
+    stem: "Forklar hva en callback er, og gi et eksempel hvor den kan brukes.",
+    modelAnswer: `En callback er en funksjon som sendes som argument til en annen funksjon, og kalles av den mottakende funksjonen på et bestemt tidspunkt eller ved en bestemt hendelse.
+
+Eksempel 1: I AnimationWindow kan man registrere en callback-funksjon som kalles automatisk av event-loopen når en knapp trykkes.
+
+Eksempel 2: std::sort tar en sammenligningsfunksjon (callback) som bestemmer sorteringsrekkefølgen.`,
+    options: [],
+  },
+
+  {
+    id: "v25v2-d2-q19",
+    variantGroupId: "v25v2-d2-q19",
+    source: "del2",
+    topic: "Beholdere",
+    maxPoints: 5,
+    stem: "Du ønsker å telle hvor ofte hvert ord forekommer i en tekst. Hvilken beholder fra standardbiblioteket (STL) hadde du brukt for dette? Begrunn svaret.",
+    modelAnswer: `std::map<std::string, int> eller std::unordered_map<std::string, int>.
+
+Disse beholderene lagrer nøkkel-verdi-par der nøkkelen er ordet og verdien er antall forekomster. Man kan enkelt øke telleren: wordCount[word]++.
+
+std::unordered_map gir O(1) gjennomsnittlig oppslagstid. std::map gir O(log n) men holder nøklene alfabetisk sortert.`,
+    options: [],
+  },
+
+  {
+    id: "v25v2-d2-q20",
+    variantGroupId: "v25v2-d2-q20",
+    source: "del2",
+    topic: "Navnerom",
+    maxPoints: 5,
+    stem: "Hva er et navnerom, og hvorfor kan den være ønskelig å bruke?",
+    modelAnswer: `Et navnerom (namespace) er en mekanisme for å gruppere relaterte identifikatorer (funksjoner, klasser, variabler) under et felles navn for å unngå navnekonflikter.
+
+Det er ønskelig å bruke navnerom i større prosjekter eller når man kombinerer kode fra ulike biblioteker som kan ha like funksjonsnavn. Standardbiblioteket bruker f.eks. navnerommet std for å unngå konflikter med brukerens egne funksjoner.`,
+    options: [],
+  },
+
+  {
+    id: "v25v2-d2-q21",
+    variantGroupId: "v25v2-d2-q21",
+    source: "del2",
+    topic: "Kontrollstrukturer",
+    maxPoints: 10,
+    stem: "Skriv en tilsvarende while-løkke.",
+    modelAnswer: `int n = 10000;
+int i = 2;
+while (i * i < n) {
+    n /= 3;
+    i -= 5;
+    std::cout << n << std::endl;
+    i++;
+}`,
+    code: `int n = 10000;
+for(int i = 2; i * i < n; i++) {
+    n /= 3;
+    i -= 5;
+    std::cout << n << std::endl;
+}`,
+    options: [],
+  },
+
+  {
+    id: "v25v2-d2-q22",
+    variantGroupId: "v25v2-d2-q22",
+    source: "del2",
+    topic: "Beholdere",
+    maxPoints: 10,
+    stem: "Forklar de viktigste stegene som kjøres av implementasjonen av push_back()-metoden i en std::vector.",
+    modelAnswer: `1. Sjekk om det er ledig kapasitet: er size < capacity?
+2. Hvis ja (kapasitet finnes): plasser det nye elementet på indeks size og øk size med 1.
+3. Hvis nei (full kapasitet): alloker et nytt, større minneområde (typisk dobbelt så stor kapasitet). Kopier eller flytt alle eksisterende elementer til det nye området. Legg til det nye elementet. Frigjør det gamle minneområdet. Oppdater interne pekere, size og capacity.`,
+    options: [],
   },
 ];
 
@@ -4372,7 +4472,7 @@ export const questions: Question[] = rawQuestions.map((q) => ({
   ...q,
   hint: hintMap[q.id],
   codeAnnotated: codeAnnotatedMap[q.id],
-  modelAnswer: modelAnswerMap[q.id],
+  modelAnswer: modelAnswerMap[q.id] ?? q.modelAnswer,
 }));
 
 function pickFromGroups(pool: Question[], count: number, recentIds?: Set<string>): Question[] {

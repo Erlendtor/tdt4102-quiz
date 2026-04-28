@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef, Suspense } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import confetti from "canvas-confetti";
 import { Question, QuestionProgress } from "@/types";
@@ -10,7 +9,7 @@ import { questions as allQuestions } from "@/lib/questions";
 import { getBucket } from "@/lib/scoring";
 import CodeBlock from "@/components/CodeBlock";
 
-type LearnMode = null | "input";
+type LearnMode = "input";
 type InputState = "answering" | "revealed";
 
 const BUCKET_ITEMS = [
@@ -69,10 +68,7 @@ function HintToggle({ hint }: { hint: string }) {
 
 function LearnDel2Inner() {
   const { data: session } = useSession();
-  const searchParams = useSearchParams();
-  const [mode, setMode] = useState<LearnMode>(() =>
-    searchParams.get("mode") === "input" ? "input" : null
-  );
+  const [mode] = useState<LearnMode>("input");
 
   const [activeQuestions, setActiveQuestions] = useState<Question[]>([]);
   const [progress, setProgress] = useState<Map<string, QuestionProgress>>(new Map());
@@ -209,54 +205,6 @@ function LearnDel2Inner() {
     2: activeQuestions.filter((q) => (progress.get(q.id)?.bucket ?? 0) === 2 && !masteredIds.has(q.id)).length,
     mastered: masteredIds.size,
   };
-
-  // ── MODE PICKER ─────────────────────────────────────────────────────────────
-  if (!mode) {
-    return (
-      <main className="page-shell">
-        <div className="app-card page-enter" style={{ minWidth: "min(440px, calc(100vw - 32px))" }}>
-          <div style={{ padding: "28px 24px 8px" }}>
-            <Link href="/" className="learn-sq-btn" style={{ marginBottom: "20px", display: "inline-flex" }} aria-label="Hjem">
-              <svg width="22" height="22" viewBox="0 0 17 17" fill="none">
-                <path d="M2.5 7.5L8.5 2L14.5 7.5V15H11V10.5H6V15H2.5V7.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round"/>
-              </svg>
-            </Link>
-            <div className="label" style={{ marginBottom: "6px" }}>TDT4102 · Del 2</div>
-            <h1 className="heading-lg" style={{ marginBottom: "6px" }}>Kortsvarsoppgaver</h1>
-            <p className="body-text" style={{ color: "var(--text-secondary)", marginBottom: "0" }}>Velg øvingsformat:</p>
-          </div>
-
-          <div style={{ padding: "16px 24px 32px", display: "flex", flexDirection: "column", gap: "10px" }}>
-            <Link
-              href="/learn?del2=1"
-              style={{
-                display: "block", padding: "18px 20px", borderRadius: "var(--radius-md)",
-                border: "1.5px solid var(--border)", background: "var(--surface)",
-                textDecoration: "none", color: "var(--text-primary)",
-                transition: "border-color 0.15s, background 0.15s",
-              }}
-            >
-              <div style={{ fontWeight: 600, fontSize: "16px", marginBottom: "3px" }}>Flervalg</div>
-              <div style={{ fontSize: "13px", color: "var(--text-secondary)" }}>Automatisk retting med forklaringer</div>
-            </Link>
-            <button
-              onClick={() => setMode("input")}
-              style={{
-                display: "block", padding: "18px 20px", borderRadius: "var(--radius-md)",
-                border: "1.5px solid var(--border)", background: "var(--surface)",
-                textAlign: "left", cursor: "pointer", width: "100%",
-                color: "var(--text-primary)", fontFamily: "var(--font-sans)",
-                transition: "border-color 0.15s, background 0.15s",
-              }}
-            >
-              <div style={{ fontWeight: 600, fontSize: "16px", marginBottom: "3px" }}>Skriv svar</div>
-              <div style={{ fontSize: "13px", color: "var(--text-secondary)" }}>Skriv kortsvaret ditt og sammenlign med fasit</div>
-            </button>
-          </div>
-        </div>
-      </main>
-    );
-  }
 
   // ── DONE ────────────────────────────────────────────────────────────────────
   if (done) {
@@ -461,17 +409,5 @@ function LearnDel2Inner() {
 }
 
 export default function LearnDel2Page() {
-  return (
-    <Suspense fallback={
-      <main className="page-shell">
-        <div className="app-card">
-          <div style={{ padding: "48px 28px", textAlign: "center" }}>
-            <p className="body-text">Laster...</p>
-          </div>
-        </div>
-      </main>
-    }>
-      <LearnDel2Inner />
-    </Suspense>
-  );
+  return <LearnDel2Inner />;
 }

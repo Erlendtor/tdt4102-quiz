@@ -193,7 +193,7 @@ export default async function Home() {
 
           {/* Læringsmodus Del 2 */}
           <div style={cardWrapStyle}>
-          <div className="mode-card" style={{ ...cardStyle, cursor: "default" }}>
+          <Link href="/learn-del2" className="mode-card" style={cardStyle}>
             <div className="card-image">
               <Image src="/læring del2.png" alt="Læringsmodus Del 2" fill sizes="50vw" style={{ objectFit: "cover" }} />
             </div>
@@ -207,37 +207,9 @@ export default async function Home() {
                   Kortsvarsoppgaver med egenvurdering
                 </p>
               </div>
-              <div style={{ display: "flex", gap: "8px" }}>
-                <Link
-                  href="/learn?del2=1"
-                  style={{
-                    flex: 1, textAlign: "center", padding: "10px 8px",
-                    borderRadius: "var(--radius-sm)",
-                    border: "1.5px solid rgba(0,0,0,0.18)",
-                    background: "rgba(255,255,255,0.55)",
-                    color: "var(--text-primary)", textDecoration: "none",
-                    fontSize: "13px", fontWeight: 600,
-                    fontFamily: "var(--font-sans)",
-                  }}
-                >
-                  Flervalg
-                </Link>
-                <Link
-                  href="/learn-del2?mode=input"
-                  style={{
-                    flex: 1, textAlign: "center", padding: "10px 8px",
-                    borderRadius: "var(--radius-sm)",
-                    background: "var(--text-primary)",
-                    color: "var(--card)", textDecoration: "none",
-                    fontSize: "13px", fontWeight: 600,
-                    fontFamily: "var(--font-sans)",
-                  }}
-                >
-                  Kortsvar
-                </Link>
-              </div>
+              <span className="card-cta">Start nå ⟶</span>
             </div>
-          </div>
+          </Link>
           </div>
 
           {/* Eksamensmodus */}
