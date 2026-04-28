@@ -64,48 +64,48 @@ function XIcon() {
   );
 }
 
-type ConfettiParticle = { dx: string; dy: string; rot: string; color: string; delay: string; w: string; h: string };
+type ConfettiParticle = { dx: string; dy: string; rot: string; color: string; delay: string; w: string; h: string; swing: string };
 
 const LEFT_CONFETTI: ConfettiParticle[] = [
-  { dx: "14px",  dy: "95px",  rot: "180deg",  color: "#FF3B5C", delay: "0ms",  w: "4px", h: "11px" },
-  { dx: "40px",  dy: "68px",  rot: "-130deg", color: "#FFD60A", delay: "14ms", w: "5px", h: "9px"  },
-  { dx: "22px",  dy: "130px", rot: "250deg",  color: "#0A84FF", delay: "5ms",  w: "3px", h: "13px" },
-  { dx: "58px",  dy: "82px",  rot: "-80deg",  color: "#30D158", delay: "26ms", w: "6px", h: "9px"  },
-  { dx: "16px",  dy: "168px", rot: "170deg",  color: "#FF9500", delay: "4ms",  w: "4px", h: "12px" },
-  { dx: "48px",  dy: "48px",  rot: "-220deg", color: "#BF5AF2", delay: "36ms", w: "5px", h: "8px"  },
-  { dx: "8px",   dy: "108px", rot: "110deg",  color: "#5AC8FA", delay: "11ms", w: "3px", h: "11px" },
-  { dx: "65px",  dy: "118px", rot: "-155deg", color: "#FF3B5C", delay: "20ms", w: "4px", h: "10px" },
-  { dx: "32px",  dy: "188px", rot: "310deg",  color: "#FFD60A", delay: "7ms",  w: "5px", h: "13px" },
-  { dx: "52px",  dy: "62px",  rot: "-65deg",  color: "#0A84FF", delay: "42ms", w: "3px", h: "9px"  },
-  { dx: "20px",  dy: "145px", rot: "230deg",  color: "#30D158", delay: "17ms", w: "6px", h: "11px" },
-  { dx: "44px",  dy: "92px",  rot: "-290deg", color: "#FF9500", delay: "33ms", w: "4px", h: "10px" },
-  { dx: "62px",  dy: "54px",  rot: "80deg",   color: "#BF5AF2", delay: "52ms", w: "5px", h: "12px" },
-  { dx: "10px",  dy: "175px", rot: "-350deg", color: "#5AC8FA", delay: "9ms",  w: "3px", h: "9px"  },
-  { dx: "36px",  dy: "112px", rot: "145deg",  color: "#FF3B5C", delay: "28ms", w: "4px", h: "11px" },
-  { dx: "55px",  dy: "76px",  rot: "-115deg", color: "#FFD60A", delay: "46ms", w: "5px", h: "10px" },
-  { dx: "26px",  dy: "155px", rot: "270deg",  color: "#0A84FF", delay: "19ms", w: "6px", h: "13px" },
-  { dx: "46px",  dy: "94px",  rot: "-190deg", color: "#30D158", delay: "60ms", w: "3px", h: "11px" },
+  { dx: "32px",  dy: "155px", rot: "180deg",  color: "#FF3B5C", delay: "0ms",  w: "10px", h: "24px", swing:  "22px" },
+  { dx: "95px",  dy: "115px", rot: "-130deg", color: "#FFD60A", delay: "14ms", w: "9px",  h: "21px", swing: "-26px" },
+  { dx: "50px",  dy: "210px", rot: "250deg",  color: "#0A84FF", delay: "5ms",  w: "7px",  h: "30px", swing:  "18px" },
+  { dx: "125px", dy: "155px", rot: "-80deg",  color: "#30D158", delay: "26ms", w: "13px", h: "27px", swing: "-22px" },
+  { dx: "30px",  dy: "280px", rot: "170deg",  color: "#FF9500", delay: "4ms",  w: "9px",  h: "26px", swing:  "30px" },
+  { dx: "82px",  dy: "95px",  rot: "-220deg", color: "#BF5AF2", delay: "36ms", w: "11px", h: "22px", swing: "-16px" },
+  { dx: "20px",  dy: "185px", rot: "110deg",  color: "#5AC8FA", delay: "11ms", w: "8px",  h: "32px", swing:  "24px" },
+  { dx: "138px", dy: "210px", rot: "-155deg", color: "#FF3B5C", delay: "20ms", w: "10px", h: "25px", swing: "-28px" },
+  { dx: "62px",  dy: "305px", rot: "310deg",  color: "#FFD60A", delay: "7ms",  w: "8px",  h: "28px", swing:  "20px" },
+  { dx: "108px", dy: "128px", rot: "-65deg",  color: "#0A84FF", delay: "42ms", w: "12px", h: "22px", swing: "-24px" },
+  { dx: "38px",  dy: "235px", rot: "230deg",  color: "#30D158", delay: "17ms", w: "14px", h: "30px", swing:  "32px" },
+  { dx: "78px",  dy: "165px", rot: "-290deg", color: "#FF9500", delay: "33ms", w: "9px",  h: "26px", swing: "-20px" },
+  { dx: "118px", dy: "108px", rot: "80deg",   color: "#BF5AF2", delay: "52ms", w: "11px", h: "24px", swing:  "18px" },
+  { dx: "24px",  dy: "255px", rot: "-350deg", color: "#5AC8FA", delay: "9ms",  w: "7px",  h: "32px", swing: "-22px" },
+  { dx: "68px",  dy: "190px", rot: "145deg",  color: "#FF3B5C", delay: "28ms", w: "13px", h: "28px", swing:  "26px" },
+  { dx: "110px", dy: "140px", rot: "-115deg", color: "#FFD60A", delay: "46ms", w: "10px", h: "23px", swing: "-18px" },
+  { dx: "44px",  dy: "320px", rot: "270deg",  color: "#0A84FF", delay: "19ms", w: "8px",  h: "30px", swing:  "28px" },
+  { dx: "90px",  dy: "172px", rot: "-190deg", color: "#30D158", delay: "65ms", w: "12px", h: "26px", swing: "-30px" },
 ];
 
 const RIGHT_CONFETTI: ConfettiParticle[] = [
-  { dx: "-14px",  dy: "95px",  rot: "-180deg", color: "#FF3B5C", delay: "0ms",  w: "4px", h: "11px" },
-  { dx: "-40px",  dy: "68px",  rot: "130deg",  color: "#FFD60A", delay: "14ms", w: "5px", h: "9px"  },
-  { dx: "-22px",  dy: "130px", rot: "-250deg", color: "#0A84FF", delay: "5ms",  w: "3px", h: "13px" },
-  { dx: "-58px",  dy: "82px",  rot: "80deg",   color: "#30D158", delay: "26ms", w: "6px", h: "9px"  },
-  { dx: "-16px",  dy: "168px", rot: "-170deg", color: "#FF9500", delay: "4ms",  w: "4px", h: "12px" },
-  { dx: "-48px",  dy: "48px",  rot: "220deg",  color: "#BF5AF2", delay: "36ms", w: "5px", h: "8px"  },
-  { dx: "-8px",   dy: "108px", rot: "-110deg", color: "#5AC8FA", delay: "11ms", w: "3px", h: "11px" },
-  { dx: "-65px",  dy: "118px", rot: "155deg",  color: "#FF3B5C", delay: "20ms", w: "4px", h: "10px" },
-  { dx: "-32px",  dy: "188px", rot: "-310deg", color: "#FFD60A", delay: "7ms",  w: "5px", h: "13px" },
-  { dx: "-52px",  dy: "62px",  rot: "65deg",   color: "#0A84FF", delay: "42ms", w: "3px", h: "9px"  },
-  { dx: "-20px",  dy: "145px", rot: "-230deg", color: "#30D158", delay: "17ms", w: "6px", h: "11px" },
-  { dx: "-44px",  dy: "92px",  rot: "290deg",  color: "#FF9500", delay: "33ms", w: "4px", h: "10px" },
-  { dx: "-62px",  dy: "54px",  rot: "-80deg",  color: "#BF5AF2", delay: "52ms", w: "5px", h: "12px" },
-  { dx: "-10px",  dy: "175px", rot: "350deg",  color: "#5AC8FA", delay: "9ms",  w: "3px", h: "9px"  },
-  { dx: "-36px",  dy: "112px", rot: "-145deg", color: "#FF3B5C", delay: "28ms", w: "4px", h: "11px" },
-  { dx: "-55px",  dy: "76px",  rot: "115deg",  color: "#FFD60A", delay: "46ms", w: "5px", h: "10px" },
-  { dx: "-26px",  dy: "155px", rot: "-270deg", color: "#0A84FF", delay: "19ms", w: "6px", h: "13px" },
-  { dx: "-46px",  dy: "94px",  rot: "190deg",  color: "#30D158", delay: "60ms", w: "3px", h: "11px" },
+  { dx: "-32px",  dy: "155px", rot: "-180deg", color: "#FF3B5C", delay: "0ms",  w: "10px", h: "24px", swing: "-22px" },
+  { dx: "-95px",  dy: "115px", rot: "130deg",  color: "#FFD60A", delay: "14ms", w: "9px",  h: "21px", swing:  "26px" },
+  { dx: "-50px",  dy: "210px", rot: "-250deg", color: "#0A84FF", delay: "5ms",  w: "7px",  h: "30px", swing: "-18px" },
+  { dx: "-125px", dy: "155px", rot: "80deg",   color: "#30D158", delay: "26ms", w: "13px", h: "27px", swing:  "22px" },
+  { dx: "-30px",  dy: "280px", rot: "-170deg", color: "#FF9500", delay: "4ms",  w: "9px",  h: "26px", swing: "-30px" },
+  { dx: "-82px",  dy: "95px",  rot: "220deg",  color: "#BF5AF2", delay: "36ms", w: "11px", h: "22px", swing:  "16px" },
+  { dx: "-20px",  dy: "185px", rot: "-110deg", color: "#5AC8FA", delay: "11ms", w: "8px",  h: "32px", swing: "-24px" },
+  { dx: "-138px", dy: "210px", rot: "155deg",  color: "#FF3B5C", delay: "20ms", w: "10px", h: "25px", swing:  "28px" },
+  { dx: "-62px",  dy: "305px", rot: "-310deg", color: "#FFD60A", delay: "7ms",  w: "8px",  h: "28px", swing: "-20px" },
+  { dx: "-108px", dy: "128px", rot: "65deg",   color: "#0A84FF", delay: "42ms", w: "12px", h: "22px", swing:  "24px" },
+  { dx: "-38px",  dy: "235px", rot: "-230deg", color: "#30D158", delay: "17ms", w: "14px", h: "30px", swing: "-32px" },
+  { dx: "-78px",  dy: "165px", rot: "290deg",  color: "#FF9500", delay: "33ms", w: "9px",  h: "26px", swing:  "20px" },
+  { dx: "-118px", dy: "108px", rot: "-80deg",  color: "#BF5AF2", delay: "52ms", w: "11px", h: "24px", swing: "-18px" },
+  { dx: "-24px",  dy: "255px", rot: "350deg",  color: "#5AC8FA", delay: "9ms",  w: "7px",  h: "32px", swing:  "22px" },
+  { dx: "-68px",  dy: "190px", rot: "-145deg", color: "#FF3B5C", delay: "28ms", w: "13px", h: "28px", swing: "-26px" },
+  { dx: "-110px", dy: "140px", rot: "115deg",  color: "#FFD60A", delay: "46ms", w: "10px", h: "23px", swing:  "18px" },
+  { dx: "-44px",  dy: "320px", rot: "-270deg", color: "#0A84FF", delay: "19ms", w: "8px",  h: "30px", swing: "-28px" },
+  { dx: "-90px",  dy: "172px", rot: "190deg",  color: "#30D158", delay: "65ms", w: "12px", h: "26px", swing:  "30px" },
 ];
 
 const BUCKET_ITEMS = [
@@ -301,8 +301,8 @@ export default function LearnPage() {
       const dx = ex - sx;
       const dy = ey - sy;
       // Arc midpoint: 40% along horizontal, 30% along vertical, lifted 32px above the straight line
-      const midX = sx + dx * 0.4;
-      const midY = sy + dy * 0.3 - 32;
+      const midX = sx + dx * 0.6 - 40;
+      const midY = sy + dy * 0.28 - 28;
 
       setFlyingScore({ sx, sy, midX, midY, ex, ey, label: scoreLabel, color: scoreColor });
 
@@ -453,15 +453,16 @@ export default function LearnPage() {
                 left: 0,
                 width: p.w,
                 height: p.h,
-                borderRadius: "1px",
+                borderRadius: "2px",
                 background: p.color,
                 pointerEvents: "none",
                 zIndex: 3,
-                animation: "confetti-fall 1.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards",
+                animation: "confetti-fall 2.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards",
                 animationDelay: p.delay,
                 ["--dx" as string]: p.dx,
                 ["--dy" as string]: p.dy,
                 ["--rot" as string]: p.rot,
+                ["--swing" as string]: p.swing,
               } as React.CSSProperties} />
             ))}
             {RIGHT_CONFETTI.map((p, i) => (
@@ -471,15 +472,16 @@ export default function LearnPage() {
                 right: 0,
                 width: p.w,
                 height: p.h,
-                borderRadius: "1px",
+                borderRadius: "2px",
                 background: p.color,
                 pointerEvents: "none",
                 zIndex: 3,
-                animation: "confetti-fall 1.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards",
+                animation: "confetti-fall 2.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards",
                 animationDelay: p.delay,
                 ["--dx" as string]: p.dx,
                 ["--dy" as string]: p.dy,
                 ["--rot" as string]: p.rot,
+                ["--swing" as string]: p.swing,
               } as React.CSSProperties} />
             ))}
           </>
@@ -698,7 +700,7 @@ export default function LearnPage() {
           color: flyingScore.color,
           pointerEvents: "none",
           zIndex: 9999,
-          animation: "score-fly 350ms cubic-bezier(0.45, 0, 0.55, 1) forwards",
+          animation: "score-fly 350ms cubic-bezier(0.55, 0, 1, 0.85) forwards",
           ["--fly-midX" as string]: `${flyingScore.midX - flyingScore.sx}px`,
           ["--fly-midY" as string]: `${flyingScore.midY - flyingScore.sy}px`,
           ["--fly-ex" as string]: `${flyingScore.ex - flyingScore.sx}px`,
