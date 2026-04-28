@@ -98,25 +98,26 @@ function LearnDel2Inner() {
     setActiveQuestions(del2Qs);
     setCurrent(null);
     setDone(false);
+  }, [mode]);
 
-    if (session?.user?.id) {
-      fetch("/api/progress")
-        .then((r) => r.json())
-        .then((data: QuestionProgress[]) => {
-          const map = new Map<string, QuestionProgress>();
-          const mastered = new Set<string>();
-          for (const p of data) {
-            if (del2Qs.find((q) => q.id === p.questionId)) {
-              map.set(p.questionId, p);
-              if (p.bucket === 2 && p.timesInBucket2 >= 2) mastered.add(p.questionId);
-            }
+  useEffect(() => {
+    if (mode !== "input" || !session?.user?.id || activeQuestions.length === 0) return;
+    fetch("/api/progress")
+      .then((r) => r.json())
+      .then((data: QuestionProgress[]) => {
+        const map = new Map<string, QuestionProgress>();
+        const mastered = new Set<string>();
+        for (const p of data) {
+          if (activeQuestions.find((q) => q.id === p.questionId)) {
+            map.set(p.questionId, p);
+            if (p.bucket === 2 && p.timesInBucket2 >= 2) mastered.add(p.questionId);
           }
-          setProgress(map);
-          setMasteredIds(mastered);
-        })
-        .catch(() => {});
-    }
-  }, [mode, session]);
+        }
+        setProgress(map);
+        setMasteredIds(mastered);
+      })
+      .catch(() => {});
+  }, [mode, session?.user?.id, activeQuestions]);
 
   useEffect(() => {
     if (mode !== "input" || activeQuestions.length === 0 || current) return;
@@ -404,7 +405,7 @@ function LearnDel2Inner() {
         {/* Footer */}
         <div style={{ flexShrink: 0, padding: "14px 20px 18px", background: "var(--card)" }}>
           <div style={{ display: "flex", gap: "5px", alignItems: "center" }}>
-            <Link href="/learn-del2" className="learn-sq-btn" aria-label="Tilbake">
+            <Link href="/" className="learn-sq-btn" aria-label="Hjem">
               <svg width="22" height="22" viewBox="0 0 17 17" fill="none">
                 <path d="M2.5 7.5L8.5 2L14.5 7.5V15H11V10.5H6V15H2.5V7.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round"/>
               </svg>

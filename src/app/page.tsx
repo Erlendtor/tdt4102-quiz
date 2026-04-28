@@ -100,7 +100,7 @@ export default async function Home() {
   }
 
   return (
-    <main className="page-shell">
+    <main className="page-shell" style={{ alignItems: "flex-start", padding: "8vh 16px" }}>
       <div className="app-card" style={{ minWidth: "min(640px, calc(100vw - 32px))", display: "flex", flexDirection: "column" }}>
         <HomeLoader />
 
@@ -242,7 +242,7 @@ export default async function Home() {
 
           {/* Eksamensmodus */}
           <div style={{ width: "100%" }}>
-          <Link href="/exam" className="mode-card" style={{ ...cardStyle, aspectRatio: "auto", minHeight: "130px" }}>
+          <Link href="/exam" className="mode-card" style={{ ...cardStyle, aspectRatio: "auto", minHeight: "220px" }}>
             <div className="card-image">
               <Image src="/eksamen3.png" alt="Eksamensmodus" fill sizes="100vw" style={{ objectFit: "cover" }} />
             </div>

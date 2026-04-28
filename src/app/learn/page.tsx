@@ -725,7 +725,7 @@ function LearnPage() {
         <div style={{ flexShrink: 0, padding: "14px 20px 18px", background: "var(--card)" }}>
           {/* Main button row — square icon btns visible on mobile only */}
           <div style={{ display: "flex", gap: "5px", alignItems: "center" }}>
-            <Link href={isDel2 ? "/learn-del2" : "/"} className="learn-sq-btn" aria-label="Hjem">
+            <Link href="/" className="learn-sq-btn" aria-label="Hjem">
               <svg width="22" height="22" viewBox="0 0 17 17" fill="none">
                 <path d="M2.5 7.5L8.5 2L14.5 7.5V15H11V10.5H6V15H2.5V7.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round"/>
               </svg>
