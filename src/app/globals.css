@@ -525,19 +525,23 @@ body {
 }
 
 .card-glass {
-  min-height: 118px;
+  min-height: 136px;
   transition: min-height 0.55s cubic-bezier(0.25, 0, 0.2, 1);
 }
 .mode-card:hover .card-glass {
-  min-height: 145px;
+  min-height: 168px;
 }
 
 .card-cta {
+  position: absolute;
+  bottom: 20px;
+  right: 16px;
   font-size: 13px;
   font-weight: 500;
   color: var(--text-secondary);
   opacity: 0;
-  margin-top: 12px;
+  pointer-events: none;
+  white-space: nowrap;
   transition: opacity 0.55s cubic-bezier(0.25, 0, 0.2, 1);
 }
 .mode-card:hover .card-cta {

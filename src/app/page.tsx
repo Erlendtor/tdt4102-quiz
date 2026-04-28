@@ -180,8 +180,8 @@ export default async function Home() {
                     {questions.length} spørsmål
                   </span>
                 )}
-                <span className="card-cta">Start nå ⟶</span>
               </div>
+              <span className="card-cta">Start nå ⟶</span>
             </div>
           </Link>
 
@@ -223,8 +223,8 @@ export default async function Home() {
                     Ingen eksamen tatt ennå
                   </span>
                 ) : null}
-                <span className="card-cta">Start nå ⟶</span>
               </div>
+              <span className="card-cta">Start nå ⟶</span>
             </div>
           </Link>
 
