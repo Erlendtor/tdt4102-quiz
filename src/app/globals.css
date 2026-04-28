@@ -91,7 +91,7 @@ body {
 
 /* Learn card bounds — desktop only */
 .app-card-learn {
-  min-height: 600px;
+  min-height: 800px;
 }
 
 /* Typography system */
@@ -227,7 +227,6 @@ body {
 
 .option-btn.selected {
   border-color: var(--text-primary);
-  box-shadow: inset 0 0 0 1px var(--text-primary);
   background: var(--surface);
 }
 
@@ -316,6 +315,7 @@ body {
   border-radius: 6px;
   font-size: 15px;
   font-weight: 500;
+  animation: reveal 0.2s ease;
 }
 
 .result-pill.perfect {
@@ -346,6 +346,7 @@ body {
   color: var(--text-secondary);
   background: var(--surface);
   margin-top: 4px;
+  animation: reveal 0.18s ease;
 }
 
 .explanation.correct-exp {
@@ -404,6 +405,20 @@ body {
   background: var(--surface);
   border-color: var(--border-strong);
   color: var(--text-primary);
+}
+
+/* Fade-slide in — used for explanations, result pill */
+@keyframes reveal {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Question content: fade out on exit, fade in on enter */
+.question-content {
+  transition: opacity 0.14s ease;
+}
+.question-content.exiting {
+  opacity: 0;
 }
 
 /* Bucket count pop animation */

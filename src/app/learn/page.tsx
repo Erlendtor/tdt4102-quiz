@@ -84,6 +84,7 @@ export default function LearnPage() {
   const [openExplanations, setOpenExplanations] = useState<Set<string>>(new Set());
   const [animatingBucket, setAnimatingBucket] = useState<number | null>(null);
   const [hintOpen, setHintOpen] = useState(false);
+  const [exiting, setExiting] = useState(false);
 
   useEffect(() => {
     const deduped = deduplicateGroups(allQuestions).map(shuffleOptions);
@@ -187,14 +188,18 @@ export default function LearnPage() {
   }
 
   function nextQuestion() {
-    const remaining = activeQuestions.filter((q) => !masteredIds.has(q.id));
-    if (remaining.length === 0) { setDone(true); return; }
-    const next = pickNextQuestion(activeQuestions, progress, masteredIds);
-    setCurrent(next ? shuffleOptions(next) : null);
-    setSelected(new Set());
-    setState("answering");
-    setOpenExplanations(new Set());
-    setHintOpen(false);
+    setExiting(true);
+    setTimeout(() => {
+      const remaining = activeQuestions.filter((q) => !masteredIds.has(q.id));
+      if (remaining.length === 0) { setDone(true); return; }
+      const next = pickNextQuestion(activeQuestions, progress, masteredIds);
+      setCurrent(next ? shuffleOptions(next) : null);
+      setSelected(new Set());
+      setState("answering");
+      setOpenExplanations(new Set());
+      setHintOpen(false);
+      setExiting(false);
+    }, 140);
   }
 
   if (done || (activeQuestions.length > 0 && masteredIds.size >= activeQuestions.length)) {
@@ -261,7 +266,7 @@ export default function LearnPage() {
       <div className="app-card app-card-learn">
 
         {/* Question area */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "20px 20px 16px" }}>
+        <div className={`question-content${exiting ? " exiting" : ""}`} style={{ flex: 1, overflowY: "auto", padding: "20px 20px 16px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px", flexWrap: "wrap" }}>
             <span className="tag">{current.topic}</span>
           </div>
