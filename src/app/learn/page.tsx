@@ -83,6 +83,7 @@ export default function LearnPage() {
   const [done, setDone] = useState(false);
   const [openExplanations, setOpenExplanations] = useState<Set<string>>(new Set());
   const [animatingBucket, setAnimatingBucket] = useState<number | null>(null);
+  const [hintOpen, setHintOpen] = useState(false);
 
   useEffect(() => {
     const deduped = deduplicateGroups(allQuestions).map(shuffleOptions);
@@ -191,6 +192,7 @@ export default function LearnPage() {
     setSelected(new Set());
     setState("answering");
     setOpenExplanations(new Set());
+    setHintOpen(false);
   }
 
   if (done || (activeQuestions.length > 0 && masteredIds.size >= activeQuestions.length)) {
@@ -360,6 +362,55 @@ export default function LearnPage() {
               <div className={`result-pill ${pillClass}`}>
                 {pillLabel} · {score.toFixed(1)} / {current.maxPoints}p
               </div>
+            </div>
+          )}
+
+          {/* Hint toggle — only shown while answering */}
+          {state === "answering" && current.hint && (
+            <div style={{ marginTop: "18px" }}>
+              <button
+                onClick={() => setHintOpen((v) => !v)}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  background: "none",
+                  border: "none",
+                  padding: "0",
+                  cursor: "pointer",
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "11px",
+                  fontWeight: 500,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  color: "var(--text-tertiary)",
+                }}
+              >
+                <span style={{
+                  display: "inline-block",
+                  transform: hintOpen ? "rotate(180deg)" : "rotate(0deg)",
+                  transition: "transform 0.15s",
+                  lineHeight: 1,
+                }}>↓</span>
+                {hintOpen ? "Skjul hint" : "Vis hint"}
+              </button>
+
+              {hintOpen && (
+                <div style={{
+                  marginTop: "8px",
+                  padding: "10px 14px",
+                  borderRadius: "var(--radius-sm)",
+                  background: "var(--surface)",
+                  border: "1px solid var(--border)",
+                  borderLeft: "3px solid var(--border-strong)",
+                  fontSize: "14px",
+                  lineHeight: 1.6,
+                  color: "var(--text-secondary)",
+                  fontStyle: "italic",
+                }}>
+                  {current.hint}
+                </div>
+              )}
             </div>
           )}
         </div>

@@ -14,6 +14,7 @@ export type Question = {
   options: Option[];
   variantGroupId: string;
   source: string;
+  hint?: string;
 };
 
 export type Bucket = 0 | 1 | 2;

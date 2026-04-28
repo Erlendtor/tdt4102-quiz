@@ -1,6 +1,6 @@
 import { Question } from "@/types";
 
-export const questions: Question[] = [
+const rawQuestions: Question[] = [
   // ─── KOMPILERING / LINKING ────────────────────────────────────────────────
 
   {
@@ -2394,6 +2394,70 @@ int main(int argc, char** argv) {
     ],
   },
 ];
+
+const hintMap: Record<string, string> = {
+  "v24v1-q1": "Tenk nøye på hva kompilatoren lager og hva linkeren gjør etterpå – det er to ulike steg med ulike ansvarsområder.",
+  "v24v2-q1": "C++ kompileres til maskinkode for én bestemt plattform. Og selv om programmet kompilerer, kan det fortsatt feile under kjøring.",
+  "v25v2-q4": "Tre steg: kompilering oversetter kildekode, linking setter sammen objektfiler. Syntaksfeil oppdages tidlig – men av hvem?",
+  "v25v1-q4": "Kildekoden leses fra topp til bunn. Hva er vanlig konvensjon for hva som hører hjemme i .h vs .cpp? Og hva gjør #include med preprosessoren?",
+  "v24v1-q2": "Heltallsdivisjon avkorter mot null – ikke avrunder. Og husk: signed og unsigned int bruker like mange bits, men tolker dem ulikt.",
+  "v25v2-q2": "Konvertering fra float til double mister ingenting (utvidende). Hva skjer ved flytallsaritmetikk? Hva skjer med unsigned ved underflyt?",
+  "v25v1-q2": "Skille mellom type (klassen/blueprint) og objekt (en instans). Navnerom lar deg gjenbruke navn i separate skop.",
+  "v25v1-q1": "Flytall lagres med begrenset presisjon i binær IEEE 754-format. Er de like tette overalt på tallinja? Og finnes det spesialverdier?",
+  "v25v2-q1": "float=32 bit, double=64 bit. Er double virkelig bare 'dobbelt' av float i antall representable tall? Og hva er maksverdien for unsigned vs signed int?",
+  "v24v1-q3": "Les kodeblokken lag for lag: hva er innenfor namespace foo {}, hva er innenfor f() {}, og hva er innenfor for-løkken {}?",
+  "v24v2-q4": "Klasser kan defineres i globalt skop og inne i funksjoner. Husk at :: lar deg definere en medlemsfunksjon utenfor klassen.",
+  "v24v1-q4": "RAII krever at ressursen frigjøres automatisk i destruktøren. Har klasse A en destruktør som kaller delete på ptr?",
+  "v24v2-q5": "Hvem eier den allokerte int*? std::vector er et RAII-objekt – hva skjer med den når bar() returnerer?",
+  "custom-raii-1": "Hva garanterer RAII når et unntak kastes? Kalles destruktøren til lokale objekter på stakken under stack unwinding?",
+  "v24v1-q5": "Kompilatoren genererer alltid en destruktør om du ikke skriver en selv. Destruktøren kalles automatisk – ikke eksplisitt.",
+  "v24v2-q7": "En ren virtuell funksjon (= 0) gjør klassen abstrakt – det kan ikke lages instanser direkte. Hva tvinger det barneklasser til?",
+  "v24v1-q6": "Unntak kastes med throw og fanges med catch. try markerer kode som kan feile. Unntak er et kjøretidsfenomen, ikke kompileringstid.",
+  "v24v2-q8": "Hva frigjøres automatisk via RAII ved unntak, og hva frigjøres ikke? Hva kaster at() om indeksen er utenfor rekkevidde?",
+  "v25v1-q11": "Unntak propagerer oppover i kallstakken til de fanges. En catch(std::exception&) bruker arv og polymorfi – hvilke unntak matcher den?",
+  "v25v2-q7": "throw kan brukes overalt i koden. Unntak er et kjøretidsfenomen. Kan én catch fange mange typer via arvehierarkiet?",
+  "v24v1-q7": "Skill mellom pekerens adresse (hva b inneholder) og verdien den peker til (*b). Hva gjør ++ på en peker vs. ++ på en vanlig variabel?",
+  "v24v2-q9": "Husk: & gir adressen til en variabel. * derefererer pekeren (gir verdien). Er ptr[0] og *(ptr+0) det samme?",
+  "lf-q9": "En peker er bare et tall – en minneadresse. Den kan peke til gyldig eller ugyldig minne. Hva trenger du for å endre verdien den peker til?",
+  "v24v1-q8": "Grunn kopiering: kopier adressen slik at begge pekere deler objektet. Dyp kopiering: lag et nytt objekt med ny minneplass.",
+  "v24v2-q10": "new double{*euler1} – hva gjør * her? Lages det et helt nytt minneobjekt, eller kopieres bare adressen?",
+  "custom-kopiering-1": "y = x er en pekertilordning – begge peker nå på samme minnelokasjon. new int{*x} kopierer verdien til en ny minneplass.",
+  "v24v1-q9": "friend gir tilgang til alle tilgangsnivåer. Arves friend-relasjoner til barneklasser? Kan en friend-funksjon være i en annen klasse?",
+  "v24v2-q11": "Husk: public=alle, protected=klassen og barneklasser, private=kun klassen selv. Hva kan abstrakte klasser ha?",
+  "lf-q11": "friend gir tilgang til private medlemmer. Hvilken operator deklareres typisk som friend for å muliggjøre utskrift?",
+  "v25v1-q9": "friend deklareres inne i klassen. Gjelder det bare for funksjoner, eller kan hele klasser også erklæres som friend?",
+  "v24v1-q10": "std::set er sortert og inneholder unike elementer. Hvilken funksjon bruker man for å legge til et element – push_back eller noe annet?",
+  "v24v2-q12": "size() = faktiske elementer, capacity() = allokert plass. Hva trigger reallokering? Endrer push_back alltid kapasiteten?",
+  "v24v1-q11": "Templates instansieres ved kompilering, så kompilatoren trenger hele definisjonen tilgjengelig. Kan kompilatoren utlede typeparametere fra argumentene?",
+  "v25v2-q10": "std::array<int, 10> bruker et heltall som template-parameter. Kan templates ta inn mer enn én typeparameter?",
+  "v24v1-q12": "Callback-funksjoner i AnimationWindow har en fast signatur: void(). Ingen parametere, ingen returverdi.",
+  "v25v1-q5": "Hvis foreldreklassen ikke har en default-konstruktør, hva må barneklassen gjøre? Og kan en klasse ha flere konstruktører?",
+  "v25v2-q6": "En kopikonstruktør tar en const-referanse til samme type. En default-konstruktør tar ingen parametere. Hva er standardsynligheten i en klasse?",
+  "v25v1-q3": "new int{n} (enkelt objekt) bruker delete, mens new int[n] (array) bruker delete[]. Hva garanterer RAII for lokale objekter ved unntak?",
+  "lf-q6": "Minnet allokeres én gang, men delete[] kalles inne i en løkke. Hva kaller man fenomenet med å frigjøre samme minne mer enn én gang?",
+  "lf-q7a": "unique_ptr-objektet selv ligger på stack, men Book-objektet det eier er på heap. Hva skjer med heap-minnet når unique_ptr går ut av skop?",
+  "v25v2-q11": "new → heap. Lokale variabler og std::array → stack. Hva med elementene i std::vector? Og kan smartpekere brukes trygt på stakk-objekter?",
+  "v25v1-q6": "RAII: destruktøren kalles automatisk for stack-objekter når de går ut av skop. Hva med objekter allokert med new via en rå peker?",
+  "v25v1-q8": "En abstrakt klasse har minst én ren virtuell funksjon. Hva skjer om en barneklasse ikke implementerer alle rene virtuelle metoder?",
+  "v25v2-q9": "Arv er transitiv. Nedkonvertering (foreldre → barn) krever eksplisitt cast og er risikabelt. Hva gjør en klasse abstrakt?",
+  "v25v1-q10": "Deklarasjon sier at noe finnes. Definisjon gir implementasjonen. ODR: én definisjon er tillatt, men mange deklarasjoner er OK.",
+  "v25v2-q5": "Linje 1 er en fremoverdeklarasjon av b(). Den lar a() bruke b() selv om b() defineres lenger ned i filen.",
+  "v24v2-q3": "Deklarasjoner kan gjentas fritt – definisjoner er begrenset av ODR (One Definition Rule). Hva gjelder for klasser vs. funksjoner?",
+  "v24v2-q2": "int→float er trygt (utvidende konvertering). float→int avkorter desimaldelen – det er alltid tap. Kan du alltid velge eksplisitt cast?",
+  "v25v1-q12": "for og while sjekker betingelsen FØR kroppen kjøres, så de kan kjøre null ganger. Hva gjør continue, og hva er alternativet som alltid kjører én gang?",
+  "v25v2-q3": "engine er seeded med 0 – et fast tall, ikke std::random_device. Hva betyr det for sekvensen av tall ved hver kjøring?",
+  "v25v2-q8": "#include er en tekstlig erstatning utført av preprosessoren. #pragma once handler om hva som skjer når samme header inkluderes flere ganger.",
+  "lf-q2": "constexpr på en variabel tvinger kompileringstidsevaluering. constexpr på en funksjon tillater det – men krever det ikke i alle sammenhenger.",
+  "lf-q1": "Hva trenger kompilatoren absolutt for å reservere riktig minneplass og la deg referere til variabelen i koden? Tenk minimalt.",
+  "lf-q4": "Egendefinerte typer er typer du definerer selv, i motsetning til innebygde typer som int og double.",
+  "v25v2-q12": "int a; uten initialisering har en udefinert verdi. Hva er verdien av argc når programmet kjøres uten ekstra argumenter? Hva returnerer C() uten argument?",
+  "v24v2-q6": "En klasse kan inneholde mange ulike ting – data og funksjoner, samt statiske varianter av begge.",
+};
+
+export const questions: Question[] = rawQuestions.map((q) => ({
+  ...q,
+  hint: hintMap[q.id],
+}));
 
 export function getRandomQuestions(count: number): Question[] {
   const groupMap = new Map<string, Question[]>();
