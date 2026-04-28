@@ -151,17 +151,17 @@ export default async function Home() {
         {/* Mode cards */}
         <HomeCardReveal>
 
-          {/* Læringsmodus */}
+          {/* Læringsmodus Del 1 */}
           <div style={cardWrapStyle}>
           <Link href="/learn" className="mode-card" style={cardStyle}>
             <div className="card-image">
-              <Image src="/øving3.jpg" alt="Læringsmodus" fill sizes="50vw" style={{ objectFit: "cover" }} />
+              <Image src="/øving3.jpg" alt="Læringsmodus Del 1" fill sizes="50vw" style={{ objectFit: "cover" }} />
             </div>
 
             <div className="card-glass" style={glassStyle}>
               <div className="card-glass-content">
                 <div style={{ fontSize: "25px", fontWeight: 700, letterSpacing: "-0.3px", lineHeight: 1.2, color: "var(--text-primary)", marginBottom: "4px" }}>
-                  Læringsmodus
+                  Læringsmodus Del 1
                 </div>
                 <p style={{ fontSize: "14px", lineHeight: 1.4, color: "var(--text-secondary)", marginBottom: "14px" }}>
                   Tilbakemeldinger underveis + forklaringer
@@ -192,20 +192,76 @@ export default async function Home() {
           </Link>
           </div>
 
-          {/* Eksamensmodus */}
+          {/* Læringsmodus Del 2 */}
           <div style={cardWrapStyle}>
-          <Link href="/exam" className="mode-card" style={cardStyle}>
+          <div className="mode-card" style={{ ...cardStyle, cursor: "default" }}>
             <div className="card-image">
-              <Image src="/eksamen3.png" alt="Eksamensmodus" fill sizes="50vw" style={{ objectFit: "cover" }} />
+              <Image src="/læring del2.png" alt="Læringsmodus Del 2" fill sizes="50vw" style={{ objectFit: "cover" }} />
             </div>
 
             <div className="card-glass" style={glassStyle}>
               <div className="card-glass-content">
                 <div style={{ fontSize: "25px", fontWeight: 700, letterSpacing: "-0.3px", lineHeight: 1.2, color: "var(--text-primary)", marginBottom: "4px" }}>
-                  Eksamensmodus
+                  Læringsmodus Del 2
                 </div>
                 <p style={{ fontSize: "14px", lineHeight: 1.4, color: "var(--text-secondary)", marginBottom: "14px" }}>
-                  Del 1 (12) + Del 2 (8) · karakter
+                  Kortsvarsoppgaver med egenvurdering
+                </p>
+              </div>
+              <div style={{ display: "flex", gap: "8px" }}>
+                <Link
+                  href="/learn?del2=1"
+                  style={{
+                    flex: 1, textAlign: "center", padding: "10px 8px",
+                    borderRadius: "var(--radius-sm)",
+                    border: "1.5px solid rgba(0,0,0,0.18)",
+                    background: "rgba(255,255,255,0.55)",
+                    color: "var(--text-primary)", textDecoration: "none",
+                    fontSize: "13px", fontWeight: 600,
+                    fontFamily: "var(--font-sans)",
+                  }}
+                >
+                  Flervalg
+                </Link>
+                <Link
+                  href="/learn-del2?mode=input"
+                  style={{
+                    flex: 1, textAlign: "center", padding: "10px 8px",
+                    borderRadius: "var(--radius-sm)",
+                    background: "var(--text-primary)",
+                    color: "var(--card)", textDecoration: "none",
+                    fontSize: "13px", fontWeight: 600,
+                    fontFamily: "var(--font-sans)",
+                  }}
+                >
+                  Kortsvar
+                </Link>
+              </div>
+            </div>
+          </div>
+          </div>
+
+          {/* Eksamensmodus */}
+          <div style={{ width: "100%" }}>
+          <Link href="/exam" className="mode-card" style={{ ...cardStyle, aspectRatio: "auto", minHeight: "130px" }}>
+            <div className="card-image">
+              <Image src="/eksamen3.png" alt="Eksamensmodus" fill sizes="100vw" style={{ objectFit: "cover" }} />
+            </div>
+
+            <div style={{
+              position: "absolute", bottom: 0, left: 0, right: 0,
+              backdropFilter: "blur(18px) saturate(130%)",
+              WebkitBackdropFilter: "blur(18px) saturate(130%)",
+              background: "rgba(255,255,255,0.72)",
+              padding: "16px 18px 20px",
+              display: "flex", flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between", gap: "16px",
+            }}>
+              <div>
+                <div style={{ fontSize: "22px", fontWeight: 700, letterSpacing: "-0.3px", lineHeight: 1.2, color: "var(--text-primary)", marginBottom: "3px" }}>
+                  Eksamensmodus Del 1 og Del 2
+                </div>
+                <p style={{ fontSize: "13px", lineHeight: 1.4, color: "var(--text-secondary)", marginBottom: recentGrades.length > 0 || session?.user ? "10px" : "0" }}>
+                  12 Del 1-spørsmål + 8 Del 2-spørsmål · karakter
                 </p>
 
                 {recentGrades.length > 0 ? (
@@ -215,11 +271,8 @@ export default async function Home() {
                         key={i}
                         style={{
                           fontFamily: "var(--font-mono)",
-                          fontSize: "18px",
-                          fontWeight: 700,
-                          lineHeight: 1,
-                          color: GRADE_COLORS[grade] ?? "var(--text-primary)",
-                          flexShrink: 0,
+                          fontSize: "18px", fontWeight: 700, lineHeight: 1,
+                          color: GRADE_COLORS[grade] ?? "var(--text-primary)", flexShrink: 0,
                         }}
                       >
                         {grade}
@@ -232,27 +285,7 @@ export default async function Home() {
                   </span>
                 ) : null}
               </div>
-              <span className="card-cta">Start nå ⟶</span>
-            </div>
-          </Link>
-          </div>
-
-          {/* Del 2 */}
-          <div style={{ width: "100%" }}>
-          <Link href="/learn-del2" className="mode-card" style={{ ...cardStyle, aspectRatio: "auto", minHeight: "110px" }}>
-            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, #0a1628 0%, #0f3460 60%, #1a4a7a 100%)" }} />
-            <div style={{ position: "absolute", inset: 0, padding: "20px 22px 22px", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
-              <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "16px" }}>
-                <div>
-                  <div style={{ fontSize: "23px", fontWeight: 700, letterSpacing: "-0.3px", lineHeight: 1.2, color: "#fff", marginBottom: "4px" }}>
-                    Del 2 – Kortsvarsoppgaver
-                  </div>
-                  <p style={{ fontSize: "14px", lineHeight: 1.4, color: "rgba(255,255,255,0.65)", margin: 0 }}>
-                    Flervalg eller fritekst med egenvurdering
-                  </p>
-                </div>
-                <span style={{ color: "rgba(255,255,255,0.8)", fontFamily: "var(--font-mono)", fontSize: "13px", flexShrink: 0 }}>Start nå ⟶</span>
-              </div>
+              <span className="card-cta" style={{ flexShrink: 0 }}>Start nå ⟶</span>
             </div>
           </Link>
           </div>

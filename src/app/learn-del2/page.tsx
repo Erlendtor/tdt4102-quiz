@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import confetti from "canvas-confetti";
 import { Question, QuestionProgress } from "@/types";
@@ -67,9 +68,12 @@ function HintToggle({ hint }: { hint: string }) {
   );
 }
 
-export default function LearnDel2Page() {
+function LearnDel2Inner() {
   const { data: session } = useSession();
-  const [mode, setMode] = useState<LearnMode>(null);
+  const searchParams = useSearchParams();
+  const [mode, setMode] = useState<LearnMode>(() =>
+    searchParams.get("mode") === "input" ? "input" : null
+  );
 
   const [activeQuestions, setActiveQuestions] = useState<Question[]>([]);
   const [progress, setProgress] = useState<Map<string, QuestionProgress>>(new Map());
@@ -453,5 +457,21 @@ export default function LearnDel2Page() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function LearnDel2Page() {
+  return (
+    <Suspense fallback={
+      <main className="page-shell">
+        <div className="app-card">
+          <div style={{ padding: "48px 28px", textAlign: "center" }}>
+            <p className="body-text">Laster...</p>
+          </div>
+        </div>
+      </main>
+    }>
+      <LearnDel2Inner />
+    </Suspense>
   );
 }
