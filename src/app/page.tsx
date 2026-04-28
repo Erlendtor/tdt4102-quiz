@@ -49,7 +49,6 @@ const glassStyle: React.CSSProperties = {
 const cardWrapStyle: React.CSSProperties = {
   flex: 1,
   aspectRatio: "3 / 4",
-  filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.06)) drop-shadow(0 8px 20px rgba(0,0,0,0.05))",
 };
 
 const cardStyle: React.CSSProperties = {
@@ -143,7 +142,7 @@ export default async function Home() {
                 }}
               >
                 <PersonIcon />
-                Logg inn
+                Logg inn (for å lagre progresjon)
               </Link>
             )}
           </div>

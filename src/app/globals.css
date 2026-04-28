@@ -362,6 +362,20 @@ body {
   color: var(--correct);
 }
 
+/* Smooth expand/collapse for explanation text */
+.explanation-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.24s ease;
+}
+.explanation-wrapper.open {
+  grid-template-rows: 1fr;
+}
+.explanation-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
 /* Input fields */
 .input-field {
   width: 100%;
@@ -468,9 +482,11 @@ body {
 
 /* Flying score arc to bucket dot */
 @keyframes score-fly {
-  0%   { transform: translate(0, 0) scale(1);                                 opacity: 1; }
-  35%  { transform: translate(var(--fly-midX), var(--fly-midY)) scale(1.12);  opacity: 1; }
-  100% { transform: translate(var(--fly-ex),   var(--fly-ey))   scale(0.18);  opacity: 0; }
+  0%   { transform: translate(0, 0) scale(1);                                 opacity: 1; filter: blur(0px); }
+  30%  {                                                                                   filter: blur(6px); }
+  35%  { transform: translate(var(--fly-midX), var(--fly-midY)) scale(1.12);  opacity: 1; filter: blur(5px); }
+  72%  {                                                                                   filter: blur(2px); }
+  100% { transform: translate(var(--fly-ex),   var(--fly-ey))   scale(0.18);  opacity: 0; filter: blur(0px); }
 }
 
 /* New question slide in from right or left */

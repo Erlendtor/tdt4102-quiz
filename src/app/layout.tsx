@@ -18,7 +18,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TDT4102 Quiz",
+  title: "C++ QUIZ del1",
   description: "Øv til del 1 av C++ eksamen",
 };
 

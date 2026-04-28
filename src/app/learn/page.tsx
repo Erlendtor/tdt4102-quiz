@@ -67,32 +67,31 @@ function XIcon() {
 
 const CONFETTI_COLORS = ["#FF3B5C", "#FFD60A", "#0A84FF", "#30D158", "#FF9500", "#BF5AF2", "#5AC8FA"];
 
-function fireConfetti() {
-  // Pop from top-right corner
-  confetti({
-    particleCount: 90,
+function fireConfetti(canvas: HTMLCanvasElement, light = false) {
+  const fire = confetti.create(canvas, { resize: true });
+  fire({
+    particleCount: light ? 55 : 90,
     angle: 210,
     spread: 80,
-    startVelocity: 58,
+    startVelocity: light ? 48 : 58,
     origin: { x: 1, y: 0 },
     colors: CONFETTI_COLORS,
     shapes: ["square"],
     gravity: 0.85,
-    scalar: 1.3,
+    scalar: light ? 1.1 : 1.3,
     drift: -0.4,
   });
-  // Pop from top (slightly right of center)
   setTimeout(() => {
-    confetti({
-      particleCount: 55,
+    fire({
+      particleCount: light ? 30 : 55,
       angle: 265,
       spread: 65,
-      startVelocity: 38,
+      startVelocity: light ? 28 : 38,
       origin: { x: 0.65, y: 0 },
       colors: CONFETTI_COLORS,
       shapes: ["square"],
       gravity: 1.0,
-      scalar: 1.1,
+      scalar: light ? 0.9 : 1.1,
     });
   }, 120);
 }
@@ -116,7 +115,7 @@ export default function LearnPage() {
   const [done, setDone] = useState(false);
   const [openExplanations, setOpenExplanations] = useState<Set<string>>(new Set());
   const [animatingBucket, setAnimatingBucket] = useState<number | null>(null);
-  const [rippleKey, setRippleKey] = useState(0);
+  const [bucketFlipRevision, setBucketFlipRevision] = useState<Record<number, number>>({ 0: 0, 1: 0, 2: 0, [-1]: 0 });
   const [hintOpen, setHintOpen] = useState(false);
   const [exiting, setExiting] = useState(false);
   const [entering, setEntering] = useState(false);
@@ -127,6 +126,7 @@ export default function LearnPage() {
     label: string; color: string;
   } | null>(null);
   const firstQuestionLoaded = useRef(false);
+  const confettiCanvasRef = useRef<HTMLCanvasElement>(null);
   const pendingUpdateRef = useRef<{
     questionId: string;
     newProgress: QuestionProgress;
@@ -173,7 +173,7 @@ export default function LearnPage() {
   }, [current]);
 
   useEffect(() => {
-    if (done) fireConfetti();
+    if (done) fireConfetti(confettiCanvasRef.current!);
   }, [done]);
 
   const bucketCounts = {
@@ -206,7 +206,7 @@ export default function LearnPage() {
     const rawScore = scoreQuestion(current, [...selected]);
     setScore(rawScore);
     setState("revealed");
-    if (rawScore === current.maxPoints) fireConfetti();
+    if (rawScore === current.maxPoints) fireConfetti(confettiCanvasRef.current!, true);
 
     const bucket = getBucket(pct);
     const prevProgress = progress.get(current.id);
@@ -257,7 +257,7 @@ export default function LearnPage() {
 
     function applyAndTransition() {
       if (pending) {
-        setRippleKey(k => k + 1);
+        setBucketFlipRevision(prev => ({ ...prev, [targetIdx!]: (prev[targetIdx!] ?? 0) + 1 }));
         setProgress(progressMap);
         if (pending.shouldMaster) setMasteredIds(newMastered);
         if (session?.user?.id) {
@@ -408,6 +408,7 @@ export default function LearnPage() {
   return (
     <main className="page-shell-learn">
       <div className="app-card app-card-learn" style={{ position: "relative" }}>
+        <canvas ref={confettiCanvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 50 }} />
 
         {/* Score — flush top-right corner, white background */}
         {state === "revealed" && (
@@ -418,7 +419,7 @@ export default function LearnPage() {
             zIndex: 2,
             pointerEvents: "none",
             opacity: flyingScore ? 0 : 1,
-            transition: "opacity 0.05s",
+            transition: "none",
             background: "var(--card)",
             borderBottomLeftRadius: "var(--radius-md)",
             padding: "13px 18px 11px",
@@ -518,16 +519,18 @@ export default function LearnPage() {
                           }}>↓</span>
                         </button>
 
-                        {isOpen && (
-                          <div
-                            className={isCorrect ? "explanation correct-exp" : "explanation"}
-                            style={{ marginTop: "6px", marginBottom: 0 }}
-                          >
-                            {isCorrect && !selected.has(opt.id)
-                              ? opt.explanation.replace(/^Riktig\.\s*/i, "")
-                              : opt.explanation}
+                        <div className={`explanation-wrapper${isOpen ? " open" : ""}`}>
+                          <div className="explanation-inner">
+                            <div
+                              className={isCorrect ? "explanation correct-exp" : "explanation"}
+                              style={{ marginTop: "6px" }}
+                            >
+                              {isCorrect && !selected.has(opt.id)
+                                ? opt.explanation.replace(/^Riktig\.\s*/i, "")
+                                : opt.explanation}
+                            </div>
                           </div>
-                        )}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -623,9 +626,9 @@ export default function LearnPage() {
                     <span style={{ fontFamily: "var(--font-sans)", fontSize: "13px", color: "var(--text-secondary)" }}>
                       {label}{" "}
                       <strong
-                        key={rippleKey > 0 ? `${rippleKey}-${listIdx}` : label}
-                        className={rippleKey > 0 ? "num-flip" : ""}
-                        style={{ color: "var(--text-primary)", fontWeight: 600, animationDelay: `${listIdx * 45}ms` }}
+                        key={`${label}-${bucketFlipRevision[idx] ?? 0}`}
+                        className={animatingBucket === idx ? "num-flip" : ""}
+                        style={{ color: "var(--text-primary)", fontWeight: 600 }}
                       >
                         {count}
                       </strong>

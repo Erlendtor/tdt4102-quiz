@@ -77,26 +77,32 @@ export default function ResultsPage() {
   const [showDetails, setShowDetails] = useState(false);
   const [openExplanations, setOpenExplanations] = useState<Set<string>>(new Set());
   const gradeRef = useRef<HTMLDivElement>(null);
+  const confettiCanvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     if (!results) return;
     const grade = results.grade;
     if (!["A", "B", "C"].includes(grade)) return;
 
-    const fire = () => {
+    const canvas = confettiCanvasRef.current;
+    if (!canvas) return;
+    const fire = confetti.create(canvas, { resize: true });
+
+    const shoot = () => {
       const el = gradeRef.current;
       const rect = el?.getBoundingClientRect();
-      const ox = rect ? (rect.left + rect.width / 2) / window.innerWidth : 0.5;
-      const oy = rect ? (rect.top + rect.height / 2) / window.innerHeight : 0.2;
+      const canvasRect = canvas.getBoundingClientRect();
+      const ox = rect ? (rect.left + rect.width / 2 - canvasRect.left) / canvasRect.width : 0.5;
+      const oy = rect ? (rect.top + rect.height / 2 - canvasRect.top) / canvasRect.height : 0.3;
 
       if (grade === "C") {
-        confetti({ particleCount: 35, spread: 70, origin: { x: ox, y: oy }, colors: CONFETTI_COLORS, scalar: 0.9, startVelocity: 28 });
+        fire({ particleCount: 35, spread: 70, origin: { x: ox, y: oy }, colors: CONFETTI_COLORS, scalar: 0.9, startVelocity: 28 });
       }
 
       if (grade === "B") {
-        confetti({ particleCount: 90, spread: 80, startVelocity: 38, origin: { x: ox, y: oy }, colors: CONFETTI_COLORS, scalar: 1.1 });
+        fire({ particleCount: 90, spread: 80, startVelocity: 38, origin: { x: ox, y: oy }, colors: CONFETTI_COLORS, scalar: 1.1 });
         setTimeout(() => {
-          confetti({ particleCount: 55, spread: 60, startVelocity: 26, origin: { x: ox, y: oy }, colors: CONFETTI_COLORS, scalar: 1.0 });
+          fire({ particleCount: 55, spread: 60, startVelocity: 26, origin: { x: ox, y: oy }, colors: CONFETTI_COLORS, scalar: 1.0 });
         }, 280);
       }
 
@@ -104,12 +110,17 @@ export default function ResultsPage() {
         const end = Date.now() + 4500;
         const burst = () => {
           if (Date.now() > end) return;
-          confetti({
+          const el2 = gradeRef.current;
+          const rect2 = el2?.getBoundingClientRect();
+          const cRect = canvas.getBoundingClientRect();
+          const bx = rect2 ? (rect2.left + rect2.width / 2 - cRect.left) / cRect.width : 0.5;
+          const by = rect2 ? (rect2.top + rect2.height / 2 - cRect.top) / cRect.height : 0.3;
+          fire({
             particleCount: 45,
             spread: 360,
             startVelocity: 28 + Math.random() * 18,
             ticks: 90,
-            origin: { x: ox + (Math.random() - 0.5) * 0.28, y: oy + (Math.random() - 0.5) * 0.15 },
+            origin: { x: bx + (Math.random() - 0.5) * 0.28, y: by + (Math.random() - 0.5) * 0.15 },
             colors: CONFETTI_COLORS,
             shapes: ["square"],
             gravity: 0.65,
@@ -122,7 +133,7 @@ export default function ResultsPage() {
       }
     };
 
-    requestAnimationFrame(fire);
+    requestAnimationFrame(shoot);
   }, [results]);
 
 
@@ -170,6 +181,7 @@ export default function ResultsPage() {
   return (
     <main className="page-shell-top">
       <div className="app-card">
+        <canvas ref={confettiCanvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 50 }} />
         {/* Grade hero */}
         <div style={{ padding: "28px 28px 20px", textAlign: "center" }}>
           <div className="label" style={{ marginBottom: "12px" }}>Eksamensresultat</div>
@@ -372,16 +384,18 @@ export default function ResultsPage() {
                                     }}>↓</span>
                                   </button>
 
-                                  {isOpen && (
-                                    <div
-                                      className={isCorrect ? "explanation correct-exp" : "explanation"}
-                                      style={{ marginTop: "6px", marginBottom: 0 }}
-                                    >
-                                      {isCorrect && !selectedIds.has(opt.id)
-                                        ? opt.explanation.replace(/^Riktig\.\s*/i, "")
-                                        : opt.explanation}
+                                  <div className={`explanation-wrapper${isOpen ? " open" : ""}`}>
+                                    <div className="explanation-inner">
+                                      <div
+                                        className={isCorrect ? "explanation correct-exp" : "explanation"}
+                                        style={{ marginTop: "6px" }}
+                                      >
+                                        {isCorrect && !selectedIds.has(opt.id)
+                                          ? opt.explanation.replace(/^Riktig\.\s*/i, "")
+                                          : opt.explanation}
+                                      </div>
                                     </div>
-                                  )}
+                                  </div>
                                 </div>
                               </div>
                             </div>

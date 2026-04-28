@@ -210,6 +210,7 @@ export default function ExamPage() {
                 key={i}
                 onClick={() => navigateTo(i)}
                 className={`nav-dot${i === current ? " active" : flagged.has(questions[i].id) ? " flagged" : answers.has(questions[i].id) ? " answered" : ""}`}
+                style={i === current && flagged.has(questions[i].id) ? { boxShadow: "inset 0 0 0 2px #3B82F6" } : undefined}
               >
                 {i + 1}
               </button>

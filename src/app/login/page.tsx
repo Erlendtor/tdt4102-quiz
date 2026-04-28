@@ -83,7 +83,7 @@ export default function LoginPage() {
             {mode === "login" ? "Logg inn" : "Opprett konto"}
           </h1>
           <p className="body-text" style={{ marginTop: "6px" }}>
-            Lagre progresjon på tvers av enheter
+            Logg inn for å lagre progresjon. Fungerer på tvers av enheter.
           </p>
         </div>
 
