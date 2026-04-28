@@ -34,9 +34,9 @@ const glassStyle: React.CSSProperties = {
   bottom: 0,
   left: 0,
   right: 0,
-  backdropFilter: "blur(32px) saturate(160%)",
-  WebkitBackdropFilter: "blur(32px) saturate(160%)",
-  background: "rgba(255, 255, 255, 0.78)",
+  backdropFilter: "blur(18px) saturate(130%)",
+  WebkitBackdropFilter: "blur(18px) saturate(130%)",
+  background: "rgba(255, 255, 255, 0.72)",
   padding: "16px 16px 20px",
 };
 
@@ -48,6 +48,7 @@ const cardStyle: React.CSSProperties = {
   overflow: "hidden",
   background: "var(--surface)",
   display: "block",
+  borderRadius: "var(--radius-md)",
 };
 
 export default async function Home() {
@@ -139,7 +140,7 @@ export default async function Home() {
 
           {/* Læringsmodus */}
           <Link href="/learn" className="mode-card" style={cardStyle}>
-            <Image src="https://miro.medium.com/1*80ijve3Oyld11fc0pB0yqw.jpeg" alt="Læringsmodus" fill sizes="50vw" style={{ objectFit: "cover" }} />
+            <Image src="/øving.jpg" alt="Læringsmodus" fill sizes="50vw" style={{ objectFit: "cover" }} />
 
             <div style={glassStyle}>
               <div style={{ fontSize: "22px", fontWeight: 700, letterSpacing: "-0.3px", lineHeight: 1.2, color: "var(--text-primary)", marginBottom: "4px" }}>
@@ -174,7 +175,7 @@ export default async function Home() {
 
           {/* Eksamensmodus */}
           <Link href="/exam" className="mode-card" style={cardStyle}>
-            <Image src="https://image.underdusken.no/297350.webp?imageId=297350&x=0.00&y=0.00&cropw=99.90&croph=100.00&width=944&height=540&format=jpg" alt="Eksamensmodus" fill sizes="50vw" style={{ objectFit: "cover" }} />
+            <Image src="/eksamen.jpg" alt="Eksamensmodus" fill sizes="50vw" style={{ objectFit: "cover" }} />
 
             <div style={glassStyle}>
               <div style={{ fontSize: "22px", fontWeight: 700, letterSpacing: "-0.3px", lineHeight: 1.2, color: "var(--text-primary)", marginBottom: "4px" }}>

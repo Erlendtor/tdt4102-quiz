@@ -496,12 +496,14 @@ body {
   text-decoration: none;
   color: var(--text-primary);
   cursor: pointer;
-  transition: border-color 0.12s, background 0.12s;
+  transition: border-color 0.12s, background 0.12s, transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform;
 }
 
 .mode-card:hover {
   border-color: var(--text-primary);
   background: var(--surface);
+  transform: scale(1.02);
 }
 
 /* Scrollbar minimal */
