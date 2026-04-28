@@ -369,7 +369,9 @@ export default function LearnPage() {
                             className={isCorrect ? "explanation correct-exp" : "explanation"}
                             style={{ marginTop: "6px", marginBottom: 0 }}
                           >
-                            {opt.explanation}
+                            {isCorrect && !selected.has(opt.id)
+                              ? opt.explanation.replace(/^Riktig\.\s*/i, "")
+                              : opt.explanation}
                           </div>
                         )}
                       </div>
@@ -503,7 +505,7 @@ export default function LearnPage() {
             >
               {state === "revealed" && (
                 <>
-                  {pillLabel} · {selectedCorrect}/{totalCorrect} riktige · {score.toFixed(1)}/{current.maxPoints}p
+                  {score.toFixed(1)}/{current.maxPoints}p
                 </>
               )}
             </div>

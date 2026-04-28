@@ -326,7 +326,9 @@ export default function ResultsPage() {
                                       className={isCorrect ? "explanation correct-exp" : "explanation"}
                                       style={{ marginTop: "6px", marginBottom: 0 }}
                                     >
-                                      {opt.explanation}
+                                      {isCorrect && !selectedIds.has(opt.id)
+                                        ? opt.explanation.replace(/^Riktig\.\s*/i, "")
+                                        : opt.explanation}
                                     </div>
                                   )}
                                 </div>

@@ -91,6 +91,7 @@ body {
 
 /* Learn card bounds — desktop only */
 .app-card-learn {
+  min-height: calc(100dvh - 16vh);
   max-height: calc(100dvh - 16vh);
 }
 
