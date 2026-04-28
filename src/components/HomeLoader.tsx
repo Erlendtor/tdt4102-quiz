@@ -16,7 +16,7 @@ export default function HomeLoader() {
         img.src = src;
       });
 
-    Promise.all([min, load("/øving2.jpg"), load("/eksamen2.png")]).then(() => {
+    Promise.all([min, load("/øving3.jpg"), load("/eksamen3.png")]).then(() => {
       setFading(true);
       setTimeout(() => setGone(true), 380);
     });

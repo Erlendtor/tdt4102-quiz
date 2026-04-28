@@ -148,7 +148,7 @@ export default async function Home() {
           {/* Læringsmodus */}
           <Link href="/learn" className="mode-card page-enter" style={{ ...cardStyle, animationDelay: "60ms" }}>
             <div className="card-image">
-              <Image src="/øving2.jpg" alt="Læringsmodus" fill sizes="50vw" style={{ objectFit: "cover" }} />
+              <Image src="/øving3.jpg" alt="Læringsmodus" fill sizes="50vw" style={{ objectFit: "cover" }} />
             </div>
 
             <div className="card-glass" style={glassStyle}>
@@ -184,7 +184,7 @@ export default async function Home() {
           {/* Eksamensmodus */}
           <Link href="/exam" className="mode-card page-enter" style={{ ...cardStyle, animationDelay: "120ms" }}>
             <div className="card-image">
-              <Image src="/eksamen2.png" alt="Eksamensmodus" fill sizes="50vw" style={{ objectFit: "cover" }} />
+              <Image src="/eksamen3.png" alt="Eksamensmodus" fill sizes="50vw" style={{ objectFit: "cover" }} />
             </div>
 
             <div className="card-glass" style={glassStyle}>
