@@ -64,21 +64,40 @@ function XIcon() {
   );
 }
 
-const CONFETTI_PARTICLES: { dx: string; dy: string; rot: string; color: string; delay: string; size: string }[] = [
-  { dx: "-22px", dy: "28px",  rot: "45deg",   color: "#1A6B3C", delay: "0ms",  size: "6px" },
-  { dx: "-42px", dy: "12px",  rot: "-60deg",  color: "#F5D87A", delay: "25ms", size: "5px" },
-  { dx: "-18px", dy: "45px",  rot: "120deg",  color: "#C73030", delay: "10ms", size: "7px" },
-  { dx: "-58px", dy: "20px",  rot: "-90deg",  color: "#3B82F6", delay: "45ms", size: "5px" },
-  { dx: "-12px", dy: "55px",  rot: "200deg",  color: "#F97316", delay: "20ms", size: "6px" },
-  { dx: "-36px", dy: "36px",  rot: "80deg",   color: "#1A6B3C", delay: "35ms", size: "5px" },
-  { dx: "-68px", dy: "14px",  rot: "-45deg",  color: "#F5D87A", delay: "15ms", size: "6px" },
-  { dx: "-28px", dy: "50px",  rot: "170deg",  color: "#C73030", delay: "30ms", size: "5px" },
-  { dx: "-52px", dy: "40px",  rot: "-120deg", color: "#3B82F6", delay: "5ms",  size: "6px" },
-  { dx: "-75px", dy: "24px",  rot: "30deg",   color: "#F97316", delay: "40ms", size: "5px" },
-  { dx: "-8px",  dy: "62px",  rot: "-150deg", color: "#1A6B3C", delay: "50ms", size: "7px" },
-  { dx: "-84px", dy: "10px",  rot: "90deg",   color: "#F5D87A", delay: "55ms", size: "5px" },
-  { dx: "-46px", dy: "55px",  rot: "-30deg",  color: "#C73030", delay: "8ms",  size: "6px" },
-  { dx: "-30px", dy: "18px",  rot: "145deg",  color: "#F97316", delay: "42ms", size: "5px" },
+type ConfettiParticle = { dx: string; dy: string; rot: string; color: string; delay: string; size: string };
+
+const LEFT_CONFETTI: ConfettiParticle[] = [
+  { dx: "30px",  dy: "60px",  rot: "80deg",   color: "#1A6B3C", delay: "0ms",  size: "6px" },
+  { dx: "58px",  dy: "48px",  rot: "-45deg",  color: "#F5D87A", delay: "18ms", size: "5px" },
+  { dx: "18px",  dy: "82px",  rot: "120deg",  color: "#C73030", delay: "8ms",  size: "7px" },
+  { dx: "85px",  dy: "58px",  rot: "-90deg",  color: "#3B82F6", delay: "32ms", size: "5px" },
+  { dx: "42px",  dy: "95px",  rot: "200deg",  color: "#F97316", delay: "5ms",  size: "6px" },
+  { dx: "72px",  dy: "36px",  rot: "55deg",   color: "#1A6B3C", delay: "42ms", size: "5px" },
+  { dx: "12px",  dy: "108px", rot: "-130deg", color: "#F5D87A", delay: "14ms", size: "6px" },
+  { dx: "100px", dy: "52px",  rot: "170deg",  color: "#C73030", delay: "28ms", size: "5px" },
+  { dx: "50px",  dy: "78px",  rot: "-70deg",  color: "#3B82F6", delay: "6ms",  size: "6px" },
+  { dx: "25px",  dy: "44px",  rot: "30deg",   color: "#F97316", delay: "48ms", size: "7px" },
+  { dx: "115px", dy: "38px",  rot: "-160deg", color: "#1A6B3C", delay: "20ms", size: "5px" },
+  { dx: "65px",  dy: "98px",  rot: "95deg",   color: "#F5D87A", delay: "38ms", size: "6px" },
+  { dx: "38px",  dy: "68px",  rot: "-40deg",  color: "#C73030", delay: "52ms", size: "5px" },
+  { dx: "90px",  dy: "72px",  rot: "145deg",  color: "#F97316", delay: "10ms", size: "6px" },
+];
+
+const RIGHT_CONFETTI: ConfettiParticle[] = [
+  { dx: "-30px",  dy: "60px",  rot: "-80deg",  color: "#1A6B3C", delay: "0ms",  size: "6px" },
+  { dx: "-58px",  dy: "48px",  rot: "45deg",   color: "#F5D87A", delay: "18ms", size: "5px" },
+  { dx: "-18px",  dy: "82px",  rot: "-120deg", color: "#C73030", delay: "8ms",  size: "7px" },
+  { dx: "-85px",  dy: "58px",  rot: "90deg",   color: "#3B82F6", delay: "32ms", size: "5px" },
+  { dx: "-42px",  dy: "95px",  rot: "-200deg", color: "#F97316", delay: "5ms",  size: "6px" },
+  { dx: "-72px",  dy: "36px",  rot: "-55deg",  color: "#1A6B3C", delay: "42ms", size: "5px" },
+  { dx: "-12px",  dy: "108px", rot: "130deg",  color: "#F5D87A", delay: "14ms", size: "6px" },
+  { dx: "-100px", dy: "52px",  rot: "-170deg", color: "#C73030", delay: "28ms", size: "5px" },
+  { dx: "-50px",  dy: "78px",  rot: "70deg",   color: "#3B82F6", delay: "6ms",  size: "6px" },
+  { dx: "-25px",  dy: "44px",  rot: "-30deg",  color: "#F97316", delay: "48ms", size: "7px" },
+  { dx: "-115px", dy: "38px",  rot: "160deg",  color: "#1A6B3C", delay: "20ms", size: "5px" },
+  { dx: "-65px",  dy: "98px",  rot: "-95deg",  color: "#F5D87A", delay: "38ms", size: "6px" },
+  { dx: "-38px",  dy: "68px",  rot: "40deg",   color: "#C73030", delay: "52ms", size: "5px" },
+  { dx: "-90px",  dy: "72px",  rot: "-145deg", color: "#F97316", delay: "10ms", size: "6px" },
 ];
 
 const BUCKET_ITEMS = [
@@ -376,9 +395,22 @@ export default function LearnPage() {
     <main className="page-shell-learn">
       <div className="app-card app-card-learn" style={{ position: "relative" }}>
 
-        {/* Score — absolute top-right, visible after reveal */}
+        {/* Score — flush top-right corner, white background */}
         {state === "revealed" && (
-          <div style={{ position: "absolute", top: "18px", right: "20px", zIndex: 2, pointerEvents: "none", opacity: flyingScore ? 0 : 1, transition: "opacity 0.05s" }}>
+          <div style={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            zIndex: 2,
+            pointerEvents: "none",
+            opacity: flyingScore ? 0 : 1,
+            transition: "opacity 0.05s",
+            background: "var(--card)",
+            borderBottomLeftRadius: "var(--radius-md)",
+            borderLeft: "1px solid var(--border)",
+            borderBottom: "1px solid var(--border)",
+            padding: "13px 18px 11px",
+          }}>
             <span ref={scoreRef} style={{
               fontFamily: "var(--font-mono)",
               fontSize: "30px",
@@ -392,25 +424,49 @@ export default function LearnPage() {
             }}>
               {scoreLabel}
             </span>
+          </div>
+        )}
 
-            {/* Confetti on perfect score */}
-            {score === current.maxPoints && CONFETTI_PARTICLES.map((p, i) => (
-              <span key={i} style={{
+        {/* Confetti from both top corners on perfect score */}
+        {state === "revealed" && score === current.maxPoints && (
+          <>
+            {LEFT_CONFETTI.map((p, i) => (
+              <span key={`lc${i}`} style={{
                 position: "absolute",
-                top: "50%",
-                right: "4px",
+                top: 0,
+                left: 0,
                 width: p.size,
                 height: p.size,
                 borderRadius: "2px",
                 background: p.color,
-                animation: "confetti-burst 0.7s ease-out forwards",
+                pointerEvents: "none",
+                zIndex: 3,
+                animation: "confetti-fall 0.52s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards",
                 animationDelay: p.delay,
                 ["--dx" as string]: p.dx,
                 ["--dy" as string]: p.dy,
                 ["--rot" as string]: p.rot,
               } as React.CSSProperties} />
             ))}
-          </div>
+            {RIGHT_CONFETTI.map((p, i) => (
+              <span key={`rc${i}`} style={{
+                position: "absolute",
+                top: 0,
+                right: 0,
+                width: p.size,
+                height: p.size,
+                borderRadius: "2px",
+                background: p.color,
+                pointerEvents: "none",
+                zIndex: 3,
+                animation: "confetti-fall 0.52s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards",
+                animationDelay: p.delay,
+                ["--dx" as string]: p.dx,
+                ["--dy" as string]: p.dy,
+                ["--rot" as string]: p.rot,
+              } as React.CSSProperties} />
+            ))}
+          </>
         )}
 
         {/* Question area */}

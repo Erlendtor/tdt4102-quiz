@@ -17,7 +17,7 @@
   --wrong: #C73030;
   --wrong-bg: #FEF2F2;
   --wrong-border: #F5AAAA;
-  --partial: #8B5A00;
+  --partial: #C2650A;
   --partial-bg: #FFFBEB;
   --partial-border: #F5D87A;
   --radius-sm: 6px;
@@ -433,10 +433,11 @@ body {
   display: inline-block;
 }
 
-/* Confetti burst — particles fly out from score */
-@keyframes confetti-burst {
+/* Confetti fall — particles shoot from corner and fall down */
+@keyframes confetti-fall {
   0%   { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); }
-  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.3) rotate(var(--rot)); }
+  18%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.5) rotate(var(--rot)); }
 }
 
 /* Bucket number flip-in animation */
