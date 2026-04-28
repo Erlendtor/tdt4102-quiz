@@ -1840,10 +1840,10 @@ int func() {
       },
       {
         id: "b",
-        text: "Når 'class A' arver fra 'class B', og 'class B' arver fra 'class C', vil 'class A' ha alle medlemsvariabelene til både 'class B' og 'class C'.",
+        text: "Når 'class A' arver fra 'class B', og 'class B' arver fra 'class C', vil 'class A' ha tilgang til alle public og protected medlemsvariabler fra både 'class B' og 'class C'. private medlemsvariabler arves teknisk sett, men er ikke direkte tilgjengelige i den arvende klassen.",
         isCorrect: true,
         explanation:
-          "Riktig. Arv er transitiv: A arver fra B som arver fra C. A inneholder alle ikke-private medlemsvariabler fra B og C.",
+          "Riktig. Arv er transitiv: A arver fra B som arver fra C. A har tilgang til alle public og protected medlemsvariabler fra B og C. private medlemsvariabler er teknisk sett til stede i objektet, men ikke direkte tilgjengelige uten getter/setter.",
       },
       {
         id: "c",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import confetti from "canvas-confetti";
 import { useSession } from "next-auth/react";
 import { Question, QuestionProgress } from "@/types";
@@ -121,12 +121,12 @@ export default function LearnPage() {
   const [entering, setEntering] = useState(false);
   const [flyingScore, setFlyingScore] = useState<{
     sx: number; sy: number;
-    midX: number; midY: number;
-    ex: number; ey: number;
     label: string; color: string;
+    keyframes: { transform: string; opacity: number; filter: string }[];
   } | null>(null);
   const firstQuestionLoaded = useRef(false);
   const confettiCanvasRef = useRef<HTMLCanvasElement>(null);
+  const flyingScoreRef = useRef<HTMLSpanElement>(null);
   const pendingUpdateRef = useRef<{
     questionId: string;
     newProgress: QuestionProgress;
@@ -135,6 +135,8 @@ export default function LearnPage() {
   } | null>(null);
   const scoreRef = useRef<HTMLSpanElement>(null);
   const bucketDotRefs = useRef<Record<number, HTMLSpanElement | null>>({});
+  const optionRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const flipTops = useRef<number[]>([]);
 
   useEffect(() => {
     const deduped = deduplicateGroups(allQuestions).map(shuffleOptions);
@@ -176,6 +178,30 @@ export default function LearnPage() {
     if (done) fireConfetti(confettiCanvasRef.current!);
   }, [done]);
 
+  useEffect(() => {
+    if (!flyingScore || !flyingScoreRef.current) return;
+    const anim = flyingScoreRef.current.animate(
+      flyingScore.keyframes as Keyframe[],
+      { duration: 480, easing: "linear", fill: "forwards" }
+    );
+    return () => anim.cancel();
+  }, [flyingScore]);
+
+  useLayoutEffect(() => {
+    const tops = flipTops.current;
+    if (!tops.length || state !== "revealed") return;
+    flipTops.current = [];
+    optionRefs.current.forEach((el, i) => {
+      if (!el || tops[i] == null) return;
+      const delta = tops[i] - el.getBoundingClientRect().top;
+      if (Math.abs(delta) < 1) return;
+      el.animate(
+        [{ transform: `translateY(${delta}px)` }, { transform: "translateY(0)" }],
+        { duration: 280, easing: "cubic-bezier(0.25, 0, 0.2, 1)" }
+      );
+    });
+  }, [state]);
+
   const bucketCounts = {
     0: activeQuestions.filter((q) => (progress.get(q.id)?.bucket ?? 0) === 0 && !masteredIds.has(q.id)).length,
     1: activeQuestions.filter((q) => (progress.get(q.id)?.bucket ?? 0) === 1 && !masteredIds.has(q.id)).length,
@@ -202,6 +228,7 @@ export default function LearnPage() {
 
   function checkAnswer() {
     if (!current || selected.size === 0) return;
+    flipTops.current = optionRefs.current.map(el => el?.getBoundingClientRect().top ?? 0);
     const pct = scorePercent(current, [...selected]);
     const rawScore = scoreQuestion(current, [...selected]);
     setScore(rawScore);
@@ -292,22 +319,41 @@ export default function LearnPage() {
       const dr = dotEl.getBoundingClientRect();
       const sx = sr.left;
       const sy = sr.top;
-      const ex = dr.left + dr.width / 2 - sr.width / 2;
-      const ey = dr.top  + dr.height / 2 - sr.height / 2;
-      const dx = ex - sx;
-      const dy = ey - sy;
-      // Arc midpoint: 40% along horizontal, 30% along vertical, lifted 32px above the straight line
-      const midX = sx + dx * 0.6 - 40;
-      const midY = sy + dy * 0.28 - 28;
+      const dx = (dr.left + dr.width / 2 - sr.width / 2) - sx;
+      const dy = (dr.top  + dr.height / 2 - sr.height / 2) - sy;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      const arcH = Math.min(len * 0.28, 80);
 
-      setFlyingScore({ sx, sy, midX, midY, ex, ey, label: scoreLabel, color: scoreColor });
+      // Perpendicular to chord — pick the direction with the more upward component
+      const pa = { x: -dy / len, y:  dx / len };
+      const pb = { x:  dy / len, y: -dx / len };
+      const perp = pa.y <= pb.y ? pa : pb;
+      const cpx = dx / 2 + perp.x * arcH;
+      const cpy = dy / 2 + perp.y * arcH;
 
-      const FLY = 350;
+      // Sample 31 points along the quadratic Bézier into Web Animation keyframes
+      const keyframes = Array.from({ length: 31 }, (_, i) => {
+        const t = i / 30;
+        const bx = 2 * t * (1 - t) * cpx + t * t * dx;
+        const by = 2 * t * (1 - t) * cpy + t * t * dy;
+        const scale = 0.18 + (1 - 0.18) * (1 - t) * (1 - t);
+        const opacity = t < 0.78 ? 1 : Math.max(0, (1 - t) / 0.22);
+        const blur = 6 * Math.sin(Math.PI * Math.min(t / 0.85, 1));
+        return {
+          transform: `translate(${bx.toFixed(1)}px,${by.toFixed(1)}px) scale(${scale.toFixed(3)})`,
+          opacity: +opacity.toFixed(3),
+          filter: `blur(${blur.toFixed(1)}px)`,
+        };
+      });
+
+      setFlyingScore({ sx, sy, label: scoreLabel, color: scoreColor, keyframes });
+
+      const FLY = 600;
       // Dot pop just before landing
       setTimeout(() => {
         setAnimatingBucket(targetIdx!);
         setTimeout(() => setAnimatingBucket(null), 420);
-      }, FLY - 55);
+      }, FLY - 60);
 
       // On landing: remove clone, apply updates, transition
       setTimeout(() => {
@@ -372,6 +418,14 @@ export default function LearnPage() {
   }
 
   const correctIds = new Set(current.options.filter((o) => o.isCorrect).map((o) => o.id));
+  const pointsPerOption = correctIds.size > 0 ? current.maxPoints / correctIds.size : 0;
+
+  function fmtOptionPts(isCorrect: boolean): string {
+    const raw = isCorrect ? pointsPerOption : -pointsPerOption;
+    const abs = Math.abs(raw);
+    const digits = Number.isInteger(abs) ? String(abs) : abs.toFixed(1).replace(".", ",");
+    return (raw >= 0 ? "+" : "−") + digits + "p";
+  }
 
   function optionClass(optId: string): string {
     if (state === "answering") {
@@ -473,6 +527,7 @@ export default function LearnPage() {
               return (
                 <div
                   key={opt.id}
+                  ref={(el) => { optionRefs.current[i] = el; }}
                   className={optionClass(opt.id)}
                   onClick={() => state === "answering" && toggleOption(opt.id)}
                   style={{
@@ -488,6 +543,22 @@ export default function LearnPage() {
 
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <span>{opt.text}</span>
+
+                    {state === "revealed" && selected.has(opt.id) && (
+                      <span style={{
+                        display: "block",
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "13px",
+                        fontWeight: 700,
+                        letterSpacing: "-0.3px",
+                        lineHeight: 1,
+                        marginTop: "5px",
+                        color: isCorrect ? "var(--correct)" : "var(--wrong)",
+                        opacity: isCorrect ? 1 : 0.75,
+                      }}>
+                        {fmtOptionPts(isCorrect)}
+                      </span>
+                    )}
 
                     {state === "revealed" && (
                       <div style={{ marginTop: "8px" }}>
@@ -613,7 +684,7 @@ export default function LearnPage() {
 
           {/* Bottom row: bucket counts */}
           <div className="learn-bucket-row" style={{ display: "flex", gap: "20px", flexWrap: "wrap", justifyContent: "center", marginTop: "14px" }}>
-              {BUCKET_ITEMS.map(({ color, label, idx }, listIdx) => {
+              {BUCKET_ITEMS.map(({ color, label, idx }) => {
                 const count = idx === -1 ? bucketCounts.mastered : bucketCounts[idx as 0 | 1 | 2];
                 const isAnimating = animatingBucket === idx;
                 return (
@@ -643,24 +714,22 @@ export default function LearnPage() {
 
       {/* Flying score arc clone — fixed overlay, animates to bucket dot */}
       {flyingScore && (
-        <span style={{
-          position: "fixed",
-          left: flyingScore.sx,
-          top: flyingScore.sy,
-          fontFamily: "var(--font-mono)",
-          fontSize: "30px",
-          fontWeight: 700,
-          lineHeight: 1,
-          letterSpacing: "-1px",
-          color: flyingScore.color,
-          pointerEvents: "none",
-          zIndex: 9999,
-          animation: "score-fly 350ms cubic-bezier(0.55, 0, 1, 0.85) forwards",
-          ["--fly-midX" as string]: `${flyingScore.midX - flyingScore.sx}px`,
-          ["--fly-midY" as string]: `${flyingScore.midY - flyingScore.sy}px`,
-          ["--fly-ex" as string]: `${flyingScore.ex - flyingScore.sx}px`,
-          ["--fly-ey" as string]: `${flyingScore.ey - flyingScore.sy}px`,
-        } as React.CSSProperties}>
+        <span
+          ref={flyingScoreRef}
+          style={{
+            position: "fixed",
+            left: flyingScore.sx,
+            top: flyingScore.sy,
+            fontFamily: "var(--font-mono)",
+            fontSize: "30px",
+            fontWeight: 700,
+            lineHeight: 1,
+            letterSpacing: "-1px",
+            color: flyingScore.color,
+            pointerEvents: "none",
+            zIndex: 9999,
+          }}
+        >
           {flyingScore.label}
         </span>
       )}
