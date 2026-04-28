@@ -427,6 +427,12 @@ body {
   display: inline-block;
 }
 
+/* Confetti burst — particles fly out from score */
+@keyframes confetti-burst {
+  0%   { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.3) rotate(var(--rot)); }
+}
+
 /* Bucket number flip-in animation */
 @keyframes num-flip {
   0%   { opacity: 0; transform: translateY(-5px) scale(0.85); }
@@ -465,6 +471,21 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
 
+/* Footer icon buttons (home, skip) */
+.footer-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  transition: color 0.12s;
+}
+.footer-icon-btn:hover { color: var(--text-primary); }
+
 @media (max-width: 600px) {
   .page-shell, .page-shell-top {
     padding: 0;
@@ -485,4 +506,5 @@ body {
     max-height: none;
     height: 100dvh;
   }
+
 }

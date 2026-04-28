@@ -64,6 +64,23 @@ function XIcon() {
   );
 }
 
+const CONFETTI_PARTICLES: { dx: string; dy: string; rot: string; color: string; delay: string; size: string }[] = [
+  { dx: "-22px", dy: "28px",  rot: "45deg",   color: "#1A6B3C", delay: "0ms",  size: "6px" },
+  { dx: "-42px", dy: "12px",  rot: "-60deg",  color: "#F5D87A", delay: "25ms", size: "5px" },
+  { dx: "-18px", dy: "45px",  rot: "120deg",  color: "#C73030", delay: "10ms", size: "7px" },
+  { dx: "-58px", dy: "20px",  rot: "-90deg",  color: "#3B82F6", delay: "45ms", size: "5px" },
+  { dx: "-12px", dy: "55px",  rot: "200deg",  color: "#F97316", delay: "20ms", size: "6px" },
+  { dx: "-36px", dy: "36px",  rot: "80deg",   color: "#1A6B3C", delay: "35ms", size: "5px" },
+  { dx: "-68px", dy: "14px",  rot: "-45deg",  color: "#F5D87A", delay: "15ms", size: "6px" },
+  { dx: "-28px", dy: "50px",  rot: "170deg",  color: "#C73030", delay: "30ms", size: "5px" },
+  { dx: "-52px", dy: "40px",  rot: "-120deg", color: "#3B82F6", delay: "5ms",  size: "6px" },
+  { dx: "-75px", dy: "24px",  rot: "30deg",   color: "#F97316", delay: "40ms", size: "5px" },
+  { dx: "-8px",  dy: "62px",  rot: "-150deg", color: "#1A6B3C", delay: "50ms", size: "7px" },
+  { dx: "-84px", dy: "10px",  rot: "90deg",   color: "#F5D87A", delay: "55ms", size: "5px" },
+  { dx: "-46px", dy: "55px",  rot: "-30deg",  color: "#C73030", delay: "8ms",  size: "6px" },
+  { dx: "-30px", dy: "18px",  rot: "145deg",  color: "#F97316", delay: "42ms", size: "5px" },
+];
+
 const BUCKET_ITEMS = [
   { color: "var(--wrong)",         label: "Øving",  idx: 0 },
   { color: "var(--partial)",       label: "Nesten", idx: 1 },
@@ -227,6 +244,22 @@ export default function LearnPage() {
     }, 140);
   }
 
+  function skipQuestion() {
+    pendingUpdateRef.current = null;
+    setExiting(true);
+    setTimeout(() => {
+      const remaining = activeQuestions.filter((q) => !masteredIds.has(q.id));
+      if (remaining.length === 0) { setDone(true); return; }
+      const next = pickNextQuestion(activeQuestions, progress, masteredIds);
+      setCurrent(next ? shuffleOptions(next) : null);
+      setSelected(new Set());
+      setState("answering");
+      setOpenExplanations(new Set());
+      setHintOpen(false);
+      setExiting(false);
+    }, 140);
+  }
+
   if (done || (activeQuestions.length > 0 && masteredIds.size >= activeQuestions.length)) {
     return (
       <main className="page-shell">
@@ -286,9 +319,51 @@ export default function LearnPage() {
   const totalCorrect = correctIds.size;
   const selectedCorrect = [...selected].filter((id) => correctIds.has(id)).length;
 
+  const scoreColor = score === current.maxPoints ? "var(--correct)" : score > 0 ? "var(--partial)" : "var(--wrong)";
+  const scoreLabel = score === Math.floor(score)
+    ? `${Math.round(score)}/${current.maxPoints}p`
+    : `${score.toFixed(1)}/${current.maxPoints}p`;
+
   return (
     <main className="page-shell-learn">
-      <div className="app-card app-card-learn">
+      <div className="app-card app-card-learn" style={{ position: "relative" }}>
+
+        {/* Score — absolute top-right, visible after reveal */}
+        {state === "revealed" && (
+          <div style={{ position: "absolute", top: "18px", right: "20px", zIndex: 2, pointerEvents: "none" }}>
+            <span style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "30px",
+              fontWeight: 700,
+              lineHeight: 1,
+              letterSpacing: "-1px",
+              color: scoreColor,
+              animation: "reveal 0.25s ease",
+              display: "block",
+              textAlign: "right",
+            }}>
+              {scoreLabel}
+            </span>
+
+            {/* Confetti on perfect score */}
+            {score === current.maxPoints && CONFETTI_PARTICLES.map((p, i) => (
+              <span key={i} style={{
+                position: "absolute",
+                top: "50%",
+                right: "4px",
+                width: p.size,
+                height: p.size,
+                borderRadius: "2px",
+                background: p.color,
+                animation: "confetti-burst 0.7s ease-out forwards",
+                animationDelay: p.delay,
+                ["--dx" as string]: p.dx,
+                ["--dy" as string]: p.dy,
+                ["--rot" as string]: p.rot,
+              } as React.CSSProperties} />
+            ))}
+          </div>
+        )}
 
         {/* Question area */}
         <div className={`question-content${exiting ? " exiting" : ""}`} style={{ flex: 1, overflowY: "auto", padding: "20px 20px 16px" }}>
@@ -444,26 +519,12 @@ export default function LearnPage() {
             </button>
           )}
 
-          {/* Bottom row: Avslutt left, bucket status center */}
+          {/* Bottom row: home icon left, buckets center, skip right */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", marginTop: "14px" }}>
-            <Link
-              href="/"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "10px 16px",
-                border: "1px solid var(--border-strong)",
-                borderRadius: "var(--radius-sm)",
-                fontFamily: "var(--font-sans)",
-                fontSize: "13px",
-                fontWeight: 500,
-                color: "var(--text-secondary)",
-                textDecoration: "none",
-                justifySelf: "start",
-              }}
-            >
-              Avslutt
+            <Link href="/" className="footer-icon-btn" aria-label="Hjem" style={{ justifySelf: "start" }}>
+              <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
+                <path d="M2.5 7.5L8.5 2L14.5 7.5V15H11V10.5H6V15H2.5V7.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round"/>
+              </svg>
             </Link>
 
             <div style={{ display: "flex", gap: "20px", flexWrap: "wrap", justifyContent: "center" }}>
@@ -491,24 +552,12 @@ export default function LearnPage() {
               })}
             </div>
 
-            <div
-              className={state === "revealed" ? `result-pill ${pillClass}` : ""}
-              style={{
-                justifySelf: "end",
-                opacity: state === "revealed" ? 1 : 0,
-                transition: "opacity 0.2s ease",
-                padding: "10px 16px",
-                fontSize: "13px",
-                animation: state === "revealed" ? undefined : "none",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {state === "revealed" && (
-                <>
-                  {score.toFixed(1)}/{current.maxPoints}p
-                </>
-              )}
-            </div>
+            <button onClick={skipQuestion} className="footer-icon-btn" aria-label="Hopp over" style={{ justifySelf: "end" }}>
+              <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
+                <path d="M3 8.5H13M13 8.5L9 4.5M13 8.5L9 12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <line x1="14.5" y1="4" x2="14.5" y2="13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+            </button>
           </div>
         </div>
 
