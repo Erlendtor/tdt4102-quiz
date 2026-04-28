@@ -139,7 +139,7 @@ export default async function Home() {
 
           {/* Læringsmodus */}
           <Link href="/learn" className="mode-card" style={cardStyle}>
-            <Image src="/learn.jpg" alt="Læringsmodus" fill sizes="50vw" style={{ objectFit: "cover" }} />
+            <Image src="https://miro.medium.com/1*80ijve3Oyld11fc0pB0yqw.jpeg" alt="Læringsmodus" fill sizes="50vw" style={{ objectFit: "cover" }} />
 
             <div style={glassStyle}>
               <div style={{ fontSize: "22px", fontWeight: 700, letterSpacing: "-0.3px", lineHeight: 1.2, color: "var(--text-primary)", marginBottom: "4px" }}>
@@ -174,7 +174,7 @@ export default async function Home() {
 
           {/* Eksamensmodus */}
           <Link href="/exam" className="mode-card" style={cardStyle}>
-            <Image src="/exam.jpg" alt="Eksamensmodus" fill sizes="50vw" style={{ objectFit: "cover" }} />
+            <Image src="https://image.underdusken.no/297350.webp?imageId=297350&x=0.00&y=0.00&cropw=99.90&croph=100.00&width=944&height=540&format=jpg" alt="Eksamensmodus" fill sizes="50vw" style={{ objectFit: "cover" }} />
 
             <div style={glassStyle}>
               <div style={{ fontSize: "22px", fontWeight: 700, letterSpacing: "-0.3px", lineHeight: 1.2, color: "var(--text-primary)", marginBottom: "4px" }}>
