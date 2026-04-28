@@ -86,7 +86,7 @@ body {
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: 20vh 16px 40px;
+  padding: 10vh 16px 40px;
 }
 
 /* Learn card bounds — desktop only */
