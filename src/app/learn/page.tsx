@@ -617,7 +617,7 @@ export default function LearnPage() {
         {/* Footer */}
         <div style={{ flexShrink: 0, padding: "14px 20px 18px", background: "var(--card)" }}>
           {/* Main button row — square icon btns visible on mobile only */}
-          <div style={{ display: "flex", gap: "10px", alignItems: "stretch" }}>
+          <div style={{ display: "flex", gap: "5px", alignItems: "center" }}>
             <Link href="/" className="learn-sq-btn" aria-label="Hjem">
               <svg width="22" height="22" viewBox="0 0 17 17" fill="none">
                 <path d="M2.5 7.5L8.5 2L14.5 7.5V15H11V10.5H6V15H2.5V7.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round"/>
@@ -643,14 +643,14 @@ export default function LearnPage() {
           </div>
 
           {/* Bottom row: home icon left, buckets center, skip right */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", marginTop: "14px" }}>
+          <div className="learn-bottom-row" style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", marginTop: "14px" }}>
             <Link href="/" className="footer-icon-btn learn-desktop-only" aria-label="Hjem" style={{ justifySelf: "start", transform: "translateY(-3px)" }}>
               <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
                 <path d="M2.5 7.5L8.5 2L14.5 7.5V15H11V10.5H6V15H2.5V7.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round"/>
               </svg>
             </Link>
 
-            <div style={{ display: "flex", gap: "20px", flexWrap: "wrap", justifyContent: "center" }}>
+            <div className="learn-bucket-row" style={{ display: "flex", gap: "20px", flexWrap: "wrap", justifyContent: "center" }}>
               {BUCKET_ITEMS.map(({ color, label, idx }) => {
                 const count = idx === -1 ? bucketCounts.mastered : bucketCounts[idx as 0 | 1 | 2];
                 const isAnimating = animatingBucket === idx;

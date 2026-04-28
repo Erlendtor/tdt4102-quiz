@@ -527,7 +527,7 @@ body {
   display: none;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 1;
+  padding: 14px;
   background: var(--card);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
@@ -565,6 +565,15 @@ body {
   /* Learn/exam footer: show square flanking buttons, hide desktop icon buttons */
   .learn-sq-btn { display: flex; }
   .learn-desktop-only { display: none !important; }
+
+  /* Learn bucket row: full-width, no wrapping */
+  .learn-bottom-row { display: block !important; }
+  .learn-bucket-row {
+    width: 100%;
+    flex-wrap: nowrap !important;
+    justify-content: space-evenly !important;
+    gap: 0 !important;
+  }
 
   /* Exam nav dots: full-width grid, no wrapping */
   .exam-bottom-row { display: block !important; }

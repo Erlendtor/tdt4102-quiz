@@ -134,7 +134,7 @@ export default function ExamPage() {
         {/* Footer */}
         <div style={{ flexShrink: 0, padding: "14px 20px 18px", background: "var(--card)" }}>
           {/* Main action row — home/flag sq buttons visible on mobile only */}
-          <div style={{ display: "flex", gap: "10px", alignItems: "stretch", marginBottom: "12px" }}>
+          <div style={{ display: "flex", gap: "5px", alignItems: "center", marginBottom: "12px" }}>
             <Link href="/" className="learn-sq-btn" aria-label="Hjem">
               <svg width="22" height="22" viewBox="0 0 17 17" fill="none">
                 <path d="M2.5 7.5L8.5 2L14.5 7.5V15H11V10.5H6V15H2.5V7.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round"/>
