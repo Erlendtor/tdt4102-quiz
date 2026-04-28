@@ -43,8 +43,8 @@ body {
   background: var(--bg);
   color: var(--text-primary);
   font-family: var(--font-sans);
-  font-size: 15px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.55;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -83,30 +83,30 @@ body {
 /* Typography system */
 .label {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 500;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-tertiary);
 }
 
 .heading-lg {
-  font-size: 22px;
+  font-size: 30px;
   font-weight: 600;
-  letter-spacing: -0.3px;
-  line-height: 1.25;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
   color: var(--text-primary);
 }
 
 .heading-sm {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 500;
   line-height: 1.35;
   color: var(--text-primary);
 }
 
 .body-text {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 400;
   line-height: 1.6;
   color: var(--text-secondary);
@@ -132,7 +132,7 @@ body {
   border: none;
   border-radius: var(--radius-md);
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   letter-spacing: 0.01em;
   cursor: pointer;
@@ -160,7 +160,7 @@ body {
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   cursor: pointer;
   transition: background 0.12s, border-color 0.12s;
@@ -178,7 +178,7 @@ body {
   padding: 3px 8px;
   border-radius: 4px;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -199,7 +199,7 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.55;
   color: var(--text-primary);
   cursor: pointer;
@@ -292,7 +292,7 @@ body {
   gap: 6px;
   padding: 8px 14px;
   border-radius: 6px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
 }
 
@@ -318,7 +318,7 @@ body {
 .explanation {
   padding: 10px 12px;
   border-radius: 4px;
-  font-size: 12.5px;
+  font-size: 14px;
   line-height: 1.55;
   border-left: 2px solid var(--border);
   color: var(--text-secondary);
@@ -339,7 +339,7 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 15px;
   color: var(--text-primary);
   background: var(--card);
   outline: none;
@@ -360,7 +360,7 @@ body {
   height: 28px;
   border-radius: 5px;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   display: flex;
   align-items: center;
