@@ -532,6 +532,13 @@ body {
   min-height: 168px;
 }
 
+.card-glass-content {
+  transition: transform 0.55s cubic-bezier(0.25, 0, 0.2, 1);
+}
+.mode-card:hover .card-glass-content {
+  transform: translateY(-32px);
+}
+
 .card-cta {
   position: absolute;
   bottom: 20px;

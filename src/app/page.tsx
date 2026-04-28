@@ -45,17 +45,22 @@ const glassStyle: React.CSSProperties = {
   justifyContent: "flex-end",
 };
 
-const cardStyle: React.CSSProperties = {
+const cardWrapStyle: React.CSSProperties = {
   flex: 1,
-  position: "relative",
   aspectRatio: "3 / 4",
+  filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.10)) drop-shadow(0 6px 18px rgba(0,0,0,0.11)) drop-shadow(0 20px 44px rgba(0,0,0,0.09))",
+};
+
+const cardStyle: React.CSSProperties = {
+  position: "relative",
+  width: "100%",
+  height: "100%",
   padding: 0,
   overflow: "hidden",
   background: "var(--surface)",
   display: "block",
   borderRadius: "var(--radius-md)",
   clipPath: "inset(0 round var(--radius-md))",
-  filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.10)) drop-shadow(0 6px 16px rgba(0,0,0,0.10)) drop-shadow(0 18px 40px rgba(0,0,0,0.08))",
 };
 
 export default async function Home() {
@@ -147,6 +152,7 @@ export default async function Home() {
         <div className="mode-cards" style={{ padding: "0 20px 32px" }}>
 
           {/* Læringsmodus */}
+          <div style={cardWrapStyle}>
           <Link href="/learn" className="mode-card page-enter" style={{ ...cardStyle, animationDelay: "60ms" }}>
             <div className="card-image">
               <Image src="/øving3.jpg" alt="Læringsmodus" fill sizes="50vw" style={{ objectFit: "cover" }} />
@@ -184,8 +190,10 @@ export default async function Home() {
               <span className="card-cta">Start nå ⟶</span>
             </div>
           </Link>
+          </div>
 
           {/* Eksamensmodus */}
+          <div style={cardWrapStyle}>
           <Link href="/exam" className="mode-card page-enter" style={{ ...cardStyle, animationDelay: "120ms" }}>
             <div className="card-image">
               <Image src="/eksamen3.png" alt="Eksamensmodus" fill sizes="50vw" style={{ objectFit: "cover" }} />
@@ -227,6 +235,7 @@ export default async function Home() {
               <span className="card-cta">Start nå ⟶</span>
             </div>
           </Link>
+          </div>
 
         </div>
 
