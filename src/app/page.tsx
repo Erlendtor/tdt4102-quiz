@@ -204,11 +204,11 @@ export default async function Home() {
                     </span>
                   ))}
                 </div>
-              ) : (
+              ) : session?.user ? (
                 <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--text-tertiary)" }}>
-                  {session?.user ? "Ingen eksamen tatt ennå" : "12 spørsmål · NTNU-skala"}
+                  Ingen eksamen tatt ennå
                 </span>
-              )}
+              ) : null}
             </div>
           </Link>
 
