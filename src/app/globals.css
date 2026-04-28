@@ -92,7 +92,6 @@ body {
 /* Learn card bounds — desktop only */
 .app-card-learn {
   min-height: 600px;
-  max-height: 800px;
 }
 
 /* Typography system */

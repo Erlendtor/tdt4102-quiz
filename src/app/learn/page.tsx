@@ -260,29 +260,8 @@ export default function LearnPage() {
     <main className="page-shell-learn">
       <div className="app-card app-card-learn">
 
-        {/* Header — no border */}
-        <div style={{ flexShrink: 0, padding: "12px 20px", display: "flex", alignItems: "center" }}>
-          <Link
-            href="/"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              padding: "5px 12px",
-              border: "1px solid var(--border-strong)",
-              borderRadius: "var(--radius-sm)",
-              fontFamily: "var(--font-sans)",
-              fontSize: "13px",
-              fontWeight: 500,
-              color: "var(--text-secondary)",
-              textDecoration: "none",
-            }}
-          >
-            Avslutt
-          </Link>
-        </div>
-
         {/* Question area */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "28px 20px 16px" }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: "20px 20px 16px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px", flexWrap: "wrap" }}>
             <span className="tag">{current.topic}</span>
           </div>
@@ -364,7 +343,7 @@ export default function LearnPage() {
           {state === "revealed" && (
             <div style={{ marginTop: "14px" }}>
               <div className={`result-pill ${pillClass}`}>
-                {pillLabel} · {selectedCorrect}/{totalCorrect} riktige svar
+                {pillLabel} · {selectedCorrect}/{totalCorrect} riktige · {score.toFixed(1)}/{current.maxPoints}p
               </div>
             </div>
           )}
@@ -431,29 +410,52 @@ export default function LearnPage() {
             </button>
           )}
 
-          {/* Bucket status */}
-          <div style={{ display: "flex", justifyContent: "center", gap: "28px", marginTop: "14px", flexWrap: "wrap" }}>
-            {BUCKET_ITEMS.map(({ color, label, idx }) => {
-              const count = idx === -1 ? bucketCounts.mastered : bucketCounts[idx as 0 | 1 | 2];
-              const isAnimating = animatingBucket === idx;
-              return (
-                <span key={label} style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                  <span
-                    style={{ width: "6px", height: "6px", borderRadius: "50%", background: color, flexShrink: 0, display: "inline-block" }}
-                    className={isAnimating ? "bucket-pop" : ""}
-                  />
-                  <span className="label" style={{ letterSpacing: 0, textTransform: "none", fontSize: "11px", color: "var(--text-secondary)" }}>
-                    {label}{" "}
-                    <strong
+          {/* Bottom row: Avslutt left, bucket status center */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", marginTop: "14px" }}>
+            <Link
+              href="/"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                padding: "5px 12px",
+                border: "1px solid var(--border-strong)",
+                borderRadius: "var(--radius-sm)",
+                fontFamily: "var(--font-sans)",
+                fontSize: "13px",
+                fontWeight: 500,
+                color: "var(--text-secondary)",
+                textDecoration: "none",
+                justifySelf: "start",
+              }}
+            >
+              Avslutt
+            </Link>
+
+            <div style={{ display: "flex", gap: "24px", flexWrap: "wrap", justifyContent: "center" }}>
+              {BUCKET_ITEMS.map(({ color, label, idx }) => {
+                const count = idx === -1 ? bucketCounts.mastered : bucketCounts[idx as 0 | 1 | 2];
+                const isAnimating = animatingBucket === idx;
+                return (
+                  <span key={label} style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                    <span
+                      style={{ width: "6px", height: "6px", borderRadius: "50%", background: color, flexShrink: 0, display: "inline-block" }}
                       className={isAnimating ? "bucket-pop" : ""}
-                      style={{ color: "var(--text-primary)", fontWeight: 600 }}
-                    >
-                      {count}
-                    </strong>
+                    />
+                    <span className="label" style={{ letterSpacing: 0, textTransform: "none", fontSize: "11px", color: "var(--text-secondary)" }}>
+                      {label}{" "}
+                      <strong
+                        className={isAnimating ? "bucket-pop" : ""}
+                        style={{ color: "var(--text-primary)", fontWeight: 600 }}
+                      >
+                        {count}
+                      </strong>
+                    </span>
                   </span>
-                </span>
-              );
-            })}
+                );
+              })}
+            </div>
+
+            <div />
           </div>
         </div>
 
