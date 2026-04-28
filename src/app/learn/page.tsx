@@ -102,12 +102,21 @@ export default function LearnPage() {
   const [animatingBucket, setAnimatingBucket] = useState<number | null>(null);
   const [hintOpen, setHintOpen] = useState(false);
   const [exiting, setExiting] = useState(false);
+  const [entering, setEntering] = useState(false);
+  const [flyingScore, setFlyingScore] = useState<{
+    sx: number; sy: number;
+    midX: number; midY: number;
+    ex: number; ey: number;
+    label: string; color: string;
+  } | null>(null);
   const pendingUpdateRef = useRef<{
     questionId: string;
     newProgress: QuestionProgress;
     bucket: number;
     shouldMaster: boolean;
   } | null>(null);
+  const scoreRef = useRef<HTMLSpanElement>(null);
+  const bucketDotRefs = useRef<Record<number, HTMLSpanElement | null>>({});
 
   useEffect(() => {
     const deduped = deduplicateGroups(allQuestions).map(shuffleOptions);
@@ -199,49 +208,88 @@ export default function LearnPage() {
   }
 
   function nextQuestion() {
-    // Apply staged bucket update with animation before transitioning
     const pending = pendingUpdateRef.current;
-    let nextProgress = progress;
-    let nextMastered = masteredIds;
+    const targetIdx = pending ? (pending.shouldMaster ? -1 : pending.bucket) : null;
+    const dotEl = targetIdx !== null ? bucketDotRefs.current[targetIdx] : null;
+    const scoreEl = scoreRef.current;
 
-    if (pending) {
-      const progressMap = new Map(progress);
-      progressMap.set(pending.questionId, pending.newProgress);
-      nextProgress = progressMap;
-      setProgress(progressMap);
+    // Compute updated progress/mastered locally so setTimeout closures can use them
+    const progressMap = pending ? (() => {
+      const m = new Map(progress);
+      m.set(pending.questionId, pending.newProgress);
+      return m;
+    })() : progress;
+    const newMastered = pending?.shouldMaster
+      ? new Set([...masteredIds, pending.questionId])
+      : masteredIds;
 
-      if (pending.shouldMaster) {
-        nextMastered = new Set([...masteredIds, pending.questionId]);
-        setMasteredIds(nextMastered);
+    function applyAndTransition() {
+      if (pending) {
+        setProgress(progressMap);
+        if (pending.shouldMaster) setMasteredIds(newMastered);
+        if (session?.user?.id) {
+          const p = pending.newProgress;
+          fetch("/api/progress", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ questionId: p.questionId, bucket: p.bucket, timesInBucket2: p.timesInBucket2, lastScore: p.lastScore }),
+          }).catch(() => {});
+        }
+        pendingUpdateRef.current = null;
       }
-
-      setAnimatingBucket(pending.bucket);
-      setTimeout(() => setAnimatingBucket(null), 500);
-
-      if (session?.user?.id) {
-        const p = pending.newProgress;
-        fetch("/api/progress", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ questionId: p.questionId, bucket: p.bucket, timesInBucket2: p.timesInBucket2, lastScore: p.lastScore }),
-        }).catch(() => {});
-      }
-
-      pendingUpdateRef.current = null;
+      setExiting(true);
+      setTimeout(() => {
+        const remaining = activeQuestions.filter((q) => !newMastered.has(q.id));
+        if (remaining.length === 0) { setDone(true); return; }
+        const next = pickNextQuestion(activeQuestions, progressMap, newMastered);
+        setCurrent(next ? shuffleOptions(next) : null);
+        setSelected(new Set());
+        setState("answering");
+        setOpenExplanations(new Set());
+        setHintOpen(false);
+        setExiting(false);
+        setEntering(true);
+        setTimeout(() => setEntering(false), 560);
+      }, 110);
     }
 
-    setExiting(true);
-    setTimeout(() => {
-      const remaining = activeQuestions.filter((q) => !nextMastered.has(q.id));
-      if (remaining.length === 0) { setDone(true); return; }
-      const next = pickNextQuestion(activeQuestions, nextProgress, nextMastered);
-      setCurrent(next ? shuffleOptions(next) : null);
-      setSelected(new Set());
-      setState("answering");
-      setOpenExplanations(new Set());
-      setHintOpen(false);
-      setExiting(false);
-    }, 140);
+    // Flying score arc animation
+    if (pending && scoreEl && dotEl) {
+      const sr = scoreEl.getBoundingClientRect();
+      const dr = dotEl.getBoundingClientRect();
+      const sx = sr.left;
+      const sy = sr.top;
+      const ex = dr.left + dr.width / 2 - sr.width / 2;
+      const ey = dr.top  + dr.height / 2 - sr.height / 2;
+      const dx = ex - sx;
+      const dy = ey - sy;
+      // Arc midpoint: 40% along horizontal, 30% along vertical, lifted 32px above the straight line
+      const midX = sx + dx * 0.4;
+      const midY = sy + dy * 0.3 - 32;
+
+      setFlyingScore({ sx, sy, midX, midY, ex, ey, label: scoreLabel, color: scoreColor });
+
+      const FLY = 520;
+      // Dot pop just before landing
+      setTimeout(() => {
+        setAnimatingBucket(targetIdx!);
+        setTimeout(() => setAnimatingBucket(null), 420);
+      }, FLY - 55);
+
+      // On landing: remove clone, apply updates, transition
+      setTimeout(() => {
+        setFlyingScore(null);
+        applyAndTransition();
+      }, FLY);
+      return;
+    }
+
+    // Fallback — no fly animation (e.g. skip pressed, or refs not ready)
+    if (pending) {
+      setAnimatingBucket(targetIdx!);
+      setTimeout(() => setAnimatingBucket(null), 420);
+    }
+    applyAndTransition();
   }
 
   function skipQuestion() {
@@ -330,8 +378,8 @@ export default function LearnPage() {
 
         {/* Score — absolute top-right, visible after reveal */}
         {state === "revealed" && (
-          <div style={{ position: "absolute", top: "18px", right: "20px", zIndex: 2, pointerEvents: "none" }}>
-            <span style={{
+          <div style={{ position: "absolute", top: "18px", right: "20px", zIndex: 2, pointerEvents: "none", opacity: flyingScore ? 0 : 1, transition: "opacity 0.05s" }}>
+            <span ref={scoreRef} style={{
               fontFamily: "var(--font-mono)",
               fontSize: "30px",
               fontWeight: 700,
@@ -371,7 +419,7 @@ export default function LearnPage() {
             <span className="tag">{current.topic}</span>
           </div>
 
-          <div style={{ marginBottom: "14px" }}>
+          <div style={{ marginBottom: "14px", ...(entering ? { animation: "slide-from-right 0.26s cubic-bezier(0.25, 0, 0.2, 1) both" } : {}) }}>
             {current.stem.split("\n\n").map((part, i) => (
               <p key={i} className="heading-sm" style={{ marginTop: i > 0 ? "4px" : 0 }}>
                 {part}
@@ -380,16 +428,18 @@ export default function LearnPage() {
           </div>
 
           {current.code && (
-            <CodeBlock
-              code={state === "revealed" && score < current.maxPoints && current.codeAnnotated
-                ? current.codeAnnotated
-                : current.code}
-            />
+            <div style={entering ? { animation: "slide-from-right 0.26s cubic-bezier(0.25, 0, 0.2, 1) both", animationDelay: "35ms" } : {}}>
+              <CodeBlock
+                code={state === "revealed" && score < current.maxPoints && current.codeAnnotated
+                  ? current.codeAnnotated
+                  : current.code}
+              />
+            </div>
           )}
 
           {/* Options */}
           <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: current.code ? "14px" : "0" }}>
-            {current.options.map((opt) => {
+            {current.options.map((opt, i) => {
               const isCorrect = correctIds.has(opt.id);
               const isOpen = openExplanations.has(opt.id);
 
@@ -398,7 +448,10 @@ export default function LearnPage() {
                   key={opt.id}
                   className={optionClass(opt.id)}
                   onClick={() => state === "answering" && toggleOption(opt.id)}
-                  style={{ cursor: state === "answering" ? "pointer" : "default" }}
+                  style={{
+                    cursor: state === "answering" ? "pointer" : "default",
+                    ...(entering ? { animation: "slide-from-right 0.26s cubic-bezier(0.25, 0, 0.2, 1) both", animationDelay: `${55 + i * 32}ms` } : {}),
+                  }}
                 >
                   <div className={checkClass(opt.id)} style={{ flexShrink: 0 }}>
                     {state === "answering" && selected.has(opt.id) && <CheckIcon />}
@@ -521,7 +574,7 @@ export default function LearnPage() {
 
           {/* Bottom row: home icon left, buckets center, skip right */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", marginTop: "14px" }}>
-            <Link href="/" className="footer-icon-btn" aria-label="Hjem" style={{ justifySelf: "start" }}>
+            <Link href="/" className="footer-icon-btn" aria-label="Hjem" style={{ justifySelf: "start", transform: "translateY(-3px)" }}>
               <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
                 <path d="M2.5 7.5L8.5 2L14.5 7.5V15H11V10.5H6V15H2.5V7.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round"/>
               </svg>
@@ -534,6 +587,7 @@ export default function LearnPage() {
                 return (
                   <span key={label} style={{ display: "flex", alignItems: "center", gap: "5px" }}>
                     <span
+                      ref={(el) => { bucketDotRefs.current[idx] = el; }}
                       style={{ width: "6px", height: "6px", borderRadius: "50%", background: color, flexShrink: 0, display: "inline-block" }}
                       className={isAnimating ? "bucket-pop" : ""}
                     />
@@ -552,7 +606,7 @@ export default function LearnPage() {
               })}
             </div>
 
-            <button onClick={skipQuestion} className="footer-icon-btn" aria-label="Hopp over" style={{ justifySelf: "end" }}>
+            <button onClick={skipQuestion} className="footer-icon-btn" aria-label="Hopp over" style={{ justifySelf: "end", transform: "translateY(-3px)" }}>
               <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
                 <path d="M3 8.5H13M13 8.5L9 4.5M13 8.5L9 12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 <line x1="14.5" y1="4" x2="14.5" y2="13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
@@ -562,6 +616,30 @@ export default function LearnPage() {
         </div>
 
       </div>
+
+      {/* Flying score arc clone — fixed overlay, animates to bucket dot */}
+      {flyingScore && (
+        <span style={{
+          position: "fixed",
+          left: flyingScore.sx,
+          top: flyingScore.sy,
+          fontFamily: "var(--font-mono)",
+          fontSize: "30px",
+          fontWeight: 700,
+          lineHeight: 1,
+          letterSpacing: "-1px",
+          color: flyingScore.color,
+          pointerEvents: "none",
+          zIndex: 9999,
+          animation: "score-fly 520ms cubic-bezier(0.4, 0, 0.2, 1) forwards",
+          ["--fly-midX" as string]: `${flyingScore.midX - flyingScore.sx}px`,
+          ["--fly-midY" as string]: `${flyingScore.midY - flyingScore.sy}px`,
+          ["--fly-ex" as string]: `${flyingScore.ex - flyingScore.sx}px`,
+          ["--fly-ey" as string]: `${flyingScore.ey - flyingScore.sy}px`,
+        } as React.CSSProperties}>
+          {flyingScore.label}
+        </span>
+      )}
     </main>
   );
 }
