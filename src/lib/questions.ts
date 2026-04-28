@@ -2353,6 +2353,908 @@ int main(int argc, char** argv) {
     ],
   },
 
+  // ─── TVILLINGSPØRSMÅL ────────────────────────────────────────────────────
+
+  // kompilering-linking-2 twin
+  {
+    id: "tw-kl2",
+    variantGroupId: "kompilering-linking-2",
+    source: "Egenlaget",
+    topic: "Kompilering og linking",
+    stem: "Hvilke (en eller flere) av følgende utsagn er korrekte?",
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "Preprosessoren kjøres etter kompilatoren og behandler #include-direktiver.",
+        isCorrect: false,
+        explanation: "Feil. Preprosessoren kjøres FØR kompilatoren. Den behandler #include, #define og andre direktiver som et tekstlig substitusjonsteg.",
+      },
+      {
+        id: "b",
+        text: "En objektfil (.o) inneholder maskinkode, men er ikke et ferdig kjørbart program i seg selv.",
+        isCorrect: true,
+        explanation: "Riktig. Kompilatoren produserer objektfiler med maskinkode, men linkeren må sette dem sammen til en kjørbar fil og løse symbolreferanser.",
+      },
+      {
+        id: "c",
+        text: "C++ krever at alle funksjoner som kalles i main() er definert i main.cpp.",
+        isCorrect: false,
+        explanation: "Feil. Funksjoner kan defineres i hvilken som helst .cpp-fil. Linkeren kobler kall til definisjoner på tvers av kompileringsenheter.",
+      },
+      {
+        id: "d",
+        text: "En lenkefeil kan oppstå dersom en funksjon er deklarert i en header, men aldri definert i noen .cpp-fil.",
+        isCorrect: true,
+        explanation: "Riktig. Linkeren finner ikke definisjonen og rapporterer et 'undefined reference'-feil. Deklarasjon alene er ikke nok.",
+      },
+    ],
+  },
+
+  // kompilering-linking-3 twin
+  {
+    id: "tw-kl3",
+    variantGroupId: "kompilering-linking-3",
+    source: "Egenlaget",
+    topic: "Kompilering og linking",
+    stem: "Hvilke (en eller flere) av følgende utsagn er korrekte?",
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "En header-fil inkludert av to ulike .cpp-filer kompileres bare én gang totalt for hele prosjektet.",
+        isCorrect: false,
+        explanation: "Feil. Hver .cpp-fil (kompileringsenhet) kompilerer inkluderte headerfiler selvstendig. Den samme headerfilen kan dermed kompileres mange ganger.",
+      },
+      {
+        id: "b",
+        text: "Fremoverdeklarasjoner (forward declarations) lar deg referere til en funksjon i kode uten å inkludere dens definisjon.",
+        isCorrect: true,
+        explanation: "Riktig. En fremoverdeklarasjon gir kompilatoren nok informasjon til å validere kall. Definisjonen kan komme senere i samme fil eller i en annen kompileringsenhet.",
+      },
+      {
+        id: "c",
+        text: "Innlinjefunksjoner (inline) bør defineres i header-filer fordi kompilatoren trenger definisjonen i hver kompileringsenhet.",
+        isCorrect: true,
+        explanation: "Riktig. For å inline en funksjon må kompilatoren se hele definisjonen der funksjonen kalles. Inline-funksjoner er unntatt ODR og kan defineres i headers.",
+      },
+      {
+        id: "d",
+        text: "#pragma once og include-guards (#ifndef / #define / #endif) er to likeverdige metoder for å unngå at en header inkluderes flere ganger i én kompileringsenhet.",
+        isCorrect: true,
+        explanation: "Riktig. Begge mekanismene forhindrer dobbel-inkludering. #pragma once er enklere å skrive, mens include-guards er mer portabelt.",
+      },
+    ],
+  },
+
+  // datatyper-2 twin
+  {
+    id: "tw-dt2",
+    variantGroupId: "datatyper-2",
+    source: "Egenlaget",
+    topic: "Datatyper",
+    stem: "Hvilke (en eller flere) av følgende utsagn er korrekte?",
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "I C++ er struct og class nesten identiske – den eneste forskjellen er at standardsynligheten er public i struct og private i class.",
+        isCorrect: true,
+        explanation: "Riktig. Utover standardsynligheten (og standard-arvetypen) er struct og class teknisk sett identiske i C++.",
+      },
+      {
+        id: "b",
+        text: "En struct i C++ kan ikke ha konstruktører eller destruktører.",
+        isCorrect: false,
+        explanation: "Feil. En struct i C++ kan ha konstruktører, destruktører, medlemsfunksjoner og arv – akkurat som en class.",
+      },
+      {
+        id: "c",
+        text: "En struct kan arve fra en annen struct.",
+        isCorrect: true,
+        explanation: "Riktig. Arv fungerer for struct akkurat som for class. Standardarvetype for struct er public, mens det for class er private.",
+      },
+      {
+        id: "d",
+        text: "'enum class' gir sterkere typesikkerhet enn vanlig 'enum' fordi verdiene ikke konverteres implisitt til int.",
+        isCorrect: true,
+        explanation: "Riktig. Scoped enum (enum class) krever eksplisitt cast for å konvertere til int og hindrer navnekonflikter, i motsetning til unscoped enum.",
+      },
+    ],
+  },
+
+  // raii-2 twin
+  {
+    id: "tw-raii2",
+    variantGroupId: "raii-2",
+    source: "Egenlaget",
+    topic: "RAII",
+    stem: "Se på klassedeklarasjonen under.\n\nHvilke (en eller flere) av følgende utsagn er korrekte?",
+    code: `class Connection {
+    int* socket;
+public:
+    Connection() {
+        socket = new int{0};
+    }
+    void close() {
+        delete socket;
+    }
+};
+
+void run() {
+    Connection conn;
+    throw std::runtime_error("Tilkobling mistet");
+}`,
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "Klassen Connection overholder RAII fordi den har en close()-metode som frigjør minnet.",
+        isCorrect: false,
+        explanation: "Feil. RAII krever at ressursen frigjøres automatisk i destruktøren, ikke i en manuell metode som close(). Siden close() aldri kalles i run(), lekker minnet.",
+      },
+      {
+        id: "b",
+        text: "Koden forårsaker en minnelekkasje når run() kaster et unntak.",
+        isCorrect: true,
+        explanation: "Riktig. Connection har ingen destruktør, så socket frigjøres ikke under stack unwinding. Minnet lekker.",
+      },
+      {
+        id: "c",
+        text: "Connection har en implisitt standard destruktør generert av kompilatoren.",
+        isCorrect: true,
+        explanation: "Riktig. Siden ingen destruktør er deklarert, genererer kompilatoren en default destruktør. Den frigjør imidlertid ikke heap-allokert minne.",
+      },
+      {
+        id: "d",
+        text: "For at Connection skal overholde RAII, bør man legge til en destruktør (~Connection()) som kaller delete socket.",
+        isCorrect: true,
+        explanation: "Riktig. Med en destruktør som kaller delete socket vil RAII sikre at minnet frigjøres automatisk – også ved unntak.",
+      },
+    ],
+  },
+
+  // pekere-2 twin
+  {
+    id: "tw-pek2",
+    variantGroupId: "pekere-2",
+    source: "Egenlaget",
+    topic: "Pekere",
+    stem: "Se på koden under.\n\nHvilke (en eller flere) av følgende utsagn er korrekte?",
+    code: `int x = 5;
+const int* p = &x;
+int* const q = &x;`,
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "Man kan endre verdien som p peker til via *p = 10.",
+        isCorrect: false,
+        explanation: "Feil. p er en peker-til-const (const int*). Man kan ikke endre verdien gjennom p. Derimot kan man flytte p til en annen adresse.",
+      },
+      {
+        id: "b",
+        text: "Man kan endre hvilken adresse som er lagret i p.",
+        isCorrect: true,
+        explanation: "Riktig. p er av typen const int* – pekeren selv er ikke const. Man kan la p peke til noe annet, men ikke endre *p.",
+      },
+      {
+        id: "c",
+        text: "Man kan endre verdien som q peker til via *q = 10.",
+        isCorrect: true,
+        explanation: "Riktig. q er av typen int* const – en const-peker til int. Adressen er låst, men verdien det pekes til kan endres via *q.",
+      },
+      {
+        id: "d",
+        text: "Man kan endre hvilken adresse som er lagret i q.",
+        isCorrect: false,
+        explanation: "Feil. q er en const-peker (int* const). Adressen lagret i q er låst og kan ikke endres etter initialisering.",
+      },
+    ],
+  },
+
+  // kopiering-2 twin
+  {
+    id: "tw-kop2",
+    variantGroupId: "kopiering-2",
+    source: "Egenlaget",
+    topic: "Kopiering",
+    stem: "Se på koden under.\n\nHvilke (en eller flere) av følgende utsagn er korrekte?",
+    code: `struct Point { int x; int y; };
+Point a{3, 4};
+Point b = a;
+b.x = 10;`,
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "Etter linje 4 er verdien til a.x lik 10.",
+        isCorrect: false,
+        explanation: "Feil. b = a lager en separat kopi av a. Endringer i b påvirker ikke a. a.x forblir 3.",
+      },
+      {
+        id: "b",
+        text: "Koden er et eksempel på dyp kopiering (deep copy).",
+        isCorrect: true,
+        explanation: "Riktig. Point inneholder ingen pekere. Kopiering av b = a lager to helt uavhengige objekter – dette er dyp kopiering.",
+      },
+      {
+        id: "c",
+        text: "a og b refererer til det samme objektet i minnet.",
+        isCorrect: false,
+        explanation: "Feil. b = a for en struct-type lager en separat kopi. a og b er to uavhengige objekter på stakken.",
+      },
+      {
+        id: "d",
+        text: "For struct-typer som ikke inneholder rå pekere skjer slik memberwise kopiering automatisk.",
+        isCorrect: true,
+        explanation: "Riktig. Kompilatoren genererer automatisk en kopikonstruktør og kopitilordning som kopierer hvert felt. For typer uten rå pekere gir dette alltid dyp kopiering.",
+      },
+    ],
+  },
+
+  // tilgang-2 twin
+  {
+    id: "tw-til2",
+    variantGroupId: "tilgang-2",
+    source: "Egenlaget",
+    topic: "Tilgangsnivå og friend",
+    stem: "Hvilke (en eller flere) av følgende utsagn er korrekte?",
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "En barneklasse arver private-medlemmer fra baseklassen og kan aksessere dem direkte i sine egne metoder.",
+        isCorrect: false,
+        explanation: "Feil. private-medlemmer er tilgjengelige kun innenfor selve klassen de er deklarert i. Barneklasser arver dem, men kan ikke aksessere dem direkte.",
+      },
+      {
+        id: "b",
+        text: "friend-relasjoner arves ikke – om klasse B er friend av A, er ikke barneklassen til B automatisk friend av A.",
+        isCorrect: true,
+        explanation: "Riktig. Friend-relasjoner er eksplisitte og gjelder per klasse. De propagerer verken ned til barneklasser eller opp til baseklasser.",
+      },
+      {
+        id: "c",
+        text: "protected-tilgangsnivå brukes til å gi barneklasser tilgang til data som ikke skal være offentlig tilgjengelig.",
+        isCorrect: true,
+        explanation: "Riktig. protected gir tilgang til klassen selv og alle arvende klasser, men ikke til ekstern kode. Dette er nettopp hensikten.",
+      },
+      {
+        id: "d",
+        text: "En klasse kan erklære en annen hel klasse som sin friend, slik at alle klassens metoder får tilgang til private-membere.",
+        isCorrect: true,
+        explanation: "Riktig. friend class OtherClass; gir OtherClass full tilgang til alle private og protected medlemmer. Dette brukes i design patterns som f.eks. Builder.",
+      },
+    ],
+  },
+
+  // tilgang-3 twin
+  {
+    id: "tw-til3",
+    variantGroupId: "tilgang-3",
+    source: "Egenlaget",
+    topic: "Tilgangsnivå og friend",
+    stem: "Hvilke (en eller flere) av følgende utsagn er korrekte?",
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "Med public arv (class B : public A) forblir A's public-metoder tilgjengelige som public i B.",
+        isCorrect: true,
+        explanation: "Riktig. Ved public arv beholder baseklassens public-metoder sin public synlighet i barneklassen og er tilgjengelige fra ekstern kode.",
+      },
+      {
+        id: "b",
+        text: "Med private arv (class B : private A) kan ikke B's egne metoder kalle A's public-metoder.",
+        isCorrect: false,
+        explanation: "Feil. Med private arv blir A's public-metoder private i B, men B's egne metoder kan fortsatt kalle dem internt. Det er ekstern kode som mister tilgang.",
+      },
+      {
+        id: "c",
+        text: "Med protected arv (class B : protected A) blir A's public-metoder tilgjengelige som protected i B.",
+        isCorrect: true,
+        explanation: "Riktig. Protected arv konverterer A's public-metoder til protected i B, noe som gjør dem tilgjengelige for B og B's barneklasser, men ikke for ekstern kode.",
+      },
+      {
+        id: "d",
+        text: "Uavhengig av arvetypen kan aldri A's private-metoder aksesseres direkte fra B's egne metoder.",
+        isCorrect: true,
+        explanation: "Riktig. private-tilgang er alltid begrenset til klassen de er deklarert i – uansett arvetype. Barneklassen kan bare nå dem via baseklassens public/protected grensesnitt.",
+      },
+    ],
+  },
+
+  // gui-1 twin
+  {
+    id: "tw-gui1",
+    variantGroupId: "gui-1",
+    source: "Egenlaget",
+    topic: "GUI og AnimationWindow",
+    stem: "Hvilke (en eller flere) av følgende utsagn er korrekte?",
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "Et AnimationWindow-vindu kan inneholde mange widgets (f.eks. knapper) samtidig.",
+        isCorrect: true,
+        explanation: "Riktig. AnimationWindow støtter å legge til flere widgets i samme vindu.",
+      },
+      {
+        id: "b",
+        text: "Callback-funksjoner i AnimationWindow kan implementeres som lambda-funksjoner som fanger variabler fra omgivende skop.",
+        isCorrect: true,
+        explanation: "Riktig. En lambda er et funksjonsobjekt i C++ og tilfredsstiller signaturen void(). Lambda-capture lar den referere til variabler i det omgivende skopet.",
+      },
+      {
+        id: "c",
+        text: "Samme callback-funksjon kan ikke brukes som callback for mer enn én widget i samme vindu.",
+        isCorrect: false,
+        explanation: "Feil. Det er ingenting i C++ eller AnimationWindow som hindrer en funksjon fra å registreres som callback på flere widgets.",
+      },
+      {
+        id: "d",
+        text: "Callback-funksjoner som er registrert i AnimationWindow kalles automatisk av event-loopen når den tilhørende hendelsen inntreffer.",
+        isCorrect: true,
+        explanation: "Riktig. Event-loopen i AnimationWindow overvåker hendelser og kaller registrerte callbacks når riktig hendelse inntreffer.",
+      },
+    ],
+  },
+
+  // minne-1 twin
+  {
+    id: "tw-min1",
+    variantGroupId: "minne-1",
+    source: "Egenlaget",
+    topic: "Minnehåndtering",
+    stem: "Se på klassedeklarasjonen under.\n\nHvilke (en eller flere) av følgende utsagn er korrekte?",
+    code: `class Matrix {
+    double* data;
+    int size;
+public:
+    Matrix(int n) : size{n} {
+        data = new double[n * n];
+    }
+    ~Matrix() {
+        delete data;
+    }
+};`,
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "Destruktøren inneholder en feil – man bør bruke delete[] siden data ble allokert med new[].",
+        isCorrect: true,
+        explanation: "Riktig. new double[n*n] allokerer et array. Frigjøring av array-allokert minne krever delete[], ikke delete. Å bruke delete er udefinert atferd.",
+      },
+      {
+        id: "b",
+        text: "Klassen overholder RAII korrekt og minnet frigjøres alltid uten feil.",
+        isCorrect: false,
+        explanation: "Feil. Destruktøren bruker delete i stedet for delete[], noe som er udefinert atferd. RAII-prinsippet er riktig strukturert, men implementasjonen inneholder en bug.",
+      },
+      {
+        id: "c",
+        text: "Uten destruktøren ville alle instanser av Matrix forårsake en minnelekkasje.",
+        isCorrect: true,
+        explanation: "Riktig. Uten destruktør ville heap-minnet allokert med new double[n*n] aldri bli frigjort, og det ville lekke for hver instans.",
+      },
+      {
+        id: "d",
+        text: "Størrelsen på den allokerte minneblokken er n * n * sizeof(double) bytes.",
+        isCorrect: true,
+        explanation: "Riktig. new double[n*n] allokerer plass til n*n double-verdier, og hver double er sizeof(double) bytes (typisk 8 bytes).",
+      },
+    ],
+  },
+
+  // minne-2 twin
+  {
+    id: "tw-min2",
+    variantGroupId: "minne-2",
+    source: "Egenlaget",
+    topic: "Minnehåndtering",
+    stem: "Se på koden under.\n\nKoden er et eksempel på...",
+    code: `int* getValue() {
+    int x = 42;
+    return &x;
+}
+
+int main() {
+    int* p = getValue();
+    std::cout << *p << std::endl;
+    return 0;
+}`,
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "Minnelekkasje",
+        isCorrect: false,
+        explanation: "Feil. Koden allokerer ingenting på heap (ingen new). Minnelekkasje oppstår kun ved heap-allokering uten tilsvarende delete.",
+      },
+      {
+        id: "b",
+        text: "Dinglende peker (dangling pointer)",
+        isCorrect: true,
+        explanation: "Riktig. x er en lokal variabel i getValue() – den eksisterer bare på stakken mens funksjonen kjører. Etter retur er &x ugyldig, og p peker til frigjort stakk-minne.",
+      },
+      {
+        id: "c",
+        text: "Dobbel tom (double free)",
+        isCorrect: false,
+        explanation: "Feil. Ingen delete kalles i koden i det hele tatt, så det kan ikke oppstå double free.",
+      },
+      {
+        id: "d",
+        text: "Udefinert oppforsvar (undefined behavior) – verdien til *p er ikke kjent på forhånd",
+        isCorrect: true,
+        explanation: "Riktig. Å lese fra en dinglende peker er udefinert oppforsvar i C++. Verdien kan tilsynelatende fungere, krasje, eller gi vilkårlige resultater.",
+      },
+    ],
+  },
+
+  // smartpekere-1 twin
+  {
+    id: "tw-sp1",
+    variantGroupId: "smartpekere-1",
+    source: "Egenlaget",
+    topic: "Smartpekere",
+    stem: "Hvilke (en eller flere) av følgende utsagn er korrekte?",
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "std::unique_ptr kan kopieres til en annen std::unique_ptr uten at eierskapet endres.",
+        isCorrect: false,
+        explanation: "Feil. unique_ptr er ikke kopierbar – bare moveable. Kopiering ville gitt to eiere av samme objekt, noe unique_ptr eksplisitt forhindrer.",
+      },
+      {
+        id: "b",
+        text: "std::shared_ptr bruker referansetelling for å holde styr på antall eiere av det allokerte objektet.",
+        isCorrect: true,
+        explanation: "Riktig. shared_ptr øker referansetelleren ved kopiering og reduserer den ved destruksjon. Når telleren når 0, frigjøres det allokerte objektet.",
+      },
+      {
+        id: "c",
+        text: "Når den siste std::shared_ptr til et objekt destrueres, frigjøres det allokerte objektet automatisk.",
+        isCorrect: true,
+        explanation: "Riktig. Referansetelleren går til 0 og RAII-mekanismen sørger for automatisk frigjøring av heap-minnet.",
+      },
+      {
+        id: "d",
+        text: "std::make_unique<T>() er en tryggere og anbefalt måte å opprette et heap-objekt på enn å bruke new T() direkte.",
+        isCorrect: true,
+        explanation: "Riktig. make_unique er unntakssikkert og tydeliggjør eierskapet. Det er den anbefalte måten i moderne C++.",
+      },
+    ],
+  },
+
+  // abstrakte-1 twin
+  {
+    id: "tw-abs1",
+    variantGroupId: "abstrakte-1",
+    source: "Egenlaget",
+    topic: "Abstrakte klasser",
+    stem: "Hvilke (en eller flere) av følgende utsagn er korrekte?",
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "En ren virtuell funksjon (pure virtual function) tvinger alle konkrete barneklasser til å gi en implementasjon.",
+        isCorrect: true,
+        explanation: "Riktig. En ren virtuell funksjon (= 0) gjør klassen abstrakt. Enhver barneklasse som ikke implementerer den, blir selv abstrakt.",
+      },
+      {
+        id: "b",
+        text: "En klasse med minst én ren virtuell funksjon kan ikke instansieres direkte.",
+        isCorrect: true,
+        explanation: "Riktig. Abstrakte klasser er per definisjon ikke instansierbare. Kompilatoren vil gi en feil om man prøver.",
+      },
+      {
+        id: "c",
+        text: "Virtuelle funksjoner er nødvendige for at dynamisk polymorfisme skal fungere korrekt via baseklasse-pekere eller -referanser.",
+        isCorrect: true,
+        explanation: "Riktig. Uten virtual bruker C++ statisk binding – kall via baseklasse-peker vil alltid kalle baseklassens versjon. virtual aktiverer vtable-oppslag og riktig dynamisk dispatch.",
+      },
+      {
+        id: "d",
+        text: "Å kalle en virtuell funksjon er alltid like raskt som å kalle en ikke-virtuell funksjon.",
+        isCorrect: false,
+        explanation: "Feil. Virtuelle funksjoner krever et vtable-oppslag ved kjøretid, noe som gir en liten ekstra kostnad sammenlignet med ikke-virtuelle funksjoner.",
+      },
+    ],
+  },
+
+  // arv-1 twin
+  {
+    id: "tw-arv1",
+    variantGroupId: "arv-1",
+    source: "Egenlaget",
+    topic: "Arv og abstrakte klasser",
+    stem: "Se på koden under.\n\nHvilke (en eller flere) av følgende utsagn er korrekte?",
+    code: `class Animal {
+public:
+    virtual void speak() { std::cout << "..."; }
+    void breathe() { std::cout << "hust"; }
+};
+
+class Dog : public Animal {
+public:
+    void speak() override { std::cout << "Voff"; }
+};`,
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "Et kall til speak() via en Animal*-peker som peker til et Dog-objekt vil kalle Dog::speak().",
+        isCorrect: true,
+        explanation: "Riktig. speak() er virtuell. Vtable-oppslaget ved kjøretid bestemmer at Dog::speak() skal kalles, selv om pekeren er av typen Animal*.",
+      },
+      {
+        id: "b",
+        text: "Et kall til breathe() via en Animal*-peker som peker til et Dog-objekt vil kalle Animal::breathe().",
+        isCorrect: true,
+        explanation: "Riktig. breathe() er ikke virtuell. Binding skjer statisk basert på peker-typen (Animal*), og Animal::breathe() kalles.",
+      },
+      {
+        id: "c",
+        text: "Dog-klassen overstyrer ikke speak() – den arver Animal::speak() uendret.",
+        isCorrect: false,
+        explanation: "Feil. Dog deklarerer void speak() override, noe som eksplisitt overstyrer Animal::speak(). override bekrefter at en virtuell funksjon fra baseklassen overstyres.",
+      },
+      {
+        id: "d",
+        text: "Man kan lagre et Dog-objekt i en Animal*-variabel uten eksplisitt typekonvertering.",
+        isCorrect: true,
+        explanation: "Riktig. Oppkast (upcasting) fra barneklasse til baseklasse er alltid implisitt og trygt i C++.",
+      },
+    ],
+  },
+
+  // dekl-def-2 twin
+  {
+    id: "tw-dd2",
+    variantGroupId: "dekl-def-2",
+    source: "Egenlaget",
+    topic: "Deklarasjon og definisjon",
+    stem: "Hvilke (en eller flere) av følgende utsagn er korrekte?",
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "Inline-funksjoner er unntatt fra One Definition Rule (ODR) og kan trygt defineres i header-filer som inkluderes av mange .cpp-filer.",
+        isCorrect: true,
+        explanation: "Riktig. Inline-funksjoner har et spesielt unntak i ODR – kompilatoren tillater identiske definisjoner på tvers av kompileringsenheter.",
+      },
+      {
+        id: "b",
+        text: "Template-funksjoner følger ODR strengt og bør kun defineres i én .cpp-fil.",
+        isCorrect: false,
+        explanation: "Feil. Template-definisjoner MÅ ligge i header-filer (eller være synlige der de instansieres), fordi kompilatoren trenger hele definisjonen for å generere kode for hver type.",
+      },
+      {
+        id: "c",
+        text: "En global variabel kan deklareres i en header med 'extern' nøkkelordet for å unngå ODR-brudd ved inkludering i mange kildefiler.",
+        isCorrect: true,
+        explanation: "Riktig. extern int g; er bare en deklarasjon. Definisjonen (int g = 0;) plasseres én gang i en .cpp-fil, noe som overholder ODR.",
+      },
+      {
+        id: "d",
+        text: "En klasse definert i en header med #pragma once kan trygt inkluderes av mange .cpp-filer uten ODR-brudd.",
+        isCorrect: true,
+        explanation: "Riktig. ODR tillater identiske klassedefinsjoner på tvers av kompileringsenheter så lenge de er identiske. #pragma once sikrer at samme header ikke inkluderes to ganger i én kompileringsenhet.",
+      },
+    ],
+  },
+
+  // typekonv-1 twin
+  {
+    id: "tw-typ1",
+    variantGroupId: "typekonv-1",
+    source: "Egenlaget",
+    topic: "Typekonvertering",
+    stem: "Hvilke (en eller flere) av følgende utsagn er korrekte?",
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "static_cast<int>(3.9) gir resultatet 4 (avrunding til nærmeste heltall).",
+        isCorrect: false,
+        explanation: "Feil. static_cast<int> avkorter mot null, ikke avrunder. static_cast<int>(3.9) gir 3. For avrunding til nærmeste heltall bruker man std::round().",
+      },
+      {
+        id: "b",
+        text: "Implisitt konvertering fra 'double' til 'float' kan føre til tap av presisjon.",
+        isCorrect: true,
+        explanation: "Riktig. double har 52 mantissa-biter og float har 23. Konvertering fra double til float er en innsnevrende konvertering og kan miste presisjon.",
+      },
+      {
+        id: "c",
+        text: "static_cast er den tryggeste cast-operatoren for nedkonvertering (downcasting) i et arvehierarki.",
+        isCorrect: false,
+        explanation: "Feil. dynamic_cast er tryggere for downcasting fordi den sjekker typen ved kjøretid og returnerer nullptr (eller kaster std::bad_cast) om konverteringen feiler. static_cast for downcasting er udefinert atferd om typen er feil.",
+      },
+      {
+        id: "d",
+        text: "En implisitt konvertering fra 'int' til 'double' medfører normalt ikke tap av presisjon for typiske heltallsverdier.",
+        isCorrect: true,
+        explanation: "Riktig. double har nok mantissa-biter (52 bits) til å representere alle int-verdier (32 bits) nøyaktig.",
+      },
+    ],
+  },
+
+  // lokker-1 twin
+  {
+    id: "tw-lok1",
+    variantGroupId: "lokker-1",
+    source: "Egenlaget",
+    topic: "Løkker",
+    stem: "Hvilke (en eller flere) av følgende utsagn er korrekte?",
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "En do-while-løkke kjører alltid kroppen minst én gang, uavhengig av betingelsen.",
+        isCorrect: true,
+        explanation: "Riktig. do-while evaluerer betingelsen ETTER at kroppen er kjørt første gang, noe som garanterer minst én kjøring.",
+      },
+      {
+        id: "b",
+        text: "break-setningen avslutter bare den innerste løkken den er plassert i, ikke eventuelle ytre løkker.",
+        isCorrect: true,
+        explanation: "Riktig. break hopper ut til koden rett etter den innerste løkkens avsluttende klammeparentes. For å bryte ytre løkker trenger man f.eks. flagg-variabler eller goto.",
+      },
+      {
+        id: "c",
+        text: "En range-basert for-løkke (for (auto x : container)) kan ikke brukes med vanlige C++-arrays.",
+        isCorrect: false,
+        explanation: "Feil. Range-basert for fungerer utmerket med vanlige C++-arrays: for (auto x : myArray) { ... } er gyldig.",
+      },
+      {
+        id: "d",
+        text: "En uendelig while(true)-løkke kan avsluttes med en break-setning inne i løkken.",
+        isCorrect: true,
+        explanation: "Riktig. break avslutter løkken umiddelbart og fortsetter kjøringen etter løkkens avsluttende klammeparentes.",
+      },
+    ],
+  },
+
+  // random-1 twin
+  {
+    id: "tw-rnd1",
+    variantGroupId: "random-1",
+    source: "Egenlaget",
+    topic: "Tilfeldige tall",
+    stem: "Se på koden under.\n\nHvilke (en eller flere) av følgende utsagn er korrekte?",
+    code: `std::random_device device;
+std::default_random_engine engine{device()};
+std::uniform_int_distribution<int> dist(1, 6);
+int roll = dist(engine);`,
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "Tallene generert av dette programmet vil alltid være de samme ved gjentatte kjøringer.",
+        isCorrect: false,
+        explanation: "Feil. engine seedes med device() som gir ulik entropi ved hver kjøring. Sekvensen vil være forskjellig, i motsetning til dersom man bruker et fast tall som seed.",
+      },
+      {
+        id: "b",
+        text: "std::random_device gir typisk ekte tilfeldige tall basert på maskinvareentropi.",
+        isCorrect: true,
+        explanation: "Riktig. std::random_device er ment å gi ikke-deterministiske tall basert på maskinvarekilder. Den brukes typisk til å seed en PRNG, som her.",
+      },
+      {
+        id: "c",
+        text: "dist(engine) vil alltid returnere et heltall mellom 1 og 6 inklusivt.",
+        isCorrect: true,
+        explanation: "Riktig. std::uniform_int_distribution<int>(1, 6) genererer heltall i det lukkede intervallet [1, 6]. Begge grenseverdier kan returneres.",
+      },
+      {
+        id: "d",
+        text: "std::uniform_int_distribution<int> dist(1, 6) kan aldri generere verdien 6.",
+        isCorrect: false,
+        explanation: "Feil. Distribusjonen er inklusiv på begge grenser. Verdien 6 er like sannsynlig som alle andre verdier i [1, 6].",
+      },
+    ],
+  },
+
+  // direktivet-1 twin
+  {
+    id: "tw-dir1",
+    variantGroupId: "direktivet-1",
+    source: "Egenlaget",
+    topic: "Kompilatordirektiver",
+    stem: "Hvilke (en eller flere) av følgende utsagn er korrekte?",
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "#define navn verdi definerer en makro som preprosessoren erstatter tekstlig i all kildekode som følger.",
+        isCorrect: true,
+        explanation: "Riktig. #define er et preprosessordirektiv. Preprosessoren gjør en tekstlig substitusjon overalt der makronavnet forekommer etter definisjonen.",
+      },
+      {
+        id: "b",
+        text: "Makroer definert med #define kan ta parametere, akkurat som vanlige funksjoner.",
+        isCorrect: true,
+        explanation: "Riktig. Funksjonslignende makroer som #define SQUARE(x) ((x)*(x)) er gyldige. De er tekstlig substitusjon, ikke ekte funksjoner.",
+      },
+      {
+        id: "c",
+        text: "#if, #ifdef og #endif er kompilatordirektiver som evalueres under selve kompileringsfasen.",
+        isCorrect: false,
+        explanation: "Feil. #if, #ifdef og #endif er preprosessordirektiver. De evalueres av preprosessoren FØR kompileringen, og brukes til betinget kompilering.",
+      },
+      {
+        id: "d",
+        text: "Preprosessoren kjøres som et eget steg FØR selve kompileringen.",
+        isCorrect: true,
+        explanation: "Riktig. Preprosessering er det første steget i kompileringspipelinen – den behandler direktiver og produserer ren kildekode som kompilatoren deretter kompilerer.",
+      },
+    ],
+  },
+
+  // constexpr-1 twin
+  {
+    id: "tw-cx1",
+    variantGroupId: "constexpr-1",
+    source: "Egenlaget",
+    topic: "constexpr og funksjoner",
+    stem: "Hvilke (en eller flere) av følgende utsagn er korrekte?",
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "En constexpr-variabel har alltid en verdi som er kjent ved kompileringstid.",
+        isCorrect: true,
+        explanation: "Riktig. constexpr på en variabel krever at initialiseringsverdien er et konstant uttrykk. Verdien er dermed alltid tilgjengelig ved kompileringstid.",
+      },
+      {
+        id: "b",
+        text: "En const-variabel kan ha en verdi som først er kjent ved kjøretid.",
+        isCorrect: true,
+        explanation: "Riktig. const betyr at variabelen ikke kan endres etter initialisering, men initialiseringsverdien kan komme fra kjøretid. F.eks.: const int x = getUserInput(); er gyldig.",
+      },
+      {
+        id: "c",
+        text: "En constexpr-funksjon kan aldri kalles med argumenter som kun er kjent ved kjøretid.",
+        isCorrect: false,
+        explanation: "Feil. En constexpr-funksjon KAN kalles med kjøretidsargumenter. I så fall evalueres den ved kjøretid som en vanlig funksjon. constexpr-funksjoner kan brukes i begge kontekster.",
+      },
+      {
+        id: "d",
+        text: "constexpr-variabler er implisitt const.",
+        isCorrect: true,
+        explanation: "Riktig. En constexpr-variabel er automatisk const – man kan ikke endre verdien etter initialisering.",
+      },
+    ],
+  },
+
+  // vardekl-1 twin
+  {
+    id: "tw-vd1",
+    variantGroupId: "vardekl-1",
+    source: "Egenlaget",
+    topic: "Variabeldeklarasjoner",
+    stem: "Hvilke (en eller flere) av følgende utsagn er korrekte?",
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "'auto' nøkkelordet kan brukes i stedet for eksplisitt datatype, men krever alltid en initialiseringsverdi for typedeeksjon.",
+        isCorrect: true,
+        explanation: "Riktig. auto ber kompilatoren utlede typen fra initialiseringsuttrykket. Uten initialiseringsverdi har ikke kompilatoren nok informasjon og gir en kompileringsfeil.",
+      },
+      {
+        id: "b",
+        text: "Unifisert initialisering (int x{5}) og kopi-initialisering (int x = 5) er fullstendig ekvivalente for alle typer og alle verdier.",
+        isCorrect: false,
+        explanation: "Feil. Unifisert initialisering tillater ikke innsnevrende konverteringer. int x{3.9}; er en kompileringsfeil, mens int x = 3.9; er gyldig (men avkorter til 3). De er ikke ekvivalente.",
+      },
+      {
+        id: "c",
+        text: "'int x = 3.9;' er gyldig C++ og verdien til x blir 3 (avkortning mot null).",
+        isCorrect: true,
+        explanation: "Riktig. C++ tillater implisitt innsnevrende konvertering fra double til int ved kopi-initialisering. Desimaldelen avkortes mot null, så x = 3.",
+      },
+      {
+        id: "d",
+        text: "En lokal variabel deklarert uten initialisering (f.eks. int x;) får alltid verdien 0.",
+        isCorrect: false,
+        explanation: "Feil. Lokale variabler uten initialisering har en udefinert (indeterminate) verdi. Bare globale og statiske variabler er garantert null-initialisert.",
+      },
+    ],
+  },
+
+  // egentyper-1 twin
+  {
+    id: "tw-et1",
+    variantGroupId: "egentyper-1",
+    source: "Egenlaget",
+    topic: "Egendefinerte typer",
+    stem: "Hvilke (en eller flere) av følgende utsagn er korrekte?",
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "Verdier i en vanlig 'enum' konverteres implisitt til int i C++.",
+        isCorrect: true,
+        explanation: "Riktig. Unscoped enum-verdier konverteres implisitt til int. Dette kan gi uventet atferd og er en av grunnene til at enum class ble introdusert.",
+      },
+      {
+        id: "b",
+        text: "'enum class'-verdier kan brukes direkte i aritmetiske uttrykk uten eksplisitt konvertering.",
+        isCorrect: false,
+        explanation: "Feil. enum class-verdier konverteres ikke implisitt til int. Man må bruke static_cast<int>(verdi) for å bruke dem i aritmetikk.",
+      },
+      {
+        id: "c",
+        text: "En 'enum class' krever at man bruker klassenavnet som prefiks ved bruk av verdiene (f.eks. Color::Red).",
+        isCorrect: true,
+        explanation: "Riktig. Scoped enum krever kvalifisert navn (Color::Red). Dette unngår navnekonflikter og gjør koden mer lesbar.",
+      },
+      {
+        id: "d",
+        text: "Både 'enum' og 'enum class' kan ha en eksplisitt underliggende type (f.eks. enum class Status : uint8_t).",
+        isCorrect: true,
+        explanation: "Riktig. Man kan spesifisere den underliggende heltallstypen for begge variantene, noe som er nyttig for minneeffektivitet og interoperabilitet.",
+      },
+    ],
+  },
+
+  // uinit-verdier-1 twin
+  {
+    id: "tw-uv1",
+    variantGroupId: "uinit-verdier-1",
+    source: "Egenlaget",
+    topic: "Verdier og initialisering",
+    stem: "Se på koden under.\n\nHvilke (en eller flere) av følgende utsagn er korrekte?",
+    code: `int global_counter = 0;
+
+struct Point {
+    int x = 0;
+    int y;
+    double z{};
+};
+
+int main() {
+    Point p;
+    std::cout << p.x << std::endl;  // linje 11
+    std::cout << p.y << std::endl;  // linje 12
+    std::cout << p.z << std::endl;  // linje 13
+    std::cout << global_counter << std::endl; // linje 14
+}`,
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "Verdien til p.x som skrives ut på linje 11 er alltid 0.",
+        isCorrect: true,
+        explanation: "Riktig. x har en default member initializer (= 0). Denne brukes ved default-initialisering av Point p;, så p.x er alltid 0.",
+      },
+      {
+        id: "b",
+        text: "Verdien til p.y som skrives ut på linje 12 er alltid 0.",
+        isCorrect: false,
+        explanation: "Feil. y mangler initialisering. Point p; er default-initialisering, og for struct med brukerdefinert initialisering betyr dette at y forblir uinitialisert (indeterminate value).",
+      },
+      {
+        id: "c",
+        text: "Verdien til p.z som skrives ut på linje 13 er alltid 0.0.",
+        isCorrect: true,
+        explanation: "Riktig. z{} er verdi-initialisering som setter z til 0.0 for en double.",
+      },
+      {
+        id: "d",
+        text: "Verdien til global_counter som skrives ut på linje 14 er alltid 0.",
+        isCorrect: true,
+        explanation: "Riktig. Globale variabler er alltid null-initialisert ved programstart. global_counter er eksplisitt initialisert til 0, men ville vært 0 uansett.",
+      },
+    ],
+  },
+
   // ─── KLASSEMEDLEMMER ──────────────────────────────────────────────────────
 
   {
@@ -2390,6 +3292,45 @@ int main(int argc, char** argv) {
         isCorrect: true,
         explanation:
           "Riktig. Medlemsfunksjoner (metoder) er en grunnleggende del av en klasse.",
+      },
+    ],
+  },
+
+  {
+    id: "tw-km1",
+    variantGroupId: "klassemedl-1",
+    source: "custom",
+    topic: "Klassemedlemmer",
+    stem: "Hvilke (en eller flere) av følgende utsagn om statiske klassemedlemmer er korrekte?",
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "En statisk medlemsvariabel (static) deles av alle instanser av klassen.",
+        isCorrect: true,
+        explanation:
+          "Riktig. Det finnes bare én kopi av en statisk medlemsvariabel, felles for alle instanser.",
+      },
+      {
+        id: "b",
+        text: "En statisk medlemsfunksjon kan aksessere ikke-statiske medlemsvariabler direkte.",
+        isCorrect: false,
+        explanation:
+          "Feil. En statisk medlemsfunksjon har ingen this-peker og kan derfor ikke aksessere ikke-statiske medlemsvariabler direkte.",
+      },
+      {
+        id: "c",
+        text: "En statisk medlemsvariabel kan (og bør) initialiseres utenfor klassekroppen i en .cpp-fil.",
+        isCorrect: true,
+        explanation:
+          "Riktig. Statiske medlemsvariabler må vanligvis defineres og initialiseres utenfor klassekroppen – typisk i en .cpp-fil.",
+      },
+      {
+        id: "d",
+        text: "En statisk const int-variabel kan initialiseres direkte inne i klassekroppen.",
+        isCorrect: true,
+        explanation:
+          "Riktig. Integralkonstanter merket static const (eller static constexpr) kan initialiseres inline i klassekroppen.",
       },
     ],
   },
@@ -2452,6 +3393,30 @@ const hintMap: Record<string, string> = {
   "lf-q4": "Egendefinerte typer er typer du definerer selv, i motsetning til innebygde typer som int og double.",
   "v25v2-q12": "int a; uten initialisering har en udefinert verdi. Hva er verdien av argc når programmet kjøres uten ekstra argumenter? Hva returnerer C() uten argument?",
   "v24v2-q6": "En klasse kan inneholde mange ulike ting – data og funksjoner, samt statiske varianter av begge.",
+  "tw-kl2": "Preprosessoren kjøres FØR kompilatoren. Objektfiler er mellomprodukter – ikke ferdige programmer. Hva kan gå galt i lenke-steget?",
+  "tw-kl3": "Husk: #include er tekstlig kopiering – det påvirker ikke kompileringsrekkefølgen for andre filer. Hva gjør inline med ODR?",
+  "tw-dt2": "struct og class er nesten like – én konkret teknisk forskjell skiller dem. Hva gir enum class som vanlig enum ikke gir?",
+  "tw-raii2": "RAII handler om destruktøren, ikke om en manuell close()-metode. Hva skjer med stack-objekter når et unntak kastes?",
+  "tw-pek2": "const int* og int* const er speilbilder: en låser verdien, den andre låser adressen. Hvilken er hvilken?",
+  "tw-kop2": "Struct uten pekere koperes alltid dypt av kompilatoren. Endrer du kopien, er originalen upåvirket.",
+  "tw-til2": "friend arves ikke – det er ett av de tingene som ikke følger med til barneklassen. Hva kan protected gi barneklassen som private ikke kan?",
+  "tw-til3": "Arvetypen (public/protected/private) bestemmer hvilken synlighet A's membere får i B. B's egne metoder er ikke begrenset av arvetypen.",
+  "tw-gui1": "AnimationWindow-vinduer kan ha mange widgets. Callback-funksjoner er void() og kalles automatisk av event-loopen.",
+  "tw-min1": "delete og delete[] er ikke like – de rydder minnet ulikt. Hva er konsekvensen av å bruke feil variant?",
+  "tw-min2": "Lokale variabler lever på stakken og frigjøres når funksjonen returnerer. Hva skjer med en peker til en slik variabel etter at funksjonen er ferdig?",
+  "tw-sp1": "unique_ptr kan ikke kopieres – bare flyttes (move). shared_ptr bruker referansetelling. Hva skjer med objektet når siste shared_ptr destrueres?",
+  "tw-abs1": "En ren virtuell funksjon (= 0) gjør klassen abstrakt. Virtuelle funksjoner krever et lite vtable-oppslag – er det gratis?",
+  "tw-arv1": "Virtuell dispatch brukes bare når funksjonen er merket virtual i baseklassen. Ikke-virtuelle funksjoner binder til typen pekeren er deklarert som.",
+  "tw-dd2": "Inline-funksjoner og template-definisjoner er unntak fra ODR – de MÅ ligge i header-filer. Hva gjør extern for globale variabler?",
+  "tw-typ1": "static_cast<int> avkorter mot null – den runder ikke av. dynamic_cast sjekker typen ved kjøretid og er tryggere for nedkonvertering.",
+  "tw-lok1": "do-while kjører alltid minst én gang. break avslutter bare den innerste løkken. Fungerer range-for med vanlige C++-arrays?",
+  "tw-rnd1": "std::random_device gir (typisk) ekte entropi, ikke en fast seed. Distribusjonen [1,6] er inklusiv i begge ender.",
+  "tw-dir1": "#define er preprosessordirektiv – erstatningen skjer FØR kompilatoren ser koden. Makroer kan ta parametere akkurat som funksjoner.",
+  "tw-cx1": "constexpr-variabel er alltid kjent ved kompileringstid. const-variabel kan ha kjøretidsverdi. Kan en constexpr-funksjon kalles med kjøretidsargumenter?",
+  "tw-vd1": "auto krever alltid en initialiseringsverdi. Braced-init {} avviser narrowing – int x{3.9} kompilerer ikke, int x = 3.9 gjør det.",
+  "tw-et1": "struct og class er nesten identiske i C++, bortsett fra standardsynligheten. En struct kan godt arve fra en annen struct.",
+  "tw-uv1": "Felter med = 0 eller {} er eksplisitt initialisert. Felt uten initializer i en default-initialisert struct er udefinert – ikke automatisk null.",
+  "tw-km1": "Statiske klassemedlemmer tilhører klassen, ikke instansen. En statisk funksjon har ingen this-peker – hva begrenser det?",
 };
 
 const codeAnnotatedMap: Record<string, string> = {
@@ -2645,7 +3610,7 @@ export const questions: Question[] = rawQuestions.map((q) => ({
   codeAnnotated: codeAnnotatedMap[q.id],
 }));
 
-export function getRandomQuestions(count: number): Question[] {
+export function getRandomQuestions(count: number, recentIds?: Set<string>): Question[] {
   const groupMap = new Map<string, Question[]>();
 
   for (const q of questions) {
@@ -2661,7 +3626,15 @@ export function getRandomQuestions(count: number): Question[] {
   const selected: Question[] = [];
   for (const group of shuffledGroups) {
     if (selected.length >= count) break;
-    const pick = group[Math.floor(Math.random() * group.length)];
+    let pick: Question;
+    if (recentIds && group.length > 1) {
+      const unseen = group.filter((q) => !recentIds.has(q.id));
+      pick = unseen.length > 0
+        ? unseen[Math.floor(Math.random() * unseen.length)]
+        : group[Math.floor(Math.random() * group.length)];
+    } else {
+      pick = group[Math.floor(Math.random() * group.length)];
+    }
     const shuffledOptions = [...pick.options].sort(() => Math.random() - 0.5);
     selected.push({ ...pick, options: shuffledOptions });
   }

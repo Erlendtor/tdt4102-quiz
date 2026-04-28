@@ -22,7 +22,12 @@ function CheckIcon() {
 export default function ExamPage() {
   const { data: session } = useSession();
   const router = useRouter();
-  const questions = useMemo(() => getRandomQuestions(QUESTION_COUNT), []);
+  const questions = useMemo(() => {
+    const recentIds = new Set<string>(
+      JSON.parse(typeof window !== "undefined" ? (localStorage.getItem("recentExamIds") ?? "[]") : "[]")
+    );
+    return getRandomQuestions(QUESTION_COUNT, recentIds);
+  }, []);
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<Map<string, Set<string>>>(new Map());
   const [flagged, setFlagged] = useState<Set<string>>(new Set());
@@ -106,6 +111,11 @@ export default function ExamPage() {
         weakTopics,
       })
     );
+
+    const seenIds = questions.map((q) => q.id);
+    const existing: string[] = JSON.parse(localStorage.getItem("recentExamIds") ?? "[]");
+    const merged = [...new Set([...seenIds, ...existing])].slice(0, 24);
+    localStorage.setItem("recentExamIds", JSON.stringify(merged));
 
     router.push("/results");
   }

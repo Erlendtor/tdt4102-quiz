@@ -76,6 +76,7 @@ export default function ResultsPage() {
   const [results, setResults] = useState<Results | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [openExplanations, setOpenExplanations] = useState<Set<string>>(new Set());
+  const [expandedQuestions, setExpandedQuestions] = useState<Set<string>>(new Set());
   const gradeRef = useRef<HTMLDivElement>(null);
   const confettiCanvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -103,11 +104,11 @@ export default function ResultsPage() {
         fire({ particleCount: 90, spread: 80, startVelocity: 38, origin: { x: ox, y: oy }, colors: CONFETTI_COLORS, scalar: 1.1 });
         setTimeout(() => {
           fire({ particleCount: 55, spread: 60, startVelocity: 26, origin: { x: ox, y: oy }, colors: CONFETTI_COLORS, scalar: 1.0 });
-        }, 280);
+        }, 200);
       }
 
       if (grade === "A") {
-        const end = Date.now() + 4500;
+        const end = Date.now() + 1800;
         const burst = () => {
           if (Date.now() > end) return;
           const el2 = gradeRef.current;
@@ -127,7 +128,7 @@ export default function ResultsPage() {
             scalar: 1.2,
             drift: (Math.random() - 0.5) * 0.4,
           });
-          setTimeout(burst, 220);
+          setTimeout(burst, 150);
         };
         burst();
       }
@@ -136,17 +137,20 @@ export default function ResultsPage() {
     requestAnimationFrame(shoot);
   }, [results]);
 
-
   useEffect(() => {
     const stored = sessionStorage.getItem("examResults");
     if (!stored) { router.push("/exam"); return; }
     const parsed: Results = JSON.parse(stored);
     setResults(parsed);
 
-    // Default open: wrong selections + missed correct answers
+    // Open explanations for wrong selections + missed correct answers
     const defaultOpen = new Set<string>();
+    // Expand body for wrong/partial questions; collapse correct ones
+    const defaultExpanded = new Set<string>();
     for (const q of parsed.questions) {
       const selectedIds = new Set(q.selectedOptionIds);
+      const qPct = (q.score / q.maxPoints) * 100;
+      if (qPct < 100) defaultExpanded.add(q.id);
       for (const opt of q.options) {
         const isWrongSelected = !opt.isCorrect && selectedIds.has(opt.id);
         const isMissedCorrect = opt.isCorrect && !selectedIds.has(opt.id);
@@ -154,12 +158,21 @@ export default function ResultsPage() {
       }
     }
     setOpenExplanations(defaultOpen);
+    setExpandedQuestions(defaultExpanded);
   }, [router]);
 
   function toggleExplanation(optId: string) {
     setOpenExplanations((prev) => {
       const next = new Set(prev);
       next.has(optId) ? next.delete(optId) : next.add(optId);
+      return next;
+    });
+  }
+
+  function toggleQuestion(id: string) {
+    setExpandedQuestions((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
   }
@@ -179,9 +192,10 @@ export default function ResultsPage() {
   const pct = Math.round((results.totalScore / results.maxScore) * 100);
 
   return (
-    <main className="page-shell-top">
+    <main className="page-shell">
       <div className="app-card">
         <canvas ref={confettiCanvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 50 }} />
+
         {/* Grade hero */}
         <div style={{ padding: "28px 28px 20px", textAlign: "center" }}>
           <div className="label" style={{ marginBottom: "12px" }}>Eksamensresultat</div>
@@ -202,34 +216,6 @@ export default function ResultsPage() {
             {results.totalScore.toFixed(1)} / {results.maxScore}p · {pct}%
           </div>
         </div>
-
-        {/* NTNU scale */}
-        <div style={{ padding: "0 20px 14px", display: "flex", justifyContent: "center", gap: "4px" }}>
-          {["A", "B", "C", "D", "E", "F"].map((g) => (
-            <div
-              key={g}
-              style={{
-                width: "32px",
-                height: "32px",
-                borderRadius: "6px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontFamily: "var(--font-mono)",
-                fontSize: "11px",
-                fontWeight: 600,
-                background: g === results.grade ? "var(--text-primary)" : "var(--surface)",
-                color: g === results.grade ? "#FFFFFF" : "var(--text-tertiary)",
-                border: `1px solid ${g === results.grade ? "var(--text-primary)" : "var(--border)"}`,
-              }}
-            >
-              {g}
-            </div>
-          ))}
-        </div>
-        <p className="label" style={{ textAlign: "center", paddingBottom: "16px" }}>
-          A≥89% · B≥77% · C≥63% · D≥49% · E≥35%
-        </p>
 
         <div className="divider" />
 
@@ -277,148 +263,173 @@ export default function ResultsPage() {
           <button
             onClick={() => setShowDetails((v) => !v)}
             className="btn-secondary"
-            style={{ marginBottom: showDetails ? "14px" : "0" }}
           >
             {showDetails ? "Skjul" : "Vis"} detaljert gjennomgang
           </button>
 
-          {showDetails && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              {results.questions.map((q, i) => {
-                const correctIds = new Set(q.options.filter((o) => o.isCorrect).map((o) => o.id));
-                const selectedIds = new Set(q.selectedOptionIds);
-                const qPct = (q.score / q.maxPoints) * 100;
+          {/* Animated container — always rendered, height controlled by grid */}
+          <div style={{
+            display: "grid",
+            gridTemplateRows: showDetails ? "1fr" : "0fr",
+            transition: "grid-template-rows 0.3s ease",
+          }}>
+            <div style={{ overflow: "hidden", minHeight: 0 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px", paddingTop: "14px" }}>
+                {results.questions.map((q, i) => {
+                  const correctIds = new Set(q.options.filter((o) => o.isCorrect).map((o) => o.id));
+                  const selectedIds = new Set(q.selectedOptionIds);
+                  const qPct = (q.score / q.maxPoints) * 100;
+                  const isExpanded = expandedQuestions.has(q.id);
 
-                return (
-                  <div
-                    key={q.id}
-                    style={{ border: "1px solid var(--border)", borderRadius: "var(--radius-md)", overflow: "hidden" }}
-                  >
-                    {/* Question header */}
-                    <div style={{
-                      padding: "10px 14px",
-                      background: "var(--surface)",
-                      borderBottom: "1px solid var(--border)",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                        <span className="label">Spørsmål {i + 1}</span>
-                        <span className="tag">{q.topic}</span>
+                  return (
+                    <div
+                      key={q.id}
+                      style={{ border: "1px solid var(--border)", borderRadius: "var(--radius-md)", overflow: "hidden" }}
+                    >
+                      {/* Clickable question header */}
+                      <div
+                        onClick={() => toggleQuestion(q.id)}
+                        style={{
+                          padding: "10px 14px",
+                          background: "var(--surface)",
+                          borderBottom: isExpanded ? "1px solid var(--border)" : "none",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          gap: "8px",
+                          cursor: "pointer",
+                          userSelect: "none",
+                        }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                          <span className="label">Spørsmål {i + 1}</span>
+                          <span className="tag">{q.topic}</span>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          <span style={{
+                            fontFamily: "var(--font-mono)",
+                            fontSize: "11px",
+                            fontWeight: 600,
+                            color: qPct === 100 ? "var(--correct)" : qPct > 0 ? "var(--partial)" : "var(--wrong)",
+                          }}>
+                            {q.score.toFixed(1)}/{q.maxPoints}p
+                          </span>
+                          <span style={{
+                            color: "var(--text-tertiary)",
+                            fontSize: "12px",
+                            display: "inline-block",
+                            transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
+                            transition: "transform 0.2s ease",
+                            lineHeight: 1,
+                          }}>↓</span>
+                        </div>
                       </div>
-                      <span style={{
-                        fontFamily: "var(--font-mono)",
-                        fontSize: "11px",
-                        fontWeight: 600,
-                        color: qPct === 100 ? "var(--correct)" : qPct > 0 ? "var(--partial)" : "var(--wrong)",
-                        flexShrink: 0,
+
+                      {/* Animated question body */}
+                      <div style={{
+                        display: "grid",
+                        gridTemplateRows: isExpanded ? "1fr" : "0fr",
+                        transition: "grid-template-rows 0.22s ease",
                       }}>
-                        {q.score.toFixed(1)}/{q.maxPoints}p
-                      </span>
-                    </div>
+                        <div style={{ overflow: "hidden", minHeight: 0 }}>
+                          <div style={{ padding: "12px 14px" }}>
+                            <div style={{ marginBottom: "10px" }}>
+                              {q.stem.split("\n\n").map((part, pi) => (
+                                <p key={pi} className="heading-sm" style={{ fontSize: "14px", marginTop: pi > 0 ? "3px" : 0 }}>
+                                  {part}
+                                </p>
+                              ))}
+                            </div>
+                            {q.code && <CodeBlock code={q.code} />}
 
-                    {/* Stem */}
-                    <div style={{ padding: "12px 14px" }}>
-                      <div style={{ marginBottom: "10px" }}>
-                        {q.stem.split("\n\n").map((part, i) => (
-                          <p key={i} className="heading-sm" style={{ fontSize: "14px", marginTop: i > 0 ? "3px" : 0 }}>
-                            {part}
-                          </p>
-                        ))}
-                      </div>
-                      {q.code && <CodeBlock code={q.code} />}
+                            <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: q.code ? "10px" : "0" }}>
+                              {q.options.map((opt) => {
+                                const isSelected = selectedIds.has(opt.id);
+                                const isCorrect = correctIds.has(opt.id);
+                                const isOpen = openExplanations.has(opt.id);
 
-                      <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: q.code ? "10px" : "0" }}>
-                        {q.options.map((opt) => {
-                          const isSelected = selectedIds.has(opt.id);
-                          const isCorrect = correctIds.has(opt.id);
-                          const isOpen = openExplanations.has(opt.id);
+                                let cls = "option-btn default-revealed";
+                                if (isCorrect && isSelected) cls = "option-btn correct-selected";
+                                else if (isCorrect && !isSelected) cls = "option-btn correct-missed";
+                                else if (!isCorrect && isSelected) cls = "option-btn wrong-selected";
 
-                          let cls = "option-btn default-revealed";
-                          if (isCorrect && isSelected) cls = "option-btn correct-selected";
-                          else if (isCorrect && !isSelected) cls = "option-btn correct-missed";
-                          else if (!isCorrect && isSelected) cls = "option-btn wrong-selected";
+                                return (
+                                  <div key={opt.id} className={cls} style={{ cursor: "default" }}>
+                                    <div className={`opt-check${isCorrect && isSelected ? " correct" : isCorrect && !isSelected ? " correct-hint" : isSelected ? " wrong" : ""}`}>
+                                      {isCorrect && isSelected && <CheckIcon />}
+                                      {!isCorrect && isSelected && <XIcon />}
+                                    </div>
 
-                          return (
-                            <div
-                              key={opt.id}
-                              className={cls}
-                              style={{ cursor: "default" }}
-                            >
-                              <div className={`opt-check${isCorrect && isSelected ? " correct" : isCorrect && !isSelected ? " correct-hint" : isSelected ? " wrong" : ""}`}>
-                                {isCorrect && isSelected && <CheckIcon />}
-                                {!isCorrect && isSelected && <XIcon />}
-                              </div>
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                      <span>{opt.text}</span>
 
-                              <div style={{ flex: 1, minWidth: 0 }}>
-                                <span>{opt.text}</span>
+                                      <div style={{ marginTop: "8px" }}>
+                                        <button
+                                          onClick={() => toggleExplanation(opt.id)}
+                                          style={{
+                                            display: "inline-flex",
+                                            alignItems: "center",
+                                            gap: "4px",
+                                            background: "none",
+                                            border: "none",
+                                            padding: 0,
+                                            cursor: "pointer",
+                                            fontFamily: "var(--font-mono)",
+                                            fontSize: "10px",
+                                            fontWeight: 500,
+                                            letterSpacing: "0.06em",
+                                            textTransform: "uppercase",
+                                            color: "inherit",
+                                            opacity: 0.7,
+                                          }}
+                                        >
+                                          Se begrunnelse
+                                          <span style={{
+                                            display: "inline-block",
+                                            transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+                                            transition: "transform 0.15s",
+                                            lineHeight: 1,
+                                          }}>↓</span>
+                                        </button>
 
-                                <div style={{ marginTop: "8px" }}>
-                                  <button
-                                    onClick={() => toggleExplanation(opt.id)}
-                                    style={{
-                                      display: "inline-flex",
-                                      alignItems: "center",
-                                      gap: "4px",
-                                      background: "none",
-                                      border: "none",
-                                      padding: 0,
-                                      cursor: "pointer",
-                                      fontFamily: "var(--font-mono)",
-                                      fontSize: "10px",
-                                      fontWeight: 500,
-                                      letterSpacing: "0.06em",
-                                      textTransform: "uppercase",
-                                      color: "inherit",
-                                      opacity: 0.7,
-                                    }}
-                                  >
-                                    Se begrunnelse
-                                    <span style={{
-                                      display: "inline-block",
-                                      transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
-                                      transition: "transform 0.15s",
-                                      lineHeight: 1,
-                                    }}>↓</span>
-                                  </button>
-
-                                  <div className={`explanation-wrapper${isOpen ? " open" : ""}`}>
-                                    <div className="explanation-inner">
-                                      <div
-                                        className={isCorrect ? "explanation correct-exp" : "explanation"}
-                                        style={{ marginTop: "6px" }}
-                                      >
-                                        {isCorrect && !selectedIds.has(opt.id)
-                                          ? opt.explanation.replace(/^Riktig\.\s*/i, "")
-                                          : opt.explanation}
+                                        <div className={`explanation-wrapper${isOpen ? " open" : ""}`}>
+                                          <div className="explanation-inner">
+                                            <div
+                                              className={isCorrect ? "explanation correct-exp" : "explanation"}
+                                              style={{ marginTop: "6px" }}
+                                            >
+                                              {isCorrect && !selectedIds.has(opt.id)
+                                                ? opt.explanation.replace(/^Riktig\.\s*/i, "")
+                                                : opt.explanation}
+                                            </div>
+                                          </div>
+                                        </div>
                                       </div>
                                     </div>
                                   </div>
-                                </div>
-                              </div>
+                                );
+                              })}
                             </div>
-                          );
-                        })}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
-          )}
+          </div>
         </div>
 
-        <div className="divider" />
-
-        {/* Actions */}
-        <div style={{ padding: "14px 20px", display: "flex", gap: "8px" }}>
-          <Link href="/exam" className="btn-primary" style={{ flex: 1 }}>
-            Ta eksamen igjen
+        {/* Actions — no divider, tight spacing */}
+        <div style={{ padding: "4px 20px 16px", display: "flex", gap: "8px" }}>
+          <Link href="/" className="learn-sq-btn" aria-label="Hjem">
+            <svg width="22" height="22" viewBox="0 0 17 17" fill="none">
+              <path d="M2.5 7.5L8.5 2L14.5 7.5V15H11V10.5H6V15H2.5V7.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round"/>
+            </svg>
           </Link>
-          <Link href="/" className="btn-secondary" style={{ flex: 1 }}>
-            Til start
+          <Link href="/exam" className="btn-primary" style={{ flex: 1 }}>
+            Ta en ny eksamen
           </Link>
         </div>
       </div>

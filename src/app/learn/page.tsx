@@ -18,9 +18,15 @@ function shuffleOptions(q: Question): Question {
 function pickNextQuestion(
   allQs: Question[],
   progress: Map<string, QuestionProgress>,
-  masteredIds: Set<string>
+  masteredIds: Set<string>,
+  priorityId?: string | null,
+  blocked?: Set<string>
 ): Question | null {
-  const active = allQs.filter((q) => !masteredIds.has(q.id));
+  if (priorityId) {
+    const p = allQs.find((q) => q.id === priorityId && !masteredIds.has(q.id));
+    if (p) return p;
+  }
+  const active = allQs.filter((q) => !masteredIds.has(q.id) && !blocked?.has(q.id));
   if (active.length === 0) return null;
 
   const bucket0 = active.filter((q) => (progress.get(q.id)?.bucket ?? 0) === 0);
@@ -47,6 +53,12 @@ function deduplicateGroups(qs: Question[]): Question[] {
     }
   }
   return result;
+}
+
+function findTwin(questionId: string): Question | undefined {
+  const q = allQuestions.find((x) => x.id === questionId);
+  if (!q) return undefined;
+  return allQuestions.find((x) => x.variantGroupId === q.variantGroupId && x.id !== questionId);
 }
 
 function CheckIcon() {
@@ -138,6 +150,9 @@ export default function LearnPage() {
   const optionRefs = useRef<(HTMLDivElement | null)[]>([]);
   const flipTops = useRef<number[]>([]);
   const scoreHiddenRef = useRef(false);
+  const twinPriorityRef = useRef<string | null>(null);
+  const blockedIdsRef = useRef<Set<string>>(new Set());
+  const twinMapRef = useRef<Map<string, string>>(new Map());
 
   useEffect(() => {
     const deduped = deduplicateGroups(allQuestions).map(shuffleOptions);
@@ -303,7 +318,35 @@ export default function LearnPage() {
       setTimeout(() => {
         const remaining = activeQuestions.filter((q) => !newMastered.has(q.id));
         if (remaining.length === 0) { setDone(true); return; }
-        const next = pickNextQuestion(activeQuestions, progressMap, newMastered);
+
+        // If current question was the forced twin → unblock the original
+        if (current && twinPriorityRef.current === current.id) {
+          const originalId = twinMapRef.current.get(current.id);
+          if (originalId) blockedIdsRef.current.delete(originalId);
+          twinMapRef.current.delete(current.id);
+          twinPriorityRef.current = null;
+        }
+
+        // If just failed (bucket 0) → force the twin next
+        if (pending?.bucket === 0) {
+          const twin = findTwin(pending.questionId);
+          if (twin) {
+            twinPriorityRef.current = twin.id;
+            blockedIdsRef.current.add(pending.questionId);
+            twinMapRef.current.set(twin.id, pending.questionId);
+            setActiveQuestions((prev) =>
+              prev.find((q) => q.id === twin.id) ? prev : [...prev, shuffleOptions(twin)]
+            );
+          }
+        }
+
+        const next = pickNextQuestion(
+          activeQuestions,
+          progressMap,
+          newMastered,
+          twinPriorityRef.current,
+          blockedIdsRef.current
+        );
         setCurrent(next ? shuffleOptions(next) : null);
         setSelected(new Set());
         setState("answering");
