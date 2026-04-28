@@ -55,7 +55,7 @@ const cardStyle: React.CSSProperties = {
   display: "block",
   borderRadius: "var(--radius-md)",
   clipPath: "inset(0 round var(--radius-md))",
-  filter: "drop-shadow(0 4px 18px rgba(0,0,0,0.13))",
+  filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.10)) drop-shadow(0 6px 16px rgba(0,0,0,0.10)) drop-shadow(0 18px 40px rgba(0,0,0,0.08))",
 };
 
 export default async function Home() {
