@@ -470,6 +470,18 @@ body {
   to   { opacity: 1; transform: translateX(0); }
 }
 
+/* Mode cards container — side by side on desktop, stacked on mobile */
+.mode-cards {
+  display: flex;
+  gap: 12px;
+}
+
+@media (max-width: 560px) {
+  .mode-cards {
+    flex-direction: column;
+  }
+}
+
 /* Mode card — clickable link card on home */
 .mode-card {
   display: flex;
