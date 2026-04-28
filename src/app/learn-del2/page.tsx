@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import confetti from "canvas-confetti";
 import { Question, QuestionProgress } from "@/types";
 import { questions as allQuestions } from "@/lib/questions";
 import { getBucket } from "@/lib/scoring";
@@ -76,6 +77,7 @@ export default function LearnDel2Page() {
   const [current, setCurrent] = useState<Question | null>(null);
   const [inputText, setInputText] = useState("");
   const [inputState, setInputState] = useState<InputState>("answering");
+  const [selectedGrade, setSelectedGrade] = useState<"riktig" | "delvis" | "feil" | null>(null);
   const [done, setDone] = useState(false);
   const [exiting, setExiting] = useState(false);
   const [entering, setEntering] = useState(false);
@@ -127,7 +129,9 @@ export default function LearnDel2Page() {
   }, [mode, current]);
 
   function gradeInput(grade: "riktig" | "delvis" | "feil") {
-    if (!current) return;
+    if (!current || selectedGrade !== null) return;
+    setSelectedGrade(grade);
+
     const scorePct = grade === "riktig" ? 100 : grade === "delvis" ? 60 : 0;
     const bucket = getBucket(scorePct);
     const score = grade === "riktig" ? current.maxPoints : grade === "delvis" ? current.maxPoints * 0.6 : 0;
@@ -135,6 +139,17 @@ export default function LearnDel2Page() {
       ? `${score}/${current.maxPoints}p`
       : `${score.toFixed(1).replace(".", ",")}/${current.maxPoints}p`;
     const scoreColor = grade === "riktig" ? "var(--correct)" : grade === "delvis" ? "var(--partial)" : "var(--wrong)";
+
+    if (grade === "riktig") {
+      confetti({
+        particleCount: 70,
+        spread: 80,
+        startVelocity: 32,
+        origin: { x: 0.5, y: 0.55 },
+        colors: ["#30D158", "#0A84FF", "#FFD60A", "#FF9500", "#BF5AF2"],
+        scalar: 0.95,
+      });
+    }
 
     const existing = progress.get(current.id);
     const newProgress: QuestionProgress = {
@@ -176,11 +191,12 @@ export default function LearnDel2Page() {
         setCurrent(next);
         setInputText("");
         setInputState("answering");
+        setSelectedGrade(null);
         setExiting(false);
         setEntering(true);
         setTimeout(() => setEntering(false), 560);
       }, 110);
-    }, 500);
+    }, 280);
   }
 
   const bucketCounts = {
@@ -320,7 +336,7 @@ export default function LearnDel2Page() {
               style={{
                 width: "100%", boxSizing: "border-box",
                 padding: "12px 14px", borderRadius: "var(--radius-sm)",
-                border: "1.5px solid var(--border)", background: inputState === "revealed" ? "var(--surface)" : "var(--bg)",
+                border: "1.5px solid var(--border)", background: inputState === "revealed" ? "var(--surface)" : "var(--card)",
                 fontFamily: "var(--font-sans)", fontSize: "14px", lineHeight: 1.6,
                 color: "var(--text-primary)", resize: "vertical", outline: "none",
                 transition: "border-color 0.15s, background 0.15s",
@@ -349,22 +365,32 @@ export default function LearnDel2Page() {
               </div>
 
               <div style={{ display: "flex", gap: "6px", marginTop: "10px" }}>
-                {(["feil", "delvis", "riktig"] as const).map((grade) => (
-                  <button
-                    key={grade}
-                    onClick={() => gradeInput(grade)}
-                    style={{
-                      flex: 1, padding: "11px 6px", borderRadius: "var(--radius-sm)",
-                      border: `1.5px solid ${grade === "riktig" ? "var(--correct-border)" : grade === "delvis" ? "var(--partial-border)" : "var(--wrong-border)"}`,
-                      background: grade === "riktig" ? "var(--correct-bg)" : grade === "delvis" ? "var(--partial-bg)" : "var(--wrong-bg)",
-                      color: grade === "riktig" ? "var(--correct)" : grade === "delvis" ? "var(--partial)" : "var(--wrong)",
-                      fontWeight: 600, fontSize: "13px", cursor: "pointer",
-                      fontFamily: "var(--font-sans)", transition: "opacity 0.12s",
-                    }}
-                  >
-                    {grade === "riktig" ? "Riktig" : grade === "delvis" ? "Delvis" : "Feil"}
-                  </button>
-                ))}
+                {(["feil", "delvis", "riktig"] as const).map((grade) => {
+                  const isSelected = selectedGrade === grade;
+                  const isDisabled = selectedGrade !== null;
+                  return (
+                    <button
+                      key={grade}
+                      onClick={() => gradeInput(grade)}
+                      disabled={isDisabled}
+                      style={{
+                        flex: 1, padding: "11px 6px", borderRadius: "var(--radius-sm)",
+                        border: `1.5px solid ${grade === "riktig" ? "var(--correct-border)" : grade === "delvis" ? "var(--partial-border)" : "var(--wrong-border)"}`,
+                        background: isSelected
+                          ? (grade === "riktig" ? "var(--correct-bg)" : grade === "delvis" ? "var(--partial-bg)" : "var(--wrong-bg)")
+                          : "var(--card)",
+                        color: grade === "riktig" ? "var(--correct)" : grade === "delvis" ? "var(--partial)" : "var(--wrong)",
+                        fontWeight: 600, fontSize: "13px", cursor: isDisabled ? "default" : "pointer",
+                        fontFamily: "var(--font-sans)", transition: "background 0.15s, opacity 0.15s",
+                        opacity: isDisabled && !isSelected ? 0.35 : 1,
+                        outline: isSelected ? `2px solid ${grade === "riktig" ? "var(--correct)" : grade === "delvis" ? "var(--partial)" : "var(--wrong)"}` : "none",
+                        outlineOffset: "-2px",
+                      }}
+                    >
+                      {grade === "riktig" ? "Riktig" : grade === "delvis" ? "Delvis" : "Feil"}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
