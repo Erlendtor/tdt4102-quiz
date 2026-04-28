@@ -36,7 +36,7 @@ export default async function Home() {
 
   return (
     <main className="page-shell">
-      <div className="app-card">2
+      <div className="app-card">
         {/* Header */}
         <div style={{ padding: "28px 24px 20px" }}>
           <div className="label" style={{ marginBottom: "8px" }}>TDT4102</div>
