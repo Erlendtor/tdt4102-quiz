@@ -80,6 +80,21 @@ body {
   padding: 20px 16px;
 }
 
+/* Learn-mode shell — 20% top margin on desktop */
+.page-shell-learn {
+  min-height: 100dvh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 20vh 16px 40px;
+}
+
+/* Learn card bounds — desktop only */
+.app-card-learn {
+  min-height: 600px;
+  max-height: 800px;
+}
+
 /* Typography system */
 .label {
   font-family: var(--font-mono);
@@ -440,5 +455,15 @@ body {
     border-radius: 0;
     min-height: 100dvh;
     box-shadow: none;
+  }
+  .page-shell-learn {
+    padding: 0;
+  }
+  .app-card.app-card-learn {
+    border-radius: 0;
+    box-shadow: none;
+    min-height: 0;
+    max-height: none;
+    height: 100dvh;
   }
 }

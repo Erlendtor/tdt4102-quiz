@@ -255,8 +255,8 @@ export default function LearnPage() {
   const selectedCorrect = [...selected].filter((id) => correctIds.has(id)).length;
 
   return (
-    <main className="page-shell-top">
-      <div className="app-card" style={{ minHeight: "600px", maxHeight: "800px" }}>
+    <main className="page-shell-learn">
+      <div className="app-card app-card-learn">
 
         {/* Header — no border */}
         <div style={{ flexShrink: 0, padding: "12px 20px", display: "flex", alignItems: "center" }}>
@@ -417,8 +417,8 @@ export default function LearnPage() {
           )}
         </div>
 
-        {/* Footer — no border, bucket status centered below button */}
-        <div style={{ flexShrink: 0, padding: "14px 20px 18px" }}>
+        {/* Footer */}
+        <div style={{ flexShrink: 0, padding: "14px 20px 18px", background: "var(--card)" }}>
           {state === "answering" ? (
             <button onClick={checkAnswer} disabled={selected.size === 0} className="btn-primary">
               Sjekk svar
