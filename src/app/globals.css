@@ -86,13 +86,13 @@ body {
   padding: 20px 16px;
 }
 
-/* Learn-mode shell — 8vh top and bottom margin on desktop */
+/* Learn-mode shell — 5vh top and bottom margin on desktop */
 .page-shell-learn {
   min-height: 100dvh;
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: 8vh 16px 8vh;
+  padding: 5vh 16px 5vh;
 }
 
 /* Learn card bounds — desktop only */
@@ -504,7 +504,15 @@ body {
   }
   .top-card-wrap {
     width: 100%;
-    aspect-ratio: 3 / 2;
+    aspect-ratio: 5 / 2;
+  }
+  .exam-card-wrap {
+    aspect-ratio: 5 / 2;
+  }
+  .exam-card-wrap > a {
+    aspect-ratio: auto;
+    height: 100%;
+    min-height: 0 !important;
   }
 }
 

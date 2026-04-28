@@ -262,7 +262,7 @@ export default function ExamPage() {
                 style={{
                   width: "100%", boxSizing: "border-box",
                   padding: "12px 14px", borderRadius: "var(--radius-sm)",
-                  border: "1.5px solid var(--border)", background: isRevealed ? "var(--surface)" : "var(--bg)",
+                  border: "1.5px solid var(--border)", background: isRevealed ? "var(--surface)" : "var(--card)",
                   fontFamily: "var(--font-sans)", fontSize: "14px", lineHeight: 1.6,
                   color: "var(--text-primary)", resize: "vertical", outline: "none",
                   opacity: isRevealed ? 0.7 : 1, transition: "background 0.15s",

@@ -356,7 +356,7 @@ export default function ResultsPage() {
                                     padding: "10px 12px",
                                     borderRadius: "var(--radius-sm)",
                                     border: "1px solid var(--border)",
-                                    background: "var(--bg)",
+                                    background: "var(--surface)",
                                     fontFamily: "var(--font-sans)",
                                     fontSize: "14px",
                                     lineHeight: 1.6,

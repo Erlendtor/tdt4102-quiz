@@ -42,12 +42,12 @@ const glassStyle: React.CSSProperties = {
   padding: "16px 16px 28px",
   display: "flex",
   flexDirection: "column",
-  justifyContent: "flex-end",
+  justifyContent: "flex-start",
 };
 
 const cardWrapStyle: React.CSSProperties = {
   flex: 1,
-  aspectRatio: "3 / 4",
+  aspectRatio: "4 / 5",
 };
 
 const cardStyle: React.CSSProperties = {
@@ -100,7 +100,7 @@ export default async function Home() {
   }
 
   return (
-    <main className="page-shell" style={{ alignItems: "flex-start", padding: "8vh 16px" }}>
+    <main className="page-shell" style={{ alignItems: "flex-start", padding: "5vh 16px" }}>
       <div className="app-card" style={{ minWidth: "min(640px, calc(100vw - 32px))", display: "flex", flexDirection: "column" }}>
         <HomeLoader />
 
@@ -213,8 +213,8 @@ export default async function Home() {
           </div>
 
           {/* Eksamensmodus */}
-          <div style={{ width: "100%" }}>
-          <Link href="/exam" className="mode-card" style={{ ...cardStyle, aspectRatio: "auto", minHeight: "220px" }}>
+          <div className="exam-card-wrap" style={{ width: "100%" }}>
+          <Link href="/exam" className="mode-card" style={{ ...cardStyle, aspectRatio: "auto", minHeight: "280px" }}>
             <div className="card-image">
               <Image src="/eksamen3.png" alt="Eksamensmodus" fill sizes="100vw" style={{ objectFit: "cover" }} />
             </div>
