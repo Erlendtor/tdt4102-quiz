@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import Link from "next/link";
 import Image from "next/image";
 import { questions } from "@/lib/questions";
+import HomeFooter from "@/components/HomeFooter";
 
 const BUCKET_ITEMS = [
   { color: "var(--wrong)",         label: "Øving",  key: 0  },
@@ -137,7 +138,7 @@ export default async function Home() {
         </div>
 
         {/* Mode cards */}
-        <div className="mode-cards" style={{ padding: "0 20px 24px" }}>
+        <div className="mode-cards" style={{ padding: "0 20px 20px" }}>
 
           {/* Læringsmodus */}
           <Link href="/learn" className="mode-card" style={cardStyle}>
@@ -212,6 +213,8 @@ export default async function Home() {
           </Link>
 
         </div>
+
+        <HomeFooter />
       </div>
     </main>
   );
