@@ -177,37 +177,17 @@ export default function ExamPage() {
             </button>
           </div>
 
-          {/* Bottom row: house | nav dots | flag */}
-          <div className="exam-bottom-row" style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center" }}>
-            <Link href="/" className="footer-icon-btn learn-desktop-only" aria-label="Hjem" style={{ justifySelf: "start", transform: "translateY(-3px)" }}>
-              <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
-                <path d="M2.5 7.5L8.5 2L14.5 7.5V15H11V10.5H6V15H2.5V7.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round"/>
-              </svg>
-            </Link>
-
-            <div className="exam-nav-dots" style={{ display: "flex", gap: "4px", flexWrap: "wrap", justifyContent: "center" }}>
-              {questions.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrent(i)}
-                  className={`nav-dot${i === current ? " active" : flagged.has(questions[i].id) ? " flagged" : answers.has(questions[i].id) ? " answered" : ""}`}
-                >
-                  {i + 1}
-                </button>
-              ))}
-            </div>
-
-            <button
-              onClick={toggleFlag}
-              className="footer-icon-btn learn-desktop-only"
-              aria-label="Flagg spørsmål"
-              style={{ justifySelf: "end", transform: "translateY(-3px)", color: flagged.has(q.id) ? "#3B82F6" : undefined }}
-            >
-              <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
-                <line x1="4.5" y1="2" x2="4.5" y2="15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                <path d="M4.5 3L13 5.5L4.5 8Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" fill="currentColor" fillOpacity={flagged.has(q.id) ? 1 : 0}/>
-              </svg>
-            </button>
+          {/* Bottom row: nav dots */}
+          <div className="exam-nav-dots" style={{ display: "flex", gap: "4px", flexWrap: "wrap", justifyContent: "center" }}>
+            {questions.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrent(i)}
+                className={`nav-dot${i === current ? " active" : flagged.has(questions[i].id) ? " flagged" : answers.has(questions[i].id) ? " answered" : ""}`}
+              >
+                {i + 1}
+              </button>
+            ))}
           </div>
         </div>
       </div>

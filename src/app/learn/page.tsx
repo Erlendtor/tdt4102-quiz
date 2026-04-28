@@ -642,15 +642,8 @@ export default function LearnPage() {
             </button>
           </div>
 
-          {/* Bottom row: home icon left, buckets center, skip right */}
-          <div className="learn-bottom-row" style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", marginTop: "14px" }}>
-            <Link href="/" className="footer-icon-btn learn-desktop-only" aria-label="Hjem" style={{ justifySelf: "start", transform: "translateY(-3px)" }}>
-              <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
-                <path d="M2.5 7.5L8.5 2L14.5 7.5V15H11V10.5H6V15H2.5V7.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round"/>
-              </svg>
-            </Link>
-
-            <div className="learn-bucket-row" style={{ display: "flex", gap: "20px", flexWrap: "wrap", justifyContent: "center" }}>
+          {/* Bottom row: bucket counts */}
+          <div className="learn-bucket-row" style={{ display: "flex", gap: "20px", flexWrap: "wrap", justifyContent: "center", marginTop: "14px" }}>
               {BUCKET_ITEMS.map(({ color, label, idx }) => {
                 const count = idx === -1 ? bucketCounts.mastered : bucketCounts[idx as 0 | 1 | 2];
                 const isAnimating = animatingBucket === idx;
@@ -674,14 +667,6 @@ export default function LearnPage() {
                   </span>
                 );
               })}
-            </div>
-
-            <button onClick={skipQuestion} className="footer-icon-btn learn-desktop-only" aria-label="Hopp over" style={{ justifySelf: "end", transform: "translateY(-3px)" }}>
-              <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
-                <path d="M3 8.5H13M13 8.5L9 4.5M13 8.5L9 12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                <line x1="14.5" y1="4" x2="14.5" y2="13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              </svg>
-            </button>
           </div>
         </div>
 

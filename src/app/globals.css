@@ -522,9 +522,9 @@ body {
 }
 .footer-icon-btn:hover { color: var(--text-primary); }
 
-/* Square icon buttons flanking the main button in learn footer — mobile only */
+/* Square icon buttons flanking the main button in learn/exam footer */
 .learn-sq-btn {
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   padding: 14px;
@@ -562,12 +562,7 @@ body {
     height: 100dvh;
   }
 
-  /* Learn/exam footer: show square flanking buttons, hide desktop icon buttons */
-  .learn-sq-btn { display: flex; }
-  .learn-desktop-only { display: none !important; }
-
   /* Learn bucket row: full-width, no wrapping */
-  .learn-bottom-row { display: block !important; }
   .learn-bucket-row {
     width: 100%;
     flex-wrap: nowrap !important;
