@@ -136,6 +136,7 @@ export default function LearnPage() {
     ex: number; ey: number;
     label: string; color: string;
   } | null>(null);
+  const firstQuestionLoaded = useRef(false);
   const pendingUpdateRef = useRef<{
     questionId: string;
     newProgress: QuestionProgress;
@@ -171,6 +172,15 @@ export default function LearnPage() {
       setCurrent(pickNextQuestion(activeQuestions, progress, masteredIds));
     }
   }, [activeQuestions, current, progress, masteredIds]);
+
+  useEffect(() => {
+    if (current && !firstQuestionLoaded.current) {
+      firstQuestionLoaded.current = true;
+      setEntering(true);
+      const t = setTimeout(() => setEntering(false), 500);
+      return () => clearTimeout(t);
+    }
+  }, [current]);
 
   const bucketCounts = {
     0: activeQuestions.filter((q) => (progress.get(q.id)?.bucket ?? 0) === 0 && !masteredIds.has(q.id)).length,

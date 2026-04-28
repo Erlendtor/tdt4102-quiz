@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Question } from "@/types";
@@ -109,6 +109,12 @@ export default function ExamPage() {
 
     router.push("/results");
   }
+
+  useEffect(() => {
+    setEntering(true);
+    const t = setTimeout(() => setEntering(false), 500);
+    return () => clearTimeout(t);
+  }, []);
 
   const answeredCount = answers.size;
   const allAnswered = answeredCount === QUESTION_COUNT;
