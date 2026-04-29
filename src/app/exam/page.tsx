@@ -60,7 +60,6 @@ export default function ExamPage() {
   const del1Remaining = del1Questions.filter((dq) => !answers.has(dq.id)).length;
   const del2Remaining = del2Questions.filter((dq) => !del2Grades.has(dq.id)).length;
   const remaining = del1Remaining + del2Remaining;
-  const canSubmit = remaining === 0;
 
   function navigateTo(idx: number) {
     if (idx === current) return;
@@ -192,8 +191,8 @@ export default function ExamPage() {
     }
     if (isLastQuestion) {
       return (
-        <button onClick={handleSubmit} disabled={!canSubmit || submitting} className="btn-primary" style={{ flex: 1 }}>
-          {submitting ? "Sender..." : !canSubmit ? `${remaining} gjenstår` : "Lever eksamen"}
+        <button onClick={handleSubmit} disabled={submitting} className="btn-primary" style={{ flex: 1 }}>
+          {submitting ? "Sender..." : remaining > 0 ? `Lever (${remaining} ubesvart)` : "Lever eksamen"}
         </button>
       );
     }
