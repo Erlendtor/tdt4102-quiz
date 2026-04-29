@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Question } from "@/types";
@@ -14,6 +14,10 @@ const DEL2_COUNT = 8;
 
 type Del2Grade = "riktig" | "delvis" | "feil";
 
+function examDraftKey(userId: string) {
+  return `examDraft_${userId}`;
+}
+
 function CheckIcon() {
   return (
     <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
@@ -23,25 +27,18 @@ function CheckIcon() {
 }
 
 export default function ExamPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
 
-  const { del1Questions, del2Questions, allQuestions } = useMemo(() => {
-    const recentIds = new Set<string>(
-      JSON.parse(typeof window !== "undefined" ? (localStorage.getItem("recentExamIds") ?? "[]") : "[]")
-    );
-    const d1 = getRandomDel1Questions(DEL1_COUNT, recentIds);
-    const d2 = getRandomDel2Questions(DEL2_COUNT);
-    return { del1Questions: d1, del2Questions: d2, allQuestions: [...d1, ...d2] };
-  }, []);
-
+  const [examReady, setExamReady] = useState(false);
+  const [del1Questions, setDel1Questions] = useState<Question[]>([]);
+  const [del2Questions, setDel2Questions] = useState<Question[]>([]);
+  const allQuestions = useMemo(() => [...del1Questions, ...del2Questions], [del1Questions, del2Questions]);
   const QUESTION_COUNT = allQuestions.length;
 
   const [current, setCurrent] = useState(0);
-  // Del 1 state
   const [answers, setAnswers] = useState<Map<string, Set<string>>>(new Map());
   const [flagged, setFlagged] = useState<Set<string>>(new Set());
-  // Del 2 state
   const [del2TextAnswers, setDel2TextAnswers] = useState<Map<string, string>>(new Map());
   const [del2Revealed, setDel2Revealed] = useState<Set<string>>(new Set());
   const [del2Grades, setDel2Grades] = useState<Map<string, Del2Grade>>(new Map());
@@ -50,6 +47,77 @@ export default function ExamPage() {
   const [exiting, setExiting] = useState(false);
   const [entering, setEntering] = useState(false);
   const [direction, setDirection] = useState<"right" | "left">("right");
+
+  // Initialize exam: restore draft for logged-in users, otherwise generate fresh
+  useEffect(() => {
+    if (status === "loading") return;
+
+    const userId = session?.user?.id;
+    const saved = userId ? localStorage.getItem(examDraftKey(userId)) : null;
+
+    if (saved) {
+      try {
+        const draft = JSON.parse(saved);
+        setDel1Questions(draft.del1Questions);
+        setDel2Questions(draft.del2Questions);
+        setCurrent(draft.current ?? 0);
+        setAnswers(new Map((draft.answers ?? []).map(([k, v]: [string, string[]]) => [k, new Set(v)])));
+        setFlagged(new Set(draft.flagged ?? []));
+        setDel2TextAnswers(new Map(draft.del2TextAnswers ?? []));
+        setDel2Revealed(new Set(draft.del2Revealed ?? []));
+        setDel2Grades(new Map(draft.del2Grades ?? []));
+        setExamReady(true);
+        return;
+      } catch {
+        localStorage.removeItem(examDraftKey(userId!));
+      }
+    }
+
+    const recentIds = new Set<string>(JSON.parse(localStorage.getItem("recentExamIds") ?? "[]"));
+    const d1 = getRandomDel1Questions(DEL1_COUNT, recentIds);
+    const d2 = getRandomDel2Questions(DEL2_COUNT);
+    setDel1Questions(d1);
+    setDel2Questions(d2);
+    setExamReady(true);
+  }, [status, session?.user?.id]);
+
+  // Save draft to localStorage on every state change (logged-in users only)
+  const isMounted = useRef(false);
+  useEffect(() => {
+    if (!examReady) return;
+    if (!isMounted.current) { isMounted.current = true; return; }
+    const userId = session?.user?.id;
+    if (!userId) return;
+
+    localStorage.setItem(examDraftKey(userId), JSON.stringify({
+      del1Questions,
+      del2Questions,
+      current,
+      answers: [...answers.entries()].map(([k, v]) => [k, [...v]]),
+      flagged: [...flagged],
+      del2TextAnswers: [...del2TextAnswers.entries()],
+      del2Revealed: [...del2Revealed],
+      del2Grades: [...del2Grades.entries()],
+    }));
+  }, [examReady, del1Questions, del2Questions, current, answers, flagged, del2TextAnswers, del2Revealed, del2Grades, session?.user?.id]);
+
+  // Entrance animation after exam is ready
+  useEffect(() => {
+    if (!examReady) return;
+    setEntering(true);
+    const t = setTimeout(() => setEntering(false), 500);
+    return () => clearTimeout(t);
+  }, [examReady]);
+
+  if (!examReady || allQuestions.length === 0) {
+    return (
+      <main className="page-shell-learn">
+        <div className="app-card app-card-learn" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <span style={{ color: "var(--text-tertiary)", fontSize: "14px" }}>Laster eksamen…</span>
+        </div>
+      </main>
+    );
+  }
 
   const q = allQuestions[current];
   const isDel2 = q.source === "del2";
@@ -105,6 +173,10 @@ export default function ExamPage() {
 
   async function handleSubmit() {
     setSubmitting(true);
+
+    if (session?.user?.id) {
+      localStorage.removeItem(examDraftKey(session.user.id));
+    }
 
     const del1Results = del1Questions.map((question) => {
       const sel = [...(answers.get(question.id) ?? [])];
@@ -167,12 +239,6 @@ export default function ExamPage() {
 
     router.push("/results");
   }
-
-  useEffect(() => {
-    setEntering(true);
-    const t = setTimeout(() => setEntering(false), 500);
-    return () => clearTimeout(t);
-  }, []);
 
   const anim = direction === "left" ? "slide-from-left" : "slide-from-right";
   const enterStyle = (delay: string) => entering
