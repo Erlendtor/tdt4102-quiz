@@ -3891,11 +3891,11 @@ Dyp kopiering: Kopierer det en peker peker til slik at originalen og kopien peke
     code: `// Kodesnutt 1:
 int* p = new int{10};
 delete p;
-delete p;       // dobbel frigjøring – kjøretidsfeil
+delete p;
 
 // Kodesnutt 2:
 int* p = new int{10};
-p = new int{10};  // minnelekkasje, men ingen kjøretidsfeil
+p = new int{10};
 delete p;`,
     modelAnswer: `Kodesnutt 1 er et eksempel på dobbel frigjøring (double free): i linje 3 prøver vi å frigjøre minne som allerede er frigjort i linje 2. Dette gir udefinert atferd og typisk kjøretidsfeil.
 
