@@ -34,9 +34,15 @@ type Del2Question = {
   source: string;
   modelAnswer?: string;
   textAnswer: string;
+  textAnswerA?: string;
+  textAnswerB?: string;
   selfGrade: SelfGrade | null;
   score: number;
 };
+
+function stemHasSubParts(stem: string) {
+  return stem.includes("(a)") && stem.includes("(b)");
+}
 
 type QuestionResult = Del1Question | (Del2Question & { options: Option[] });
 
@@ -98,6 +104,33 @@ interface GradingPhaseProps {
   onDone: (grades: Map<string, SelfGrade>) => void;
 }
 
+function GradeButtons({ value, onChange, half }: { value: SelfGrade | undefined; onChange: (g: SelfGrade) => void; half?: number }) {
+  return (
+    <div style={{ display: "flex", gap: "6px" }}>
+      {(["feil", "delvis", "riktig"] as const).map((g) => (
+        <button
+          key={g}
+          onClick={() => onChange(g)}
+          style={{
+            flex: 1, padding: "11px 6px", borderRadius: "var(--radius-sm)",
+            border: `1.5px solid ${g === "riktig" ? "var(--correct-border)" : g === "delvis" ? "var(--partial-border)" : "var(--wrong-border)"}`,
+            background: value === g
+              ? (g === "riktig" ? "var(--correct-bg)" : g === "delvis" ? "var(--partial-bg)" : "var(--wrong-bg)")
+              : "var(--card)",
+            color: g === "riktig" ? "var(--correct)" : g === "delvis" ? "var(--partial)" : "var(--wrong)",
+            fontWeight: 600, fontSize: "13px", cursor: "pointer",
+            fontFamily: "var(--font-sans)", transition: "background 0.15s",
+            outline: value === g ? `2px solid ${g === "riktig" ? "var(--correct)" : g === "delvis" ? "var(--partial)" : "var(--wrong)"}` : "none",
+            outlineOffset: "-2px",
+          }}
+        >
+          {g === "riktig" ? `Riktig${half !== undefined ? ` (${half}p)` : ""}` : g === "delvis" ? `Delvis${half !== undefined ? ` (${half / 2}p)` : ""}` : "Feil (0p)"}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function GradingPhase({ del2Questions, onDone }: GradingPhaseProps) {
   const [index, setIndex] = useState(0);
   const [grades, setGrades] = useState<Map<string, SelfGrade>>(new Map());
@@ -110,11 +143,19 @@ function GradingPhase({ del2Questions, onDone }: GradingPhaseProps) {
   }, []);
 
   const q = del2Questions[index];
-  const currentGrade = grades.get(q.id);
+  const isSub = stemHasSubParts(q.stem);
+  const gradeA = grades.get(`${q.id}-a`);
+  const gradeB = grades.get(`${q.id}-b`);
+  const currentGrade = isSub ? undefined : grades.get(q.id);
+  const canProceed = isSub ? !!(gradeA && gradeB) : !!currentGrade;
   const isLast = index === del2Questions.length - 1;
 
   function selectGrade(g: SelfGrade) {
     setGrades((prev) => new Map(prev).set(q.id, g));
+  }
+
+  function selectSubGrade(part: "a" | "b", g: SelfGrade) {
+    setGrades((prev) => new Map(prev).set(`${q.id}-${part}`, g));
   }
 
   function go(next: number) {
@@ -128,17 +169,18 @@ function GradingPhase({ del2Questions, onDone }: GradingPhaseProps) {
   }
 
   function handleNext() {
-    if (!currentGrade) return;
-    if (isLast) {
-      const finalGrades = new Map(grades);
-      finalGrades.set(q.id, currentGrade);
-      onDone(finalGrades);
-    } else {
-      go(index + 1);
-    }
+    if (!canProceed) return;
+    if (isLast) onDone(grades);
+    else go(index + 1);
   }
 
   const anim = { animation: "page-enter 0.26s cubic-bezier(0.25, 0, 0.2, 1) both" };
+  const answerBoxStyle: React.CSSProperties = {
+    padding: "12px 14px", borderRadius: "var(--radius-sm)",
+    border: "1.5px solid var(--border)", background: "var(--surface)",
+    fontFamily: "var(--font-sans)", fontSize: "14px", lineHeight: 1.6,
+    whiteSpace: "pre-wrap", marginBottom: "8px",
+  };
 
   return (
     <main className="page-shell-learn">
@@ -166,56 +208,44 @@ function GradingPhase({ del2Questions, onDone }: GradingPhaseProps) {
             </div>
           )}
 
-          {/* User's answer */}
-          <div style={{ marginTop: q.code ? "14px" : "0", ...(entering ? anim : {}) }}>
-            <div className="label" style={{ marginBottom: "6px" }}>Ditt svar</div>
-            <div style={{
-              padding: "12px 14px", borderRadius: "var(--radius-sm)",
-              border: "1.5px solid var(--border)", background: "var(--surface)",
-              fontFamily: "var(--font-sans)", fontSize: "14px", lineHeight: 1.6,
-              color: q.textAnswer ? "var(--text-primary)" : "var(--text-tertiary)",
-              whiteSpace: "pre-wrap", marginBottom: "12px",
-            }}>
-              {q.textAnswer || "(tomt svar)"}
-            </div>
-
-            {/* Model answer */}
-            <div style={{
-              padding: "12px 14px", borderRadius: "var(--radius-sm)",
-              border: "1px solid var(--border)", background: "var(--surface)",
-              borderLeft: "3px solid var(--correct-border)", marginBottom: "12px",
-            }}>
-              <div className="label" style={{ marginBottom: "6px" }}>Fasit</div>
-              <p style={{ fontFamily: "var(--font-mono)", fontSize: "14px", lineHeight: 1.5, margin: 0, color: "var(--text-primary)", whiteSpace: "pre-wrap" }}>
-                {q.modelAnswer}
-              </p>
-            </div>
-
-            {/* Grade buttons */}
-            <div className="label" style={{ marginBottom: "8px" }}>Vurder svaret ditt</div>
-            <div style={{ display: "flex", gap: "6px" }}>
-              {(["feil", "delvis", "riktig"] as const).map((g) => (
-                <button
-                  key={g}
-                  onClick={() => selectGrade(g)}
-                  style={{
-                    flex: 1, padding: "11px 6px", borderRadius: "var(--radius-sm)",
-                    border: `1.5px solid ${g === "riktig" ? "var(--correct-border)" : g === "delvis" ? "var(--partial-border)" : "var(--wrong-border)"}`,
-                    background: currentGrade === g
-                      ? (g === "riktig" ? "var(--correct-bg)" : g === "delvis" ? "var(--partial-bg)" : "var(--wrong-bg)")
-                      : "var(--card)",
-                    color: g === "riktig" ? "var(--correct)" : g === "delvis" ? "var(--partial)" : "var(--wrong)",
-                    fontWeight: 600, fontSize: "13px", cursor: "pointer",
-                    fontFamily: "var(--font-sans)", transition: "background 0.15s",
-                    outline: currentGrade === g ? `2px solid ${g === "riktig" ? "var(--correct)" : g === "delvis" ? "var(--partial)" : "var(--wrong)"}` : "none",
-                    outlineOffset: "-2px",
-                  }}
-                >
-                  {g === "riktig" ? "Riktig" : g === "delvis" ? "Delvis" : "Feil"}
-                </button>
-              ))}
-            </div>
+          {/* Fasit */}
+          <div style={{ marginTop: q.code ? "14px" : "0", ...(entering ? anim : {}), padding: "12px 14px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)", background: "var(--surface)", borderLeft: "3px solid var(--correct-border)", marginBottom: "16px" }}>
+            <div className="label" style={{ marginBottom: "6px" }}>Fasit</div>
+            <p style={{ fontFamily: "var(--font-mono)", fontSize: "14px", lineHeight: 1.5, margin: 0, color: "var(--text-primary)", whiteSpace: "pre-wrap" }}>
+              {q.modelAnswer}
+            </p>
           </div>
+
+          {isSub ? (
+            /* a/b sub-part grading */
+            <div style={{ ...(entering ? anim : {}), display: "flex", flexDirection: "column", gap: "16px" }}>
+              {(["a", "b"] as const).map((part) => {
+                const textAns = part === "a" ? q.textAnswerA : q.textAnswerB;
+                const partGrade = part === "a" ? gradeA : gradeB;
+                const half = q.maxPoints / 2;
+                return (
+                  <div key={part} style={{ border: "1.5px solid var(--border)", borderRadius: "var(--radius-sm)", padding: "12px 14px" }}>
+                    <div className="label" style={{ marginBottom: "8px", fontSize: "13px", fontFamily: "var(--font-mono)", fontWeight: 700 }}>{part})</div>
+                    <div style={{ ...answerBoxStyle, color: textAns ? "var(--text-primary)" : "var(--text-tertiary)" }}>
+                      {textAns || "(tomt svar)"}
+                    </div>
+                    <div className="label" style={{ marginBottom: "6px" }}>Vurder {part})</div>
+                    <GradeButtons value={partGrade} onChange={(g) => selectSubGrade(part, g)} half={half} />
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            /* Single-part grading */
+            <div style={entering ? anim : {}}>
+              <div className="label" style={{ marginBottom: "6px" }}>Ditt svar</div>
+              <div style={{ ...answerBoxStyle, color: q.textAnswer ? "var(--text-primary)" : "var(--text-tertiary)" }}>
+                {q.textAnswer || "(tomt svar)"}
+              </div>
+              <div className="label" style={{ marginBottom: "8px" }}>Vurder svaret ditt</div>
+              <GradeButtons value={currentGrade} onChange={selectGrade} />
+            </div>
+          )}
         </div>
 
         {/* Footer */}
@@ -223,7 +253,7 @@ function GradingPhase({ del2Questions, onDone }: GradingPhaseProps) {
           <div style={{ display: "flex", gap: "5px", alignItems: "center", marginBottom: "12px" }}>
             <button
               onClick={handleNext}
-              disabled={!currentGrade}
+              disabled={!canProceed}
               className="btn-primary"
               style={{ flex: 1 }}
             >
@@ -235,12 +265,15 @@ function GradingPhase({ del2Questions, onDone }: GradingPhaseProps) {
           <div style={{ display: "flex", gap: "4px", flexWrap: "wrap", justifyContent: "center" }}>
             {del2Questions.map((dq, i) => {
               const isActive = i === index;
-              const isGraded = grades.has(dq.id) || (i === index && !!currentGrade);
+              const isDqSub = stemHasSubParts(dq.stem);
+              const isGraded = isDqSub
+                ? (grades.has(`${dq.id}-a`) && grades.has(`${dq.id}-b`))
+                : grades.has(dq.id);
               const dotClass = `nav-dot${isActive ? " active" : isGraded ? " answered" : ""}`;
               return (
                 <button
                   key={i}
-                  onClick={() => { if (i < index || grades.has(del2Questions[i - 1]?.id)) go(i); }}
+                  onClick={() => { if (i < index || isGraded) go(i); }}
                   className={dotClass}
                   disabled={i > index}
                 >
@@ -327,6 +360,14 @@ export default function ResultsPage() {
     }));
 
     const gradedDel2: (Del2Question & { options: Option[] })[] = del2Qs.map((q) => {
+      if (stemHasSubParts(q.stem)) {
+        const gA = grades.get(`${q.id}-a`) ?? "feil";
+        const gB = grades.get(`${q.id}-b`) ?? "feil";
+        const half = q.maxPoints / 2;
+        const sA = gA === "riktig" ? half : gA === "delvis" ? half / 2 : 0;
+        const sB = gB === "riktig" ? half : gB === "delvis" ? half / 2 : 0;
+        return { ...q, options: [], selfGrade: gA, score: sA + sB };
+      }
       const g = grades.get(q.id) ?? "feil";
       const score = g === "riktig" ? q.maxPoints : g === "delvis" ? q.maxPoints / 2 : 0;
       return { ...q, options: [], selfGrade: g, score };
@@ -448,9 +489,12 @@ export default function ResultsPage() {
   const pct = Math.round((results.totalScore / results.maxScore) * 100);
 
   return (
-    <main className="page-shell">
-      <div className="app-card">
+    <main className="page-shell-learn">
+      <div className="app-card app-card-learn">
         <canvas ref={confettiCanvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 50 }} />
+
+        {/* Scrollable content */}
+        <div style={{ flex: 1, overflowY: "auto", minHeight: 0 }}>
 
         {/* Grade hero */}
         <div style={{ padding: "28px 28px 20px", textAlign: "center" }}>
@@ -646,39 +690,69 @@ export default function ResultsPage() {
                   .map((q, i) => {
                     const dq = q as Del2Question;
                     const selfGrade = dq.selfGrade;
+                    const isExpanded = expandedQuestions.has(q.id);
+                    const isSub = stemHasSubParts(q.stem);
                     return (
                       <div key={q.id} style={{ border: "1px solid var(--border)", borderRadius: "var(--radius-md)", overflow: "hidden" }}>
-                        <div style={{ padding: "10px 14px", background: "var(--surface)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px" }}>
+                        <div
+                          onClick={() => toggleQuestion(q.id)}
+                          style={{ padding: "10px 14px", background: "var(--surface)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", cursor: "pointer", userSelect: "none", borderBottom: isExpanded ? "1px solid var(--border)" : "none" }}
+                        >
                           <div style={{ display: "flex", alignItems: "center", gap: "6px", minWidth: 0 }}>
                             <span className="label" style={{ flexShrink: 0 }}>Del 2 · {i + 1}</span>
                             <span className="tag" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{q.topic}</span>
                           </div>
-                          {selfGrade && (
-                            <span style={{
-                              flexShrink: 0, display: "inline-block", padding: "3px 10px",
-                              borderRadius: "99px", fontSize: "11px", fontWeight: 600,
-                              fontFamily: "var(--font-sans)",
-                              background: selfGrade === "riktig" ? "var(--correct-bg)" : selfGrade === "delvis" ? "var(--partial-bg)" : "var(--wrong-bg)",
-                              color: selfGrade === "riktig" ? "var(--correct)" : selfGrade === "delvis" ? "var(--partial)" : "var(--wrong)",
-                              border: `1px solid ${selfGrade === "riktig" ? "var(--correct-border)" : selfGrade === "delvis" ? "var(--partial-border)" : "var(--wrong-border)"}`,
-                            }}>
-                              {selfGrade === "riktig" ? "Riktig" : selfGrade === "delvis" ? "Delvis" : "Feil"}
+                          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+                            <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", fontWeight: 600, color: (q.score / q.maxPoints) === 1 ? "var(--correct)" : q.score > 0 ? "var(--partial)" : "var(--wrong)" }}>
+                              {q.score.toFixed(1)}/{q.maxPoints}p
                             </span>
-                          )}
-                        </div>
-                        <div style={{ padding: "12px 14px", display: "flex", flexDirection: "column", gap: "8px" }}>
-                          <p style={{ fontSize: "13px", color: "var(--text-secondary)", margin: 0, whiteSpace: "pre-line" }}>{q.stem}</p>
-                          <div>
-                            <div className="label" style={{ marginBottom: "4px" }}>Ditt svar</div>
-                            <div style={{ padding: "8px 12px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)", background: "var(--surface)", fontSize: "13px", lineHeight: 1.6, color: dq.textAnswer ? "var(--text-primary)" : "var(--text-tertiary)", whiteSpace: "pre-wrap" }}>
-                              {dq.textAnswer || "(tomt svar)"}
-                            </div>
+                            {selfGrade && (
+                              <span style={{
+                                display: "inline-block", padding: "3px 10px",
+                                borderRadius: "99px", fontSize: "11px", fontWeight: 600, fontFamily: "var(--font-sans)",
+                                background: selfGrade === "riktig" ? "var(--correct-bg)" : selfGrade === "delvis" ? "var(--partial-bg)" : "var(--wrong-bg)",
+                                color: selfGrade === "riktig" ? "var(--correct)" : selfGrade === "delvis" ? "var(--partial)" : "var(--wrong)",
+                                border: `1px solid ${selfGrade === "riktig" ? "var(--correct-border)" : selfGrade === "delvis" ? "var(--partial-border)" : "var(--wrong-border)"}`,
+                              }}>
+                                {selfGrade === "riktig" ? "Riktig" : selfGrade === "delvis" ? "Delvis" : "Feil"}
+                              </span>
+                            )}
+                            <span style={{ color: "var(--text-tertiary)", fontSize: "12px", display: "inline-block", transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s ease", lineHeight: 1 }}>↓</span>
                           </div>
-                          <div style={{ padding: "8px 12px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)", background: "var(--surface)", borderLeft: "3px solid var(--correct-border)" }}>
-                            <div className="label" style={{ marginBottom: "4px" }}>Fasit</div>
-                            <p style={{ fontFamily: "var(--font-mono)", fontSize: "13px", lineHeight: 1.5, margin: 0, color: "var(--text-primary)", whiteSpace: "pre-wrap" }}>
-                              {dq.modelAnswer}
-                            </p>
+                        </div>
+                        <div style={{ display: "grid", gridTemplateRows: isExpanded ? "1fr" : "0fr", transition: "grid-template-rows 0.22s ease" }}>
+                          <div style={{ overflow: "hidden", minHeight: 0 }}>
+                            <div style={{ padding: "12px 14px", display: "flex", flexDirection: "column", gap: "8px" }}>
+                              <p style={{ fontSize: "13px", color: "var(--text-secondary)", margin: 0, whiteSpace: "pre-line" }}>{q.stem}</p>
+                              {isSub ? (
+                                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                                  {(["a", "b"] as const).map((part) => {
+                                    const ans = part === "a" ? dq.textAnswerA : dq.textAnswerB;
+                                    return (
+                                      <div key={part}>
+                                        <div className="label" style={{ marginBottom: "4px" }}>{part})</div>
+                                        <div style={{ padding: "8px 12px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)", background: "var(--surface)", fontSize: "13px", lineHeight: 1.6, color: ans ? "var(--text-primary)" : "var(--text-tertiary)", whiteSpace: "pre-wrap" }}>
+                                          {ans || "(tomt svar)"}
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              ) : (
+                                <div>
+                                  <div className="label" style={{ marginBottom: "4px" }}>Ditt svar</div>
+                                  <div style={{ padding: "8px 12px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)", background: "var(--surface)", fontSize: "13px", lineHeight: 1.6, color: dq.textAnswer ? "var(--text-primary)" : "var(--text-tertiary)", whiteSpace: "pre-wrap" }}>
+                                    {dq.textAnswer || "(tomt svar)"}
+                                  </div>
+                                </div>
+                              )}
+                              <div style={{ padding: "8px 12px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)", background: "var(--surface)", borderLeft: "3px solid var(--correct-border)" }}>
+                                <div className="label" style={{ marginBottom: "4px" }}>Fasit</div>
+                                <p style={{ fontFamily: "var(--font-mono)", fontSize: "13px", lineHeight: 1.5, margin: 0, color: "var(--text-primary)", whiteSpace: "pre-wrap" }}>
+                                  {dq.modelAnswer}
+                                </p>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -689,8 +763,10 @@ export default function ResultsPage() {
           </>
         )}
 
-        {/* Actions */}
-        <div style={{ padding: "4px 20px 16px", display: "flex", gap: "8px" }}>
+        </div>{/* end scrollable content */}
+
+        {/* Sticky footer actions */}
+        <div style={{ flexShrink: 0, padding: "12px 20px 16px", background: "var(--card)", borderTop: "1px solid var(--border)", display: "flex", gap: "8px" }}>
           <Link href="/" className="learn-sq-btn" aria-label="Hjem">
             <svg width="22" height="22" viewBox="0 0 17 17" fill="none">
               <path d="M2.5 7.5L8.5 2L14.5 7.5V15H11V10.5H6V15H2.5V7.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round"/>

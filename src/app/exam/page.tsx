@@ -133,8 +133,19 @@ function ExamPageInner() {
   const isDel2 = q.source === "del2";
   const currentSelected = answers.get(q.id) ?? new Set<string>();
 
+  function stemHasSubParts(stem: string) {
+    return stem.includes("(a)") && stem.includes("(b)");
+  }
+
+  function isDel2Answered(dq: typeof q) {
+    if (stemHasSubParts(dq.stem)) {
+      return !!del2TextAnswers.get(`${dq.id}-a`)?.trim() && !!del2TextAnswers.get(`${dq.id}-b`)?.trim();
+    }
+    return !!del2TextAnswers.get(dq.id)?.trim();
+  }
+
   const del1Remaining = del1Questions.filter((dq) => !answers.has(dq.id)).length;
-  const del2Remaining = del2Questions.filter((dq) => !del2TextAnswers.get(dq.id)?.trim()).length;
+  const del2Remaining = del2Questions.filter((dq) => !isDel2Answered(dq)).length;
   const remaining = del1Remaining + del2Remaining;
 
   function navigateTo(idx: number) {
@@ -171,6 +182,10 @@ function ExamPageInner() {
     setDel2TextAnswers((prev) => new Map(prev).set(q.id, text));
   }
 
+  function updateDel2SubText(part: "a" | "b", text: string) {
+    setDel2TextAnswers((prev) => new Map(prev).set(`${q.id}-${part}`, text));
+  }
+
   async function handleSubmit() {
     setSubmitting(true);
 
@@ -191,14 +206,19 @@ function ExamPageInner() {
           source: question.source, selectedOptionIds: [...(answers.get(question.id) ?? [])],
           score: scoreQuestion(question, [...(answers.get(question.id) ?? [])]),
         })),
-        del2Questions: del2Questions.map((question) => ({
-          id: question.id, topic: question.topic, stem: question.stem,
-          code: question.code, maxPoints: question.maxPoints,
-          source: "del2", modelAnswer: question.modelAnswer,
-          textAnswer: del2TextAnswers.get(question.id) ?? "",
-          selfGrade: null,
-          score: 0,
-        })),
+        del2Questions: del2Questions.map((question) => {
+          const isSub = stemHasSubParts(question.stem);
+          return {
+            id: question.id, topic: question.topic, stem: question.stem,
+            code: question.code, maxPoints: question.maxPoints,
+            source: "del2", modelAnswer: question.modelAnswer,
+            textAnswer: isSub ? "" : del2TextAnswers.get(question.id) ?? "",
+            textAnswerA: isSub ? del2TextAnswers.get(`${question.id}-a`) ?? "" : undefined,
+            textAnswerB: isSub ? del2TextAnswers.get(`${question.id}-b`) ?? "" : undefined,
+            selfGrade: null,
+            score: 0,
+          };
+        }),
       })
     );
 
@@ -265,24 +285,57 @@ function ExamPageInner() {
             </div>
           )}
 
-          {/* Del 2: text input only — grading happens after submission */}
-          {isDel2 && (
-            <div style={{ marginTop: q.code ? "14px" : "0", ...enterStyle("55ms") }}>
-              <textarea
-                value={del2TextAnswers.get(q.id) ?? ""}
-                onChange={(e) => updateDel2Text(e.target.value)}
-                placeholder="Skriv svaret ditt..."
-                rows={4}
-                style={{
-                  width: "100%", boxSizing: "border-box",
-                  padding: "12px 14px", borderRadius: "var(--radius-sm)",
-                  border: "1.5px solid var(--border)", background: "var(--card)",
-                  fontFamily: "var(--font-sans)", fontSize: "14px", lineHeight: 1.6,
-                  color: "var(--text-primary)", resize: "vertical", outline: "none",
-                }}
-              />
-            </div>
-          )}
+          {/* Del 2: text input(s) — grading happens after submission */}
+          {isDel2 && (() => {
+            const isSubParts = stemHasSubParts(q.stem);
+            const textareaStyle: React.CSSProperties = {
+              width: "100%", boxSizing: "border-box",
+              padding: "12px 14px", borderRadius: "var(--radius-sm)",
+              border: "1.5px solid var(--border)", background: "var(--card)",
+              fontFamily: "var(--font-sans)", fontSize: "14px", lineHeight: 1.6,
+              color: "var(--text-primary)", resize: "vertical", outline: "none",
+            };
+            const labelStyle: React.CSSProperties = {
+              fontSize: "12px", fontWeight: 700, fontFamily: "var(--font-mono)",
+              color: "var(--text-secondary)", marginBottom: "6px",
+            };
+            return (
+              <div style={{ marginTop: q.code ? "14px" : "0", ...enterStyle("55ms") }}>
+                {isSubParts ? (
+                  <>
+                    <div style={{ marginBottom: "12px" }}>
+                      <div style={labelStyle}>a)</div>
+                      <textarea
+                        value={del2TextAnswers.get(`${q.id}-a`) ?? ""}
+                        onChange={(e) => updateDel2SubText("a", e.target.value)}
+                        placeholder="Skriv svar på a)..."
+                        rows={3}
+                        style={textareaStyle}
+                      />
+                    </div>
+                    <div>
+                      <div style={labelStyle}>b)</div>
+                      <textarea
+                        value={del2TextAnswers.get(`${q.id}-b`) ?? ""}
+                        onChange={(e) => updateDel2SubText("b", e.target.value)}
+                        placeholder="Skriv svar på b)..."
+                        rows={3}
+                        style={textareaStyle}
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <textarea
+                    value={del2TextAnswers.get(q.id) ?? ""}
+                    onChange={(e) => updateDel2Text(e.target.value)}
+                    placeholder="Skriv svaret ditt..."
+                    rows={4}
+                    style={textareaStyle}
+                  />
+                )}
+              </div>
+            );
+          })()}
         </div>
 
         {/* Footer */}
@@ -319,7 +372,7 @@ function ExamPageInner() {
               const isFlagged = flagged.has(aq.id);
               const isDel2Q = aq.source === "del2";
               const isAnswered = isDel2Q
-                ? !!del2TextAnswers.get(aq.id)?.trim()
+                ? isDel2Answered(aq)
                 : answers.has(aq.id);
               const dotClass = `nav-dot${isActive ? " active" : isFlagged ? " flagged" : isAnswered ? " answered" : ""}`;
               return (
