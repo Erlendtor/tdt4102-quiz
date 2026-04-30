@@ -33,6 +33,7 @@ model QuestionProgress {
 model ExamResult {
   id        String   @id @default(cuid())
   userId    String
+  set       String   @default("random")
   score     Float
   maxScore  Float
   grade     String

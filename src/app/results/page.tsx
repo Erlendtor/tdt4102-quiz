@@ -388,7 +388,7 @@ export default function ResultsPage() {
       await fetch("/api/exam-results", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ score: totalScore, maxScore, grade, topics: weakTopics }),
+        body: JSON.stringify({ score: totalScore, maxScore, grade, topics: weakTopics, set: data.examSet ?? "random" }),
       }).catch(() => {});
     }
 

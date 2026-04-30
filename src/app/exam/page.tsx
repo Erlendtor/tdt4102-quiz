@@ -200,6 +200,7 @@ function ExamPageInner() {
     sessionStorage.setItem(
       "examResults",
       JSON.stringify({
+        examSet,
         del1Questions: del1Questions.map((question) => ({
           id: question.id, topic: question.topic, stem: question.stem,
           code: question.code, maxPoints: question.maxPoints, options: question.options,

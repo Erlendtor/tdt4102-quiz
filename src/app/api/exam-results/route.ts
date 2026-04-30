@@ -6,10 +6,10 @@ export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.id) return NextResponse.json({}, { status: 401 });
 
-  const { score, maxScore, grade, topics } = await req.json();
+  const { score, maxScore, grade, topics, set } = await req.json();
 
   const result = await prisma.examResult.create({
-    data: { userId: session.user.id, score, maxScore, grade, topics },
+    data: { userId: session.user.id, set: set ?? "random", score, maxScore, grade, topics },
   });
   return NextResponse.json(result);
 }

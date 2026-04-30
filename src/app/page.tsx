@@ -69,6 +69,7 @@ export default async function Home() {
   type BucketStats = { 0: number; 1: number; 2: number; mastered: number };
   let bucketStats: BucketStats | null = null;
   let recentGrades: string[] = [];
+  let examSetGrades: Record<string, string> = {};
 
   if (session?.user?.id) {
     const [progressData, examResults] = await Promise.all([
@@ -79,8 +80,8 @@ export default async function Home() {
       prisma.examResult.findMany({
         where: { userId: session.user.id },
         orderBy: { createdAt: "desc" },
-        take: 12,
-        select: { grade: true },
+        take: 50,
+        select: { grade: true, set: true },
       }),
     ]);
 
@@ -97,7 +98,13 @@ export default async function Home() {
       mastered: masteredIds.size,
     };
 
-    recentGrades = examResults.map((r) => r.grade);
+    recentGrades = examResults.slice(0, 12).map((r) => r.grade);
+
+    for (const r of examResults) {
+      if (!examSetGrades[r.set]) {
+        examSetGrades[r.set] = r.grade;
+      }
+    }
   }
 
   return (
@@ -218,6 +225,7 @@ export default async function Home() {
             <ExamCardWithModal
               recentGrades={recentGrades}
               hasSession={!!session?.user}
+              examSetGrades={examSetGrades}
             />
           </div>
 
