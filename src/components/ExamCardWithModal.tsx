@@ -14,11 +14,11 @@ const GRADE_COLORS: Record<string, string> = {
 };
 
 const EXAM_SETS = [
-  { key: "V25V1", label: "V25 – Vår 2025 (v1)", sub: "11 Del 1 + 10 Del 2" },
-  { key: "V25V2", label: "V25 – Vår 2025 (v2)", sub: "12 Del 1 + 10 Del 2" },
-  { key: "V24V1", label: "V24 – Vår 2024 (v1)", sub: "12 Del 1 + 10 Del 2" },
-  { key: "V24V2", label: "V24 – Vår 2024 (v2)", sub: "12 Del 1 + 10 Del 2" },
-  { key: "K24",   label: "K24 – Sommer 2024",   sub: "12 Del 1 + 10 Del 2" },
+  { key: "V25V1", label: "V25 – Vår 2025 (v1)", chip: "V25v1" },
+  { key: "V25V2", label: "V25 – Vår 2025 (v2)", chip: "V25v2" },
+  { key: "V24V1", label: "V24 – Vår 2024 (v1)", chip: "V24v1" },
+  { key: "V24V2", label: "V24 – Vår 2024 (v2)", chip: "V24v2" },
+  { key: "K24",   label: "K24 – Sommer 2024",   chip: "K24"   },
 ] as const;
 
 interface Props {
@@ -80,6 +80,7 @@ export default function ExamCardWithModal({ hasSession, examSetGrades }: Props) 
         </div>
 
         <div
+          className="card-glass"
           style={{
             position: "absolute",
             bottom: 0,
@@ -88,40 +89,67 @@ export default function ExamCardWithModal({ hasSession, examSetGrades }: Props) 
             backdropFilter: "blur(18px) saturate(130%)",
             WebkitBackdropFilter: "blur(18px) saturate(130%)",
             background: "rgba(255,255,255,0.72)",
-            padding: "16px 18px 20px",
+            padding: "16px 16px 28px",
             display: "flex",
-            flexDirection: "row",
-            alignItems: "flex-end",
-            justifyContent: "space-between",
-            gap: "16px",
+            flexDirection: "column",
+            justifyContent: "flex-start",
           }}
         >
-          <div>
+          <div className="card-glass-content">
             <div
               style={{
-                fontSize: "22px",
+                fontSize: "25px",
                 fontWeight: 700,
                 letterSpacing: "-0.3px",
                 lineHeight: 1.2,
                 color: "var(--text-primary)",
-                marginBottom: "3px",
+                marginBottom: "4px",
               }}
             >
               Eksamen
             </div>
             <p
               style={{
-                fontSize: "13px",
+                fontSize: "14px",
                 lineHeight: 1.4,
                 color: "var(--text-secondary)",
+                marginBottom: "10px",
               }}
             >
-              12 Del 1-spørsmål + Del 2-spørsmål · karakter
+              Del 1 og Del 2 · karakter
             </p>
+            <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
+              {EXAM_SETS.map(({ key, chip }) => {
+                const taken = (examSetGrades[key]?.length ?? 0) > 0;
+                const isShort = chip.length <= 3;
+                return (
+                  <span
+                    key={key}
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "10px",
+                      fontWeight: 500,
+                      letterSpacing: "0.02em",
+                      height: "22px",
+                      aspectRatio: isShort ? "1" : "auto",
+                      padding: isShort ? "0" : "0 5px",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: "4px",
+                      border: `1px solid ${taken ? "var(--border)" : "var(--border-strong)"}`,
+                      color: taken ? "var(--text-tertiary)" : "var(--text-secondary)",
+                      opacity: taken ? 0.45 : 1,
+                      lineHeight: 1,
+                    }}
+                  >
+                    {chip}
+                  </span>
+                );
+              })}
+            </div>
           </div>
-          <span className="card-cta" style={{ flexShrink: 0 }}>
-            Start nå ⟶
-          </span>
+          <span className="card-cta">Start nå ⟶</span>
         </div>
       </button>
 
