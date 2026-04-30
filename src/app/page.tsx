@@ -104,7 +104,7 @@ export default async function Home() {
   }
 
   return (
-    <main className="page-shell" style={{ alignItems: "flex-start", padding: "5vh 16px" }}>
+    <main className="page-shell" style={{ padding: "5vh 16px" }}>
       <div className="app-card" style={{ minWidth: "min(640px, calc(100vw - 32px))", display: "flex", flexDirection: "column" }}>
         <HomeLoader />
 

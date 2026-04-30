@@ -90,7 +90,7 @@ body {
 .page-shell-learn {
   min-height: 100dvh;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   padding: 5vh 16px 5vh;
 }
