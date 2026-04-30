@@ -21,12 +21,6 @@ const EXAM_SETS = [
   { key: "K24",   label: "K24 – Sommer 2024",   sub: "12 Del 1 + 10 Del 2" },
 ] as const;
 
-const GRADE_COLORS: Record<string, string> = {
-  A: "var(--correct)", B: "var(--correct)",
-  C: "var(--partial)", D: "var(--partial)",
-  E: "var(--wrong)",   F: "var(--wrong)",
-};
-
 interface Props {
   recentGrades: string[];
   hasSession: boolean;
