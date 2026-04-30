@@ -68,8 +68,7 @@ export default async function Home() {
 
   type BucketStats = { 0: number; 1: number; 2: number; mastered: number };
   let bucketStats: BucketStats | null = null;
-  let recentGrades: string[] = [];
-  let examSetGrades: Record<string, string> = {};
+  let examSetGrades: Record<string, string[]> = {};
 
   if (session?.user?.id) {
     const [progressData, examResults] = await Promise.all([
@@ -98,12 +97,9 @@ export default async function Home() {
       mastered: masteredIds.size,
     };
 
-    recentGrades = examResults.slice(0, 12).map((r) => r.grade);
-
     for (const r of examResults) {
-      if (!examSetGrades[r.set]) {
-        examSetGrades[r.set] = r.grade;
-      }
+      if (!examSetGrades[r.set]) examSetGrades[r.set] = [];
+      if (examSetGrades[r.set].length < 3) examSetGrades[r.set].push(r.grade);
     }
   }
 
@@ -223,7 +219,6 @@ export default async function Home() {
           {/* Eksamensmodus */}
           <div className="exam-card-wrap" style={{ width: "100%" }}>
             <ExamCardWithModal
-              recentGrades={recentGrades}
               hasSession={!!session?.user}
               examSetGrades={examSetGrades}
             />

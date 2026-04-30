@@ -22,12 +22,11 @@ const EXAM_SETS = [
 ] as const;
 
 interface Props {
-  recentGrades: string[];
   hasSession: boolean;
-  examSetGrades: Record<string, string>;
+  examSetGrades: Record<string, string[]>;
 }
 
-export default function ExamCardWithModal({ recentGrades, hasSession, examSetGrades }: Props) {
+export default function ExamCardWithModal({ hasSession, examSetGrades }: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loginPrompt, setLoginPrompt] = useState(false);
@@ -108,56 +107,17 @@ export default function ExamCardWithModal({ recentGrades, hasSession, examSetGra
                 marginBottom: "3px",
               }}
             >
-              Eksamensmodus Del 1 og Del 2
+              Eksamen
             </div>
             <p
               style={{
                 fontSize: "13px",
                 lineHeight: 1.4,
                 color: "var(--text-secondary)",
-                marginBottom: recentGrades.length > 0 || hasSession ? "10px" : "0",
               }}
             >
               12 Del 1-spørsmål + Del 2-spørsmål · karakter
             </p>
-
-            {recentGrades.length > 0 ? (
-              <div
-                style={{
-                  display: "flex",
-                  gap: "8px",
-                  overflow: "hidden",
-                  flexWrap: "nowrap",
-                  alignItems: "baseline",
-                }}
-              >
-                {recentGrades.map((grade, i) => (
-                  <span
-                    key={i}
-                    style={{
-                      fontFamily: "var(--font-mono)",
-                      fontSize: "18px",
-                      fontWeight: 700,
-                      lineHeight: 1,
-                      color: GRADE_COLORS[grade] ?? "var(--text-primary)",
-                      flexShrink: 0,
-                    }}
-                  >
-                    {grade}
-                  </span>
-                ))}
-              </div>
-            ) : hasSession ? (
-              <span
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "11px",
-                  color: "var(--text-tertiary)",
-                }}
-              >
-                Ingen eksamen tatt ennå
-              </span>
-            ) : null}
           </div>
           <span className="card-cta" style={{ flexShrink: 0 }}>
             Start nå ⟶
@@ -323,13 +283,14 @@ export default function ExamCardWithModal({ recentGrades, hasSession, examSetGra
               </div>
 
               {EXAM_SETS.map(({ key, label }) => {
-                const grade = examSetGrades[key];
+                const grades = examSetGrades[key];
+                const taken = grades && grades.length > 0;
                 return (
                   <button
                     key={key}
                     className="btn-secondary"
                     onClick={() => navigate(key)}
-                    style={grade ? {
+                    style={taken ? {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
@@ -338,15 +299,20 @@ export default function ExamCardWithModal({ recentGrades, hasSession, examSetGra
                     } : undefined}
                   >
                     <span>{label}</span>
-                    {grade && (
-                      <span style={{
-                        fontFamily: "var(--font-mono)",
-                        fontSize: "13px",
-                        fontWeight: 700,
-                        color: GRADE_COLORS[grade] ?? "var(--text-primary)",
-                        lineHeight: 1,
-                      }}>
-                        {grade}
+                    {taken && (
+                      <span style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+                        {grades.map((g, i) => (
+                          <span key={i} style={{
+                            fontFamily: "var(--font-mono)",
+                            fontSize: "13px",
+                            fontWeight: 700,
+                            color: GRADE_COLORS[g] ?? "var(--text-primary)",
+                            lineHeight: 1,
+                            opacity: i === 0 ? 1 : i === 1 ? 0.55 : 0.3,
+                          }}>
+                            {g}
+                          </span>
+                        ))}
                       </span>
                     )}
                   </button>
