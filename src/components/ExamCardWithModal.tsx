@@ -254,62 +254,13 @@ export default function ExamCardWithModal({ hasSession, examSetGrades }: Props) 
                 fontWeight: 700,
                 letterSpacing: "-0.2px",
                 color: "var(--text-primary)",
-                marginBottom: "4px",
+                marginBottom: "16px",
               }}
             >
               Velg eksamensformat
             </div>
-            <p
-              style={{
-                fontSize: "13px",
-                color: "var(--text-secondary)",
-                marginBottom: "20px",
-                lineHeight: 1.4,
-              }}
-            >
-              Tilfeldig trekker spørsmål fra hele spørsmålsbanken. Velg en
-              spesifikk eksamen for å øve på akkurat den.
-            </p>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-              <button className="btn-primary" onClick={() => navigate("random")}>
-                Tilfeldig
-              </button>
-
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  margin: "2px 0",
-                }}
-              >
-                <div
-                  style={{
-                    flex: 1,
-                    height: "1px",
-                    background: "var(--border)",
-                  }}
-                />
-                <span
-                  style={{
-                    fontSize: "11px",
-                    color: "var(--text-tertiary)",
-                    fontFamily: "var(--font-mono)",
-                    flexShrink: 0,
-                  }}
-                >
-                  spesifikk eksamen
-                </span>
-                <div
-                  style={{
-                    flex: 1,
-                    height: "1px",
-                    background: "var(--border)",
-                  }}
-                />
-              </div>
-
               {EXAM_SETS.map(({ key, label }) => {
                 const grades = examSetGrades[key];
                 const taken = grades && grades.length > 0;
@@ -346,6 +297,22 @@ export default function ExamCardWithModal({ hasSession, examSetGrades }: Props) 
                   </button>
                 );
               })}
+
+              <button className="btn-primary" onClick={() => navigate("random")} style={{ marginTop: "4px" }}>
+                Tilfeldig
+              </button>
+
+              <p
+                style={{
+                  fontSize: "12px",
+                  color: "var(--text-tertiary)",
+                  lineHeight: 1.4,
+                  textAlign: "center",
+                  marginTop: "2px",
+                }}
+              >
+                Tilfeldig trekker spørsmål fra hele spørsmålsbanken.
+              </p>
             </div>
           </div>
         </div>
