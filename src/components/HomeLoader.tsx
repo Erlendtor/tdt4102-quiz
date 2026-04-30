@@ -7,7 +7,7 @@ export default function HomeLoader() {
   const [gone, setGone] = useState(false);
 
   useEffect(() => {
-    const min = new Promise<void>((r) => setTimeout(r, 1000));
+    const min = new Promise<void>((r) => setTimeout(r, 500));
 
     const load = (src: string) =>
       new Promise<void>((r) => {

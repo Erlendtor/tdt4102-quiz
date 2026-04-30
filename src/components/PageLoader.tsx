@@ -10,7 +10,7 @@ export default function PageLoader() {
     const t = setTimeout(() => {
       setFading(true);
       setTimeout(() => setGone(true), 340);
-    }, 1000);
+    }, 500);
     return () => clearTimeout(t);
   }, []);
 
