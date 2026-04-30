@@ -137,7 +137,7 @@ export default function ExamCardWithModal({ hasSession, examSetGrades }: Props) 
                       alignItems: "center",
                       justifyContent: "center",
                       borderRadius: "4px",
-                      border: `1px solid ${taken ? "var(--border)" : "var(--border-strong)"}`,
+                      border: "1px solid var(--border-strong)",
                       color: taken ? "var(--text-tertiary)" : "var(--text-secondary)",
                       opacity: taken ? 0.45 : 1,
                       lineHeight: 1,
