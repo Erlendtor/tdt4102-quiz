@@ -8,6 +8,7 @@ import { getRandomDel1Questions, getRandomDel2Questions, getExamSetDel1Questions
 import { scoreQuestion } from "@/lib/scoring";
 import CodeBlock from "@/components/CodeBlock";
 import Link from "next/link";
+import PageLoader from "@/components/PageLoader";
 
 const DEL1_COUNT = 12;
 const DEL2_COUNT = 8;
@@ -245,7 +246,8 @@ function ExamPageInner() {
 
   return (
     <main className="page-shell-learn">
-      <div className="app-card app-card-learn">
+      <div className="app-card app-card-learn" style={{ position: "relative" }}>
+        <PageLoader />
 
         {/* Scrollable question */}
         <div className={`question-content${exiting ? " exiting" : ""}`} style={{ flex: 1, overflowY: "auto", padding: "20px 20px 16px" }}>

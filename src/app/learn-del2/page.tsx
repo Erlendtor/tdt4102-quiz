@@ -8,6 +8,7 @@ import { Question, QuestionProgress } from "@/types";
 import { questions as allQuestions } from "@/lib/questions";
 import { getBucket } from "@/lib/scoring";
 import CodeBlock from "@/components/CodeBlock";
+import PageLoader from "@/components/PageLoader";
 
 type LearnMode = "input";
 type InputState = "answering" | "revealed";
@@ -241,6 +242,7 @@ function LearnDel2Inner() {
   return (
     <main className="page-shell-learn">
       <div className="app-card app-card-learn" style={{ position: "relative" }}>
+        <PageLoader />
 
         {/* Score badge — shown briefly after grading */}
         {scoreDisplay && (

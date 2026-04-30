@@ -9,6 +9,7 @@ import { scoreQuestion, scorePercent, getBucket } from "@/lib/scoring";
 import { questions as allQuestions } from "@/lib/questions";
 import CodeBlock from "@/components/CodeBlock";
 import Link from "next/link";
+import PageLoader from "@/components/PageLoader";
 
 type State = "answering" | "revealed";
 
@@ -523,6 +524,7 @@ function LearnPage() {
   return (
     <main className="page-shell-learn">
       <div className="app-card app-card-learn" style={{ position: "relative" }}>
+        <PageLoader />
         <canvas ref={confettiCanvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 50 }} />
 
         {/* Score — flush top-right corner, white background */}
