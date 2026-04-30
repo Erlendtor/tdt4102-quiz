@@ -14,7 +14,11 @@ const GRADE_COLORS: Record<string, string> = {
 };
 
 const EXAM_SETS = [
-  { key: "K24", label: "K24 – Sommer 2024", sub: "12 Del 1 + 10 Del 2" },
+  { key: "V25V1", label: "V25 – Vår 2025 (v1)", sub: "11 Del 1" },
+  { key: "V25V2", label: "V25 – Vår 2025 (v2)", sub: "12 Del 1" },
+  { key: "V24V1", label: "V24 – Vår 2024 (v1)", sub: "12 Del 1" },
+  { key: "V24V2", label: "V24 – Vår 2024 (v2)", sub: "12 Del 1" },
+  { key: "K24",   label: "K24 – Sommer 2024",   sub: "12 Del 1 + 10 Del 2" },
 ] as const;
 
 interface Props {

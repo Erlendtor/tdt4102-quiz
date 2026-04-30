@@ -634,6 +634,61 @@ export default function ResultsPage() {
           </div>
         </div>
 
+        {/* Del 2 self-grading summary */}
+        {results.questions.some((q) => (q as Del2Question).source === "del2") && (
+          <>
+            <div className="divider" />
+            <div style={{ padding: "14px 20px 20px" }}>
+              <div className="label" style={{ marginBottom: "12px" }}>Egenevaluering Del 2</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                {results.questions
+                  .filter((q) => (q as Del2Question).source === "del2")
+                  .map((q, i) => {
+                    const dq = q as Del2Question;
+                    const selfGrade = dq.selfGrade;
+                    return (
+                      <div key={q.id} style={{ border: "1px solid var(--border)", borderRadius: "var(--radius-md)", overflow: "hidden" }}>
+                        <div style={{ padding: "10px 14px", background: "var(--surface)", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "6px", minWidth: 0 }}>
+                            <span className="label" style={{ flexShrink: 0 }}>Del 2 · {i + 1}</span>
+                            <span className="tag" style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{q.topic}</span>
+                          </div>
+                          {selfGrade && (
+                            <span style={{
+                              flexShrink: 0, display: "inline-block", padding: "3px 10px",
+                              borderRadius: "99px", fontSize: "11px", fontWeight: 600,
+                              fontFamily: "var(--font-sans)",
+                              background: selfGrade === "riktig" ? "var(--correct-bg)" : selfGrade === "delvis" ? "var(--partial-bg)" : "var(--wrong-bg)",
+                              color: selfGrade === "riktig" ? "var(--correct)" : selfGrade === "delvis" ? "var(--partial)" : "var(--wrong)",
+                              border: `1px solid ${selfGrade === "riktig" ? "var(--correct-border)" : selfGrade === "delvis" ? "var(--partial-border)" : "var(--wrong-border)"}`,
+                            }}>
+                              {selfGrade === "riktig" ? "Riktig" : selfGrade === "delvis" ? "Delvis" : "Feil"}
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ padding: "12px 14px", display: "flex", flexDirection: "column", gap: "8px" }}>
+                          <p style={{ fontSize: "13px", color: "var(--text-secondary)", margin: 0, whiteSpace: "pre-line" }}>{q.stem}</p>
+                          <div>
+                            <div className="label" style={{ marginBottom: "4px" }}>Ditt svar</div>
+                            <div style={{ padding: "8px 12px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)", background: "var(--surface)", fontSize: "13px", lineHeight: 1.6, color: dq.textAnswer ? "var(--text-primary)" : "var(--text-tertiary)", whiteSpace: "pre-wrap" }}>
+                              {dq.textAnswer || "(tomt svar)"}
+                            </div>
+                          </div>
+                          <div style={{ padding: "8px 12px", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)", background: "var(--surface)", borderLeft: "3px solid var(--correct-border)" }}>
+                            <div className="label" style={{ marginBottom: "4px" }}>Fasit</div>
+                            <p style={{ fontFamily: "var(--font-mono)", fontSize: "13px", lineHeight: 1.5, margin: 0, color: "var(--text-primary)", whiteSpace: "pre-wrap" }}>
+                              {dq.modelAnswer}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          </>
+        )}
+
         {/* Actions */}
         <div style={{ padding: "4px 20px 16px", display: "flex", gap: "8px" }}>
           <Link href="/" className="learn-sq-btn" aria-label="Hjem">
