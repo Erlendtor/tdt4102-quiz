@@ -12,6 +12,15 @@ import Link from "next/link";
 const DEL1_COUNT = 12;
 const DEL2_COUNT = 8;
 
+const EXAM_SET_LABELS: Record<string, string> = {
+  V25V1: "Eksamen Vår 2025 v1",
+  V25V2: "Eksamen Vår 2025 v2",
+  V24V1: "Eksamen Vår 2024 v1",
+  V24V2: "Eksamen Vår 2024 v2",
+  K24:   "Eksamen Sommer 2024",
+  random: "Tilfeldig eksamen",
+};
+
 function examDraftKey(userId: string, set: string) {
   return `examDraft_${userId}_${set}`;
 }
@@ -219,10 +228,12 @@ function ExamPageInner() {
 
         {/* Scrollable question */}
         <div className={`question-content${exiting ? " exiting" : ""}`} style={{ flex: 1, overflowY: "auto", padding: "20px 20px 16px" }}>
+          <div style={{ fontSize: "11px", fontFamily: "var(--font-mono)", color: "var(--text-tertiary)", marginBottom: "10px", letterSpacing: "0.3px" }}>
+            {EXAM_SET_LABELS[examSet] ?? examSet} · {isDel2 ? "Del 2" : "Del 1"}
+          </div>
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px", flexWrap: "wrap", ...enterStyle("0ms") }}>
             <span className="tag">{q.topic}</span>
             <span className="label">{q.maxPoints}p</span>
-            {isDel2 && <span className="label" style={{ color: "var(--text-tertiary)" }}>Del 2</span>}
           </div>
 
           <p className="heading-sm" style={{ marginBottom: "14px", whiteSpace: "pre-line", ...enterStyle("0ms") }}>
