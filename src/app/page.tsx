@@ -6,6 +6,7 @@ import { questions } from "@/lib/questions";
 import HomeFooter from "@/components/HomeFooter";
 import HomeLoader from "@/components/HomeLoader";
 import HomeCardReveal from "@/components/HomeCardReveal";
+import ExamCardWithModal from "@/components/ExamCardWithModal";
 
 const BUCKET_ITEMS = [
   { color: "var(--wrong)",    label: "Øving",  key: 0  },
@@ -214,51 +215,10 @@ export default async function Home() {
 
           {/* Eksamensmodus */}
           <div className="exam-card-wrap" style={{ width: "100%" }}>
-          <Link href="/exam" className="mode-card" style={{ ...cardStyle, aspectRatio: "auto", minHeight: "280px" }}>
-            <div className="card-image">
-              <Image src="/eksamen3.png" alt="Eksamensmodus" fill sizes="100vw" style={{ objectFit: "cover" }} />
-            </div>
-
-            <div style={{
-              position: "absolute", bottom: 0, left: 0, right: 0,
-              backdropFilter: "blur(18px) saturate(130%)",
-              WebkitBackdropFilter: "blur(18px) saturate(130%)",
-              background: "rgba(255,255,255,0.72)",
-              padding: "16px 18px 20px",
-              display: "flex", flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between", gap: "16px",
-            }}>
-              <div>
-                <div style={{ fontSize: "22px", fontWeight: 700, letterSpacing: "-0.3px", lineHeight: 1.2, color: "var(--text-primary)", marginBottom: "3px" }}>
-                  Eksamensmodus Del 1 og Del 2
-                </div>
-                <p style={{ fontSize: "13px", lineHeight: 1.4, color: "var(--text-secondary)", marginBottom: recentGrades.length > 0 || session?.user ? "10px" : "0" }}>
-                  12 Del 1-spørsmål + 8 Del 2-spørsmål · karakter
-                </p>
-
-                {recentGrades.length > 0 ? (
-                  <div style={{ display: "flex", gap: "8px", overflow: "hidden", flexWrap: "nowrap", alignItems: "baseline" }}>
-                    {recentGrades.map((grade, i) => (
-                      <span
-                        key={i}
-                        style={{
-                          fontFamily: "var(--font-mono)",
-                          fontSize: "18px", fontWeight: 700, lineHeight: 1,
-                          color: GRADE_COLORS[grade] ?? "var(--text-primary)", flexShrink: 0,
-                        }}
-                      >
-                        {grade}
-                      </span>
-                    ))}
-                  </div>
-                ) : session?.user ? (
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--text-tertiary)" }}>
-                    Ingen eksamen tatt ennå
-                  </span>
-                ) : null}
-              </div>
-              <span className="card-cta" style={{ flexShrink: 0 }}>Start nå ⟶</span>
-            </div>
-          </Link>
+            <ExamCardWithModal
+              recentGrades={recentGrades}
+              hasSession={!!session?.user}
+            />
           </div>
 
         </HomeCardReveal>

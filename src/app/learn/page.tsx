@@ -342,8 +342,8 @@ function LearnPage() {
           twinPriorityRef.current = null;
         }
 
-        // If just failed (bucket 0) → force the twin next
-        if (pending?.bucket === 0) {
+        // If just failed (bucket 0) → force the twin next (del2 only)
+        if (pending?.bucket === 0 && isDel2) {
           const twin = findTwin(pending.questionId);
           if (twin) {
             twinPriorityRef.current = twin.id;

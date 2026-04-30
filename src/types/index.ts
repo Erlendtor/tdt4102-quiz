@@ -14,6 +14,7 @@ export type Question = {
   options: Option[];
   variantGroupId: string;
   source: string;
+  examSet?: string;
   hint?: string;
   codeAnnotated?: string;
   modelAnswer?: string;

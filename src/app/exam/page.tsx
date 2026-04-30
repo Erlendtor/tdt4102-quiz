@@ -1,21 +1,19 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, Suspense } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Question } from "@/types";
-import { getRandomDel1Questions, getRandomDel2Questions } from "@/lib/questions";
-import { scoreQuestion, calculateGrade, getWeakTopics } from "@/lib/scoring";
+import { getRandomDel1Questions, getRandomDel2Questions, getExamSetDel1Questions, getExamSetDel2Questions } from "@/lib/questions";
+import { scoreQuestion } from "@/lib/scoring";
 import CodeBlock from "@/components/CodeBlock";
 import Link from "next/link";
 
 const DEL1_COUNT = 12;
 const DEL2_COUNT = 8;
 
-type Del2Grade = "riktig" | "delvis" | "feil";
-
-function examDraftKey(userId: string) {
-  return `examDraft_${userId}`;
+function examDraftKey(userId: string, set: string) {
+  return `examDraft_${userId}_${set}`;
 }
 
 function CheckIcon() {
@@ -26,9 +24,11 @@ function CheckIcon() {
   );
 }
 
-export default function ExamPage() {
+function ExamPageInner() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const examSet = searchParams.get("set") ?? "random";
 
   const [examReady, setExamReady] = useState(false);
   const [del1Questions, setDel1Questions] = useState<Question[]>([]);
@@ -40,8 +40,6 @@ export default function ExamPage() {
   const [answers, setAnswers] = useState<Map<string, Set<string>>>(new Map());
   const [flagged, setFlagged] = useState<Set<string>>(new Set());
   const [del2TextAnswers, setDel2TextAnswers] = useState<Map<string, string>>(new Map());
-  const [del2Revealed, setDel2Revealed] = useState<Set<string>>(new Set());
-  const [del2Grades, setDel2Grades] = useState<Map<string, Del2Grade>>(new Map());
 
   const [submitting, setSubmitting] = useState(false);
   const [exiting, setExiting] = useState(false);
@@ -53,7 +51,7 @@ export default function ExamPage() {
     if (status === "loading") return;
 
     const userId = session?.user?.id;
-    const saved = userId ? localStorage.getItem(examDraftKey(userId)) : null;
+    const saved = userId ? localStorage.getItem(examDraftKey(userId, examSet)) : null;
 
     if (saved) {
       try {
@@ -64,22 +62,27 @@ export default function ExamPage() {
         setAnswers(new Map((draft.answers ?? []).map(([k, v]: [string, string[]]) => [k, new Set(v)])));
         setFlagged(new Set(draft.flagged ?? []));
         setDel2TextAnswers(new Map(draft.del2TextAnswers ?? []));
-        setDel2Revealed(new Set(draft.del2Revealed ?? []));
-        setDel2Grades(new Map(draft.del2Grades ?? []));
         setExamReady(true);
         return;
       } catch {
-        localStorage.removeItem(examDraftKey(userId!));
+        localStorage.removeItem(examDraftKey(userId!, examSet));
       }
     }
 
-    const recentIds = new Set<string>(JSON.parse(localStorage.getItem("recentExamIds") ?? "[]"));
-    const d1 = getRandomDel1Questions(DEL1_COUNT, recentIds);
-    const d2 = getRandomDel2Questions(DEL2_COUNT);
-    setDel1Questions(d1);
-    setDel2Questions(d2);
+    if (examSet !== "random") {
+      const d1 = getExamSetDel1Questions(examSet);
+      const d2 = getExamSetDel2Questions(examSet);
+      setDel1Questions(d1);
+      setDel2Questions(d2);
+    } else {
+      const recentIds = new Set<string>(JSON.parse(localStorage.getItem("recentExamIds") ?? "[]"));
+      const d1 = getRandomDel1Questions(DEL1_COUNT, recentIds);
+      const d2 = getRandomDel2Questions(DEL2_COUNT);
+      setDel1Questions(d1);
+      setDel2Questions(d2);
+    }
     setExamReady(true);
-  }, [status, session?.user?.id]);
+  }, [status, session?.user?.id, examSet]);
 
   // Save draft to localStorage on every state change (logged-in users only)
   const isMounted = useRef(false);
@@ -89,17 +92,15 @@ export default function ExamPage() {
     const userId = session?.user?.id;
     if (!userId) return;
 
-    localStorage.setItem(examDraftKey(userId), JSON.stringify({
+    localStorage.setItem(examDraftKey(userId, examSet), JSON.stringify({
       del1Questions,
       del2Questions,
       current,
       answers: [...answers.entries()].map(([k, v]) => [k, [...v]]),
       flagged: [...flagged],
       del2TextAnswers: [...del2TextAnswers.entries()],
-      del2Revealed: [...del2Revealed],
-      del2Grades: [...del2Grades.entries()],
     }));
-  }, [examReady, del1Questions, del2Questions, current, answers, flagged, del2TextAnswers, del2Revealed, del2Grades, session?.user?.id]);
+  }, [examReady, del1Questions, del2Questions, current, answers, flagged, del2TextAnswers, session?.user?.id]);
 
   // Entrance animation after exam is ready
   useEffect(() => {
@@ -122,11 +123,9 @@ export default function ExamPage() {
   const q = allQuestions[current];
   const isDel2 = q.source === "del2";
   const currentSelected = answers.get(q.id) ?? new Set<string>();
-  const isRevealed = del2Revealed.has(q.id);
-  const currentGrade = del2Grades.get(q.id);
 
   const del1Remaining = del1Questions.filter((dq) => !answers.has(dq.id)).length;
-  const del2Remaining = del2Questions.filter((dq) => !del2Grades.has(dq.id)).length;
+  const del2Remaining = del2Questions.filter((dq) => !del2TextAnswers.get(dq.id)?.trim()).length;
   const remaining = del1Remaining + del2Remaining;
 
   function navigateTo(idx: number) {
@@ -159,14 +158,6 @@ export default function ExamPage() {
     });
   }
 
-  function revealDel2() {
-    setDel2Revealed((prev) => new Set([...prev, q.id]));
-  }
-
-  function gradeDel2(grade: Del2Grade) {
-    setDel2Grades((prev) => new Map(prev).set(q.id, grade));
-  }
-
   function updateDel2Text(text: string) {
     setDel2TextAnswers((prev) => new Map(prev).set(q.id, text));
   }
@@ -175,35 +166,7 @@ export default function ExamPage() {
     setSubmitting(true);
 
     if (session?.user?.id) {
-      localStorage.removeItem(examDraftKey(session.user.id));
-    }
-
-    const del1Results = del1Questions.map((question) => {
-      const sel = [...(answers.get(question.id) ?? [])];
-      const score = scoreQuestion(question, sel);
-      const pct = (score / question.maxPoints) * 100;
-      return { topic: question.topic, score, maxScore: question.maxPoints, percent: pct };
-    });
-
-    const del2Results = del2Questions.map((question) => {
-      const grade = del2Grades.get(question.id) ?? "feil";
-      const score = grade === "riktig" ? question.maxPoints : grade === "delvis" ? question.maxPoints / 2 : 0;
-      const pct = (score / question.maxPoints) * 100;
-      return { topic: question.topic, score, maxScore: question.maxPoints, percent: pct };
-    });
-
-    const results = [...del1Results, ...del2Results];
-    const totalScore = results.reduce((s, r) => s + r.score, 0);
-    const maxScore = results.reduce((s, r) => s + r.maxScore, 0);
-    const grade = calculateGrade(totalScore, maxScore);
-    const weakTopics = getWeakTopics(results);
-
-    if (session?.user?.id) {
-      await fetch("/api/exam-results", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ score: totalScore, maxScore, grade, topics: weakTopics }),
-      }).catch(() => {});
+      localStorage.removeItem(examDraftKey(session.user.id, examSet));
     }
 
     const seenIds = allQuestions.map((q) => q.id);
@@ -213,27 +176,20 @@ export default function ExamPage() {
     sessionStorage.setItem(
       "examResults",
       JSON.stringify({
-        questions: [
-          ...del1Questions.map((question) => ({
-            id: question.id, topic: question.topic, stem: question.stem,
-            code: question.code, maxPoints: question.maxPoints, options: question.options,
-            source: question.source, selectedOptionIds: [...(answers.get(question.id) ?? [])],
-            score: scoreQuestion(question, [...(answers.get(question.id) ?? [])]),
-          })),
-          ...del2Questions.map((question) => {
-            const g = del2Grades.get(question.id) ?? "feil";
-            const score = g === "riktig" ? question.maxPoints : g === "delvis" ? question.maxPoints / 2 : 0;
-            return {
-              id: question.id, topic: question.topic, stem: question.stem,
-              code: question.code, maxPoints: question.maxPoints, options: [],
-              source: "del2", selectedOptionIds: [], score,
-              modelAnswer: question.modelAnswer,
-              textAnswer: del2TextAnswers.get(question.id) ?? "",
-              selfGrade: g,
-            };
-          }),
-        ],
-        totalScore, maxScore, grade, weakTopics,
+        del1Questions: del1Questions.map((question) => ({
+          id: question.id, topic: question.topic, stem: question.stem,
+          code: question.code, maxPoints: question.maxPoints, options: question.options,
+          source: question.source, selectedOptionIds: [...(answers.get(question.id) ?? [])],
+          score: scoreQuestion(question, [...(answers.get(question.id) ?? [])]),
+        })),
+        del2Questions: del2Questions.map((question) => ({
+          id: question.id, topic: question.topic, stem: question.stem,
+          code: question.code, maxPoints: question.maxPoints,
+          source: "del2", modelAnswer: question.modelAnswer,
+          textAnswer: del2TextAnswers.get(question.id) ?? "",
+          selfGrade: null,
+          score: 0,
+        })),
       })
     );
 
@@ -247,32 +203,15 @@ export default function ExamPage() {
 
   // Footer button logic
   const isLastQuestion = current === QUESTION_COUNT - 1;
-  const footerButton = (() => {
-    if (isDel2 && !isRevealed) {
-      return (
-        <button onClick={revealDel2} className="btn-primary" style={{ flex: 1 }}>
-          Sjekk svar
-        </button>
-      );
-    }
-    if (isLastQuestion) {
-      return (
-        <button onClick={handleSubmit} disabled={submitting} className="btn-primary" style={{ flex: 1 }}>
-          {submitting ? "Sender..." : remaining > 0 ? `Lever (${remaining} ubesvart)` : "Lever eksamen"}
-        </button>
-      );
-    }
-    return (
-      <button
-        onClick={() => navigateTo(current + 1)}
-        disabled={isDel2 && isRevealed && !currentGrade}
-        className="btn-primary"
-        style={{ flex: 1 }}
-      >
-        Neste →
-      </button>
-    );
-  })();
+  const footerButton = isLastQuestion ? (
+    <button onClick={handleSubmit} disabled={submitting} className="btn-primary" style={{ flex: 1 }}>
+      {submitting ? "Sender..." : remaining > 0 ? `Lever (${remaining} ubesvart)` : "Lever eksamen"}
+    </button>
+  ) : (
+    <button onClick={() => navigateTo(current + 1)} className="btn-primary" style={{ flex: 1 }}>
+      Neste →
+    </button>
+  );
 
   return (
     <main className="page-shell-learn">
@@ -315,68 +254,22 @@ export default function ExamPage() {
             </div>
           )}
 
-          {/* Del 2: text input + reveal */}
+          {/* Del 2: text input only — grading happens after submission */}
           {isDel2 && (
             <div style={{ marginTop: q.code ? "14px" : "0", ...enterStyle("55ms") }}>
               <textarea
                 value={del2TextAnswers.get(q.id) ?? ""}
                 onChange={(e) => updateDel2Text(e.target.value)}
-                disabled={isRevealed}
                 placeholder="Skriv svaret ditt..."
                 rows={4}
                 style={{
                   width: "100%", boxSizing: "border-box",
                   padding: "12px 14px", borderRadius: "var(--radius-sm)",
-                  border: "1.5px solid var(--border)", background: isRevealed ? "var(--surface)" : "var(--card)",
+                  border: "1.5px solid var(--border)", background: "var(--card)",
                   fontFamily: "var(--font-sans)", fontSize: "14px", lineHeight: 1.6,
                   color: "var(--text-primary)", resize: "vertical", outline: "none",
-                  opacity: isRevealed ? 0.7 : 1, transition: "background 0.15s",
                 }}
               />
-
-              {/* Model answer + grade buttons */}
-              <div style={{
-                display: "grid",
-                gridTemplateRows: isRevealed ? "1fr" : "0fr",
-                transition: "grid-template-rows 0.28s ease",
-                marginTop: "10px",
-              }}>
-                <div style={{ overflow: "hidden", minHeight: 0 }}>
-                  <div style={{
-                    padding: "12px 14px", borderRadius: "var(--radius-sm)",
-                    border: "1px solid var(--border)", background: "var(--surface)",
-                    borderLeft: "3px solid var(--correct-border)",
-                  }}>
-                    <div className="label" style={{ marginBottom: "6px" }}>Fasit</div>
-                    <p style={{ fontFamily: "var(--font-mono)", fontSize: "14px", lineHeight: 1.5, margin: 0, color: "var(--text-primary)" }}>
-                      {q.modelAnswer}
-                    </p>
-                  </div>
-
-                  <div style={{ display: "flex", gap: "6px", marginTop: "10px" }}>
-                    {(["feil", "delvis", "riktig"] as const).map((grade) => (
-                      <button
-                        key={grade}
-                        onClick={() => gradeDel2(grade)}
-                        style={{
-                          flex: 1, padding: "11px 6px", borderRadius: "var(--radius-sm)",
-                          border: `1.5px solid ${grade === "riktig" ? "var(--correct-border)" : grade === "delvis" ? "var(--partial-border)" : "var(--wrong-border)"}`,
-                          background: currentGrade === grade
-                            ? (grade === "riktig" ? "var(--correct-bg)" : grade === "delvis" ? "var(--partial-bg)" : "var(--wrong-bg)")
-                            : "var(--card)",
-                          color: grade === "riktig" ? "var(--correct)" : grade === "delvis" ? "var(--partial)" : "var(--wrong)",
-                          fontWeight: 600, fontSize: "13px", cursor: "pointer",
-                          fontFamily: "var(--font-sans)", transition: "background 0.15s",
-                          outline: currentGrade === grade ? `2px solid ${grade === "riktig" ? "var(--correct)" : grade === "delvis" ? "var(--partial)" : "var(--wrong)"}` : "none",
-                          outlineOffset: "-2px",
-                        }}
-                      >
-                        {grade === "riktig" ? "Riktig" : grade === "delvis" ? "Delvis" : "Feil"}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
             </div>
           )}
         </div>
@@ -414,9 +307,10 @@ export default function ExamPage() {
               const isActive = i === current;
               const isFlagged = flagged.has(aq.id);
               const isDel2Q = aq.source === "del2";
-              const isAnswered = isDel2Q ? del2Grades.has(aq.id) : answers.has(aq.id);
-              const isInProgress = isDel2Q && del2Revealed.has(aq.id) && !del2Grades.has(aq.id);
-              const dotClass = `nav-dot${isActive ? " active" : isFlagged ? " flagged" : isAnswered ? " answered" : isInProgress ? " flagged" : ""}`;
+              const isAnswered = isDel2Q
+                ? !!del2TextAnswers.get(aq.id)?.trim()
+                : answers.has(aq.id);
+              const dotClass = `nav-dot${isActive ? " active" : isFlagged ? " flagged" : isAnswered ? " answered" : ""}`;
               return (
                 <button
                   key={i}
@@ -432,5 +326,21 @@ export default function ExamPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function ExamPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="page-shell-learn">
+          <div className="app-card app-card-learn" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <span style={{ color: "var(--text-tertiary)", fontSize: "14px" }}>Laster eksamen…</span>
+          </div>
+        </main>
+      }
+    >
+      <ExamPageInner />
+    </Suspense>
   );
 }

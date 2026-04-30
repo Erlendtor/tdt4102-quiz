@@ -3335,6 +3335,674 @@ int main() {
     ],
   },
 
+  // ─── K24 (SOMMER 2024) – DEL 1 ───────────────────────────────────────────
+
+  {
+    id: "k24-q1",
+    variantGroupId: "k24-q1",
+    source: "K24",
+    examSet: "K24",
+    topic: "Konstanter",
+    stem: "På hvilke måter (en eller flere) kan man deklarere en konstant i C++?",
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "Skrive variabelnavnet med blokk-bokstaver.",
+        isCorrect: false,
+        explanation: "Feil. Store bokstaver i variabelnavn er kun en navnekonvensjon og gjør ikke variabelen til en konstant.",
+      },
+      {
+        id: "b",
+        text: "Bruke nøkkelordet const.",
+        isCorrect: true,
+        explanation: "Riktig. const gjør en variabel uforanderlig etter initialisering – dette er den vanligste måten å deklarere en konstant på.",
+      },
+      {
+        id: "c",
+        text: "Bruke nøkkelordet constexpr.",
+        isCorrect: true,
+        explanation: "Riktig. constexpr erklærer en konstant som er evaluerbar på kompileringstid, og er en gyldig måte å deklarere konstanter på.",
+      },
+      {
+        id: "d",
+        text: "Bruke nøkkelordet constant.",
+        isCorrect: false,
+        explanation: "Feil. 'constant' er ikke et gyldig nøkkelord i C++.",
+      },
+    ],
+  },
+
+  {
+    id: "k24-q2",
+    variantGroupId: "k24-q2",
+    source: "K24",
+    examSet: "K24",
+    topic: "Funksjoner",
+    stem: "I hvilke (en eller flere) av situasjonene under burde man bruke pass-by-reference?",
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "Når man gir en heltallsvariabel til en funksjon som regner ut kvadratroten og returnerer resultatet.",
+        isCorrect: false,
+        explanation: "Feil. En enkel heltallsvariabel er liten og billig å kopiere – pass-by-value er tilstrekkelig her.",
+      },
+      {
+        id: "b",
+        text: "Når man gir et stort array av strenger til en funksjon som gjør alle forbokstaver store.",
+        isCorrect: true,
+        explanation: "Riktig. Et stort array er kostbart å kopiere, og funksjonen må endre innholdet – pass-by-reference er riktig valg.",
+      },
+      {
+        id: "c",
+        text: "Når man gir en stor vektor av flyttall til en funksjon som regner ut gjennomsnittet av alle tallene i vektoren og returnerer gjennomsnittet.",
+        isCorrect: true,
+        explanation: "Riktig. En stor vektor er kostbar å kopiere – pass-by-const-reference gir ytelse uten å tillate endringer.",
+      },
+      {
+        id: "d",
+        text: "Når man har en funksjon som tar inn en unique_ptr, men hvor funksjonen ikke endrer på verdien den peker til.",
+        isCorrect: true,
+        explanation: "Riktig. unique_ptr kan ikke kopieres, så man må bruke pass-by-reference (helst const-reference siden funksjonen ikke endrer verdien).",
+      },
+    ],
+  },
+
+  {
+    id: "k24-q3",
+    variantGroupId: "k24-q3",
+    source: "K24",
+    examSet: "K24",
+    topic: "Klasser og kopiering",
+    stem: "Hvilke (en eller flere) av følgende utsagn er korrekte?",
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "En kopi-konstruktør kan brukes til å lage et nytt klasseobjekt ved å kopiere verdier fra et annet klasseobjekt av samme klasse.",
+        isCorrect: true,
+        explanation: "Riktig. Dette er standard bruk av kopi-konstruktøren – den tar en const-referanse til et objekt av samme klasse.",
+      },
+      {
+        id: "b",
+        text: "Enhver klasse har en kopi-konstruktør.",
+        isCorrect: false,
+        explanation: "Feil. Kompilatoren genererer en standard kopi-konstruktør automatisk, men den kan slettes med =delete, og klassen kan da ikke kopieres.",
+      },
+      {
+        id: "c",
+        text: "En kopi-konstruktør kan defineres slik at den initialiserer et nytt klasseobjekt ved å kopiere verdier fra et annet klasseobjekt av en hvilken som helst klasse.",
+        isCorrect: true,
+        explanation: "Riktig. En kopi-konstruktør kan ta en referanse til et objekt av en annen type – dette fungerer som en konverteringskonstruktør.",
+      },
+      {
+        id: "d",
+        text: "En kopi-konstruktør kan kun brukes til grunn kopiering (shallow copy).",
+        isCorrect: false,
+        explanation: "Feil. En kopi-konstruktør kan implementeres for å gjøre dyp kopiering (deep copy) – f.eks. kopiere dynamisk allokerte ressurser.",
+      },
+    ],
+  },
+
+  {
+    id: "k24-q4",
+    variantGroupId: "k24-q4",
+    source: "K24",
+    examSet: "K24",
+    topic: "Egendefinerte typer",
+    stem: "Se på koden under.\n\nHvilke (en eller flere) av følgende utsagn er korrekte?",
+    code: `enum class Color {
+    red = 2, blue, yellow
+};
+
+Color c = Color::yellow;`,
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "Det er ikke mulig å definere en ny enum-klasse med verdiene red, blue, og yellow, fordi de allerede finnes i Color.",
+        isCorrect: false,
+        explanation: "Feil. enum class har sitt eget skop – red, blue og yellow i Color kolliderer ikke med enumeratorer i en annen enum class.",
+      },
+      {
+        id: "b",
+        text: "Verdiene til enumeratorene red, blue og yellow lagres som strenger.",
+        isCorrect: false,
+        explanation: "Feil. Enumeratorverdiene lagres som heltall (int), ikke strenger. red=2, blue=3, yellow=4.",
+      },
+      {
+        id: "c",
+        text: "Det er ikke mulig å direkte sammenligne en variabel av typen Color med en int.",
+        isCorrect: true,
+        explanation: "Riktig. enum class gir sterk typing – direkte sammenligning med int er ikke tillatt uten eksplisitt cast.",
+      },
+      {
+        id: "d",
+        text: "Det er ikke mulig å tilordne verdien Color::yellow til en variabel fordi det er siste verdien som er definert i enum class.",
+        isCorrect: false,
+        explanation: "Feil. Man kan tilordne hvilken som helst gyldig enumeratorverdi til en variabel av riktig enum class-type, inkludert den siste.",
+      },
+    ],
+  },
+
+  {
+    id: "k24-q5",
+    variantGroupId: "k24-q5",
+    source: "K24",
+    examSet: "K24",
+    topic: "Arv og tilgangsnivå",
+    stem: "Se på koden under.\n\nHvor mange medlemsfunksjoner har klassen A? Du trenger ikke telle med funksjoner som er standard-definert.",
+    code: `class B {
+        int y = 5;
+protected:
+        void f() const {}
+        void g() {}
+public:
+        std::string s = "hello";
+
+        virtual void c() = 0;
+        void d() {}
+};
+
+class A : public B {
+        int x;
+public:
+        void a() {}
+        void b() {}
+};`,
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "5",
+        isCorrect: true,
+        explanation: "Riktig. A arver f(), g() og d() fra B (3 implementerte funksjoner) og definerer selv a() og b() (2 funksjoner). Den rene virtuelle c() er ikke implementert i A, så totalt 5.",
+      },
+      {
+        id: "b",
+        text: "2",
+        isCorrect: false,
+        explanation: "Feil. A har sine egne a() og b(), men arver også f(), g() og d() fra B.",
+      },
+      {
+        id: "c",
+        text: "4",
+        isCorrect: false,
+        explanation: "Feil. A arver 3 implementerte funksjoner fra B (f, g, d) pluss definerer 2 egne (a, b) = 5 totalt.",
+      },
+      {
+        id: "d",
+        text: "6",
+        isCorrect: false,
+        explanation: "Feil. Den rene virtuelle c() er ikke implementert i A og teller ikke som en implementert funksjon.",
+      },
+    ],
+  },
+
+  {
+    id: "k24-q6",
+    variantGroupId: "k24-q6",
+    source: "K24",
+    examSet: "K24",
+    topic: "RAII og smartpekere",
+    stem: "Se på klassedeklarasjonen under.\n\nHvilke (en eller flere) av følgende utsagn er korrekte?",
+    code: `class A {
+    std::unique_ptr<std::ofstream> fileStream;
+
+public:
+    A(const string &filename) : fileStream{new std::ofstream(filename)} {
+
+    }
+};`,
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "Klassen overholder RAII (Resource Acquisition Is Initialization).",
+        isCorrect: true,
+        explanation: "Riktig. Filen åpnes i konstruktøren og lukkes automatisk når unique_ptr går ut av skop (destruktøren kalles). Dette er RAII.",
+      },
+      {
+        id: "b",
+        text: "Klassen har en implisitt standard (default) destruktør.",
+        isCorrect: true,
+        explanation: "Riktig. Siden ingen destruktør er definert eksplisitt, genererer kompilatoren en standard destruktør. unique_ptr sørger selv for opprydding.",
+      },
+      {
+        id: "c",
+        text: "Klassen mangler en destruktør som lukker filstrømmen fileStream for at den skal overholde RAII.",
+        isCorrect: false,
+        explanation: "Feil. unique_ptr håndterer automatisk frigjøring av ressursen – en eksplisitt destruktør er ikke nødvendig for RAII her.",
+      },
+      {
+        id: "d",
+        text: "Når en instans av klassen A går ut av skop, oppstår det en minnelekkasje.",
+        isCorrect: false,
+        explanation: "Feil. unique_ptr frigjør ressursen automatisk når objektet går ut av skop – ingen minnelekkasje.",
+      },
+    ],
+  },
+
+  {
+    id: "k24-q7",
+    variantGroupId: "k24-q7",
+    source: "K24",
+    examSet: "K24",
+    topic: "Beholdere",
+    stem: "Hvilke (en eller flere) av de følgende beholderene har ikke elementene liggende rett etter hverandre i minnet?",
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "std::map",
+        isCorrect: true,
+        explanation: "Riktig. std::map er implementert som et rød-svart tre – elementene ligger spredt i minnet, ikke sammenhengende.",
+      },
+      {
+        id: "b",
+        text: "std::vector",
+        isCorrect: false,
+        explanation: "Feil. std::vector lagrer elementer sammenhengende i minnet, noe som gir effektiv tilgang og cache-vennlighet.",
+      },
+      {
+        id: "c",
+        text: "std::set",
+        isCorrect: true,
+        explanation: "Riktig. std::set er også implementert som et rød-svart tre – elementene er ikke lagret sammenhengende i minnet.",
+      },
+      {
+        id: "d",
+        text: "std::array",
+        isCorrect: false,
+        explanation: "Feil. std::array er en tynn innpakning rundt et C-array – elementene ligger alltid sammenhengende i minnet.",
+      },
+    ],
+  },
+
+  {
+    id: "k24-q8",
+    variantGroupId: "k24-q8",
+    source: "K24",
+    examSet: "K24",
+    topic: "Minnehåndtering",
+    stem: "Hvilke av følgende utsagn om minnelagring av programelementer i C++ er korrekte?",
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "Et objekt allokert med new-operatoren lagres på heap (free store).",
+        isCorrect: true,
+        explanation: "Riktig. new allokerer minne på heap (free store) og returnerer en peker til det allokerte objektet.",
+      },
+      {
+        id: "b",
+        text: "Lokale variabler lagres på stack.",
+        isCorrect: true,
+        explanation: "Riktig. Lokale variabler i en funksjon legges på kallstakken og frigjøres automatisk når funksjonen returnerer.",
+      },
+      {
+        id: "c",
+        text: "Funksjonsargumenter lagres på heap.",
+        isCorrect: false,
+        explanation: "Feil. Funksjonsargumenter lagres på stack (som en del av funksjonens stack-ramme), ikke på heap.",
+      },
+      {
+        id: "d",
+        text: "Medlemsvariabler lagres alltid på stack.",
+        isCorrect: false,
+        explanation: "Feil. Medlemsvariabler lagres der objektet de tilhører er allokert – på stack hvis objektet er lokalt, på heap hvis objektet er allokert med new.",
+      },
+    ],
+  },
+
+  {
+    id: "k24-q9",
+    variantGroupId: "k24-q9",
+    source: "K24",
+    examSet: "K24",
+    topic: "Dynamisk minne",
+    stem: "Hvilke (en eller flere) av følgende utsagn er korrekte?",
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "new-operatoren returnerer en peker til et objekt i minnet av en bestemt type.",
+        isCorrect: true,
+        explanation: "Riktig. new allokerer minne på heap og returnerer en typet peker til det nyopprettede objektet.",
+      },
+      {
+        id: "b",
+        text: "new-operatoren allokerer alltid på stack-lageret (stack storage).",
+        isCorrect: false,
+        explanation: "Feil. new allokerer på heap (free store), ikke på stack. Stack-allokering skjer automatisk for lokale variabler.",
+      },
+      {
+        id: "c",
+        text: "Man må bestemme hvor mange objekter av en type som skal allokeres før kjøretid når man bruker new-operatoren.",
+        isCorrect: false,
+        explanation: "Feil. En av fordelene med new er at man kan bestemme antall objekter dynamisk under kjøretid.",
+      },
+      {
+        id: "d",
+        text: "Uttrykket int* a = new int{5}; vil allokere et array av 5 int på heap.",
+        isCorrect: false,
+        explanation: "Feil. new int{5} allokerer én int med verdien 5. For å allokere et array av 5 int brukes new int[5].",
+      },
+    ],
+  },
+
+  {
+    id: "k24-q10",
+    variantGroupId: "k24-q10",
+    source: "K24",
+    examSet: "K24",
+    topic: "Templates",
+    stem: "Hvilke (en eller flere) av følgende utsagn er korrekte?",
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "Kompilatoren kan i noen tilfeller løse template-parametre uten at typen til parametrene er oppgitt.",
+        isCorrect: true,
+        explanation: "Riktig. Template argument deduction (CTAD) lar kompilatoren utlede template-typer fra argumentene som sendes inn.",
+      },
+      {
+        id: "b",
+        text: "Klassetemplates kan ikke ha standard (default) template-parametre.",
+        isCorrect: false,
+        explanation: "Feil. Klassetemplates kan ha standard template-parametre, f.eks. template<typename T = int>.",
+      },
+      {
+        id: "c",
+        text: "Template-argumenter kan kun være klasser.",
+        isCorrect: false,
+        explanation: "Feil. Template-argumenter kan være typer (klasser, innebygde typer), ikke-type parametre (f.eks. int), og andre templates.",
+      },
+      {
+        id: "d",
+        text: "Templates må plasseres i en header-fil.",
+        isCorrect: false,
+        explanation: "Feil. Templates trenger ikke å ligge i header-filer, men implementasjonen må være synlig for kompilatoren der den instantieres.",
+      },
+    ],
+  },
+
+  {
+    id: "k24-q11",
+    variantGroupId: "k24-q11",
+    source: "K24",
+    examSet: "K24",
+    topic: "I/O og filer",
+    stem: "Hvilke (en eller flere) av følgende utsagn er korrekte?",
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "Operativsystemet vil opprette en fil man prøver å skrive til hvis den ikke eksisterer.",
+        isCorrect: true,
+        explanation: "Riktig. Når man åpner en fil for skriving (f.eks. std::ofstream), oppretter operativsystemet filen automatisk hvis den ikke finnes.",
+      },
+      {
+        id: "b",
+        text: "En fil er en sekvens med bytes.",
+        isCorrect: true,
+        explanation: "Riktig. Filer lagres som sekvenser av bytes på lagringsmediet, uavhengig av hva de inneholder.",
+      },
+      {
+        id: "c",
+        text: "Operativsystemet vil opprette en fil man prøver å lese fra hvis den ikke eksisterer.",
+        isCorrect: false,
+        explanation: "Feil. Forsøk på å lese fra en ikke-eksisterende fil feiler – operativsystemet oppretter ikke filen automatisk ved lesing.",
+      },
+      {
+        id: "d",
+        text: "Det er ikke mulig å skrive private klassemedlemmer til fil.",
+        isCorrect: false,
+        explanation: "Feil. Man kan skrive private medlemmer til fil ved å bruke friend-funksjoner, getter-metoder eller operator<<-overlasting.",
+      },
+    ],
+  },
+
+  {
+    id: "k24-q12",
+    variantGroupId: "k24-q12",
+    source: "K24",
+    examSet: "K24",
+    topic: "Unntakshåndtering",
+    stem: "Hvilke (en eller flere) av følgende utsagn er korrekte?",
+    maxPoints: 5,
+    options: [
+      {
+        id: "a",
+        text: "Minne som har blitt allokert med new-operatoren i funksjonen blir automatisk frigjort når et unntak blir kastet.",
+        isCorrect: false,
+        explanation: "Feil. Rå pekere allokert med new frigjøres IKKE automatisk ved unntak – dette er nettopp hvorfor man bør bruke RAII/smartpekere.",
+      },
+      {
+        id: "b",
+        text: "Flere catch-blokker kan behandle samme type unntak.",
+        isCorrect: true,
+        explanation: "Riktig. Man kan ha flere catch-blokker for å håndtere ulike unntakstyper, og samme unntakstype kan fanges av ulike catch-blokker i ulike try/catch-blokker.",
+      },
+      {
+        id: "c",
+        text: "Dersom det ikke finnes en catch-blokk for et utløst unntak, vil unntaket ignoreres og programmet fortsette normal kjøring fra punktet der unntaket ble utløst.",
+        isCorrect: false,
+        explanation: "Feil. Dersom et unntak ikke håndteres av noen catch-blokk, kaller C++ std::terminate() og programmet avsluttes.",
+      },
+      {
+        id: "d",
+        text: "Programmet avslutter dersom et unntak ikke blir håndtert.",
+        isCorrect: true,
+        explanation: "Riktig. Et uhåndtert unntak fører til kall på std::terminate(), som normalt avslutter programmet.",
+      },
+    ],
+  },
+
+  // ─── K24 (SOMMER 2024) – DEL 2 ───────────────────────────────────────────
+
+  {
+    id: "k24-d2-q13",
+    variantGroupId: "k24-d2-q13",
+    source: "del2",
+    examSet: "K24",
+    topic: "Bibliotek og linking",
+    maxPoints: 5,
+    stem: "Forklar kort hva et bibliotek er og hvorfor linking er nyttig når man bruker bibliotek.",
+    modelAnswer: `Et bibliotek er kode man har tilgang til gjennom deklarasjoner i en inkludert fil. Linkeren kombinerer delene av programmet man skriver selv og bibliotekene man bruker til en enkelt kjørefil (executable).`,
+    options: [],
+  },
+
+  {
+    id: "k24-d2-q14",
+    variantGroupId: "k24-d2-q14",
+    source: "del2",
+    examSet: "K24",
+    topic: "Funksjoner",
+    maxPoints: 5,
+    stem: "Forklar kort forskjellen på en funksjonsdeklarasjon og en funksjonsdefinisjon.",
+    modelAnswer: `Funksjonsdeklarasjon: Spesifiserer navnet, parametrene og typen til returverdien til funksjonen. Forteller kompilatoren at funksjonen eksisterer slik at den kan kalles andre steder i programmet.
+
+Funksjonsdefinisjon: Inkluderer en funksjonsdeklarasjon, men også implementasjonen til funksjonen.`,
+    options: [],
+  },
+
+  {
+    id: "k24-d2-q15",
+    variantGroupId: "k24-d2-q15",
+    source: "del2",
+    examSet: "K24",
+    topic: "Typekonvertering",
+    maxPoints: 5,
+    stem: "Forklar kort forskjellen på implisitt og eksplisitt typekonvertering.",
+    modelAnswer: `Implisitt typekonvertering gjøres av kompilatoren og fungerer dersom typen man konverterer til bruker flere bits enn typen man konverterer fra.
+
+Eksplisitt typekonvertering gjøres av programmereren og vil fungere selv hvis typekonverteringen fører til tap av presisjon. For å gjøre eksplisitt typekonvertering kan man bruke f.eks. static_cast.`,
+    options: [],
+  },
+
+  {
+    id: "k24-d2-q16",
+    variantGroupId: "k24-d2-q16",
+    source: "del2",
+    examSet: "K24",
+    topic: "Kopiering",
+    maxPoints: 5,
+    stem: "Forklar kort forskjellen på grunn kopiering (shallow copy) og dyp kopiering (deep copy).",
+    modelAnswer: `Grunn kopiering: Kopierer kun pekeren slik at originalen og kopien refererer til samme objekt.
+
+Dyp kopiering: Kopierer det en peker peker til slik at originalen og kopien peker til distinkte objekt.`,
+    options: [],
+  },
+
+  {
+    id: "k24-d2-q17",
+    variantGroupId: "k24-d2-q17",
+    source: "del2",
+    examSet: "K24",
+    topic: "Beholdere",
+    maxPoints: 5,
+    stem: "Hvorfor er det unødvendig å bruke std::unique_copy() for å kopiere elementene i en std::vector til et std::set?",
+    modelAnswer: `En std::vector kan inneholde duplikate verdier, men duplikate verdier ignoreres når de plasseres i et std::set. std::unique_copy() kopierer kun unike verdier, så det vil være overflødig siden std::set allerede sørger for dette.`,
+    options: [],
+  },
+
+  {
+    id: "k24-d2-q18",
+    variantGroupId: "k24-d2-q18",
+    source: "del2",
+    examSet: "K24",
+    topic: "Beholdere",
+    maxPoints: 5,
+    stem: "Forklar kort hva som skjer når man kaller push_back() på en std::vector.",
+    modelAnswer: `Når man kaller push_back() settes et nytt element på slutten av vektoren. Først sjekkes minnekapasiteten: hvis det er ledig kapasitet plasseres elementet direkte og size øker med én. Hvis kapasiteten er full allokeres et nytt, større minneområde (typisk dobbelt kapasitet), alle eksisterende elementer kopieres/flyttes dit, det nye elementet legges til, og det gamle minnet frigjøres. Capacity oppdateres tilsvarende.`,
+    options: [],
+  },
+
+  {
+    id: "k24-d2-q19",
+    variantGroupId: "k24-d2-q19",
+    source: "del2",
+    examSet: "K24",
+    topic: "Pekere",
+    maxPoints: 5,
+    stem: "Se på de to kodesnuttene under.\n\nKodesnutt 1 vil føre til en kjøretidsfeil, men det vil ikke kodesnutt 2. Forklar kort hvorfor.",
+    code: `// Kodesnutt 1:
+int* p = new int{10};
+delete p;
+delete p;       // dobbel frigjøring – kjøretidsfeil
+
+// Kodesnutt 2:
+int* p = new int{10};
+p = new int{10};  // minnelekkasje, men ingen kjøretidsfeil
+delete p;`,
+    modelAnswer: `Kodesnutt 1 er et eksempel på dobbel frigjøring (double free): i linje 3 prøver vi å frigjøre minne som allerede er frigjort i linje 2. Dette gir udefinert atferd og typisk kjøretidsfeil.
+
+Kodesnutt 2 gir en minnelekkasje siden det allokeres nytt minne til p i linje 2 uten at minnet fra linje 1 er frigjort først. Men det er ingen dobbel frigjøring – delete p frigjør kun det siste allokerte objektet.`,
+    options: [],
+  },
+
+  {
+    id: "k24-d2-q20",
+    variantGroupId: "k24-d2-q20",
+    source: "del2",
+    examSet: "K24",
+    topic: "Klasser",
+    maxPoints: 5,
+    stem: "Forklar kort hvilke problemer det er i kodesnutten under.",
+    code: `class Counter {
+public:
+    void count(const int b) const {
+        a += b;
+        std::cout << "The counter is now set to: " << a << std::endl;
+    }
+
+private:
+    int a = 0;
+};
+
+int main(void) {
+    int b = 1;
+    Counter a;
+    a.count(b);
+    return EXIT_SUCCESS;
+}`,
+    modelAnswer: `Problemet er at medlemsfunksjonen count() er deklarert som const (konstant funksjon), men prøver å endre medlemsvariabelen a med a += b. En const-funksjon kan ikke endre tilstanden til objektet den kalles på. Løsningen er å fjerne const fra funksjonsdeklarasjonen.`,
+    options: [],
+  },
+
+  {
+    id: "k24-d2-q21",
+    variantGroupId: "k24-d2-q21",
+    source: "del2",
+    examSet: "K24",
+    topic: "Smartpekere",
+    maxPoints: 10,
+    stem: "Se på koden under.\n\n(a) Hvorfor kompilerer ikke koden? Forklar kort.\n\n(b) Hva ville du gjort for å løse problemet?",
+    code: `#include <vector>
+
+using namespace std;
+
+class A {
+private:
+    int x;
+public:
+    A(int x_) : x(x_) {}
+};
+
+int main(void) {
+    unique_ptr<A> a {new A(5)};
+    vector<unique_ptr<A>> vec;
+    vec.push_back(a);
+
+    return 0;
+}`,
+    modelAnswer: `(a) Koden kompilerer ikke fordi vec.push_back(a) prøver å kopiere den unike pekeren a. unique_ptr kan ikke kopieres – det er kun én eier tillatt.
+
+(b) Mulige løsninger:
+• Bruk vec.push_back(std::move(a)) for å flytte (move) eierskap til vektoren.
+• Bruk vec.push_back(make_unique<A>(5)) for å opprette pekeren direkte i vektoren.
+• Bytt unique_ptr med shared_ptr, som tillater kopiering.`,
+    options: [],
+  },
+
+  {
+    id: "k24-d2-q22",
+    variantGroupId: "k24-d2-q22",
+    source: "del2",
+    examSet: "K24",
+    topic: "Templates og operatorer",
+    maxPoints: 10,
+    stem: "Se på koden under.\n\n(a) Hvorfor kompilerer ikke koden? Forklar kort.\n\n(b) Hva må gjøres for å løse problemet gitt at du ikke kan endre noe i main?",
+    code: `#include <iostream>
+
+template<typename T>
+struct Point {
+    T x = 0;
+    T y = 0;
+};
+
+int main(void) {
+    Point<int> p1{2,4};
+    Point<int> p2{1,6};
+
+    if (p1 > p2) {
+        std::cout << "The first point is largest" << std::endl;
+    } else if (p1 == p2) {
+        std::cout << "The points are equal" << std::endl;
+    } else {
+        std::cout << "The second point is largest" << std::endl;
+    }
+
+    return 0;
+}`,
+    modelAnswer: `(a) Koden kompilerer ikke fordi operatorene >, == og < ikke er definert for Point<T>. Kompilatoren vet ikke hvordan den skal sammenligne to Point-objekter.
+
+(b) Man må overlaste (overloade) operatorene >, == og < for Point<T>. For eksempel kan == sammenlignes ved å sjekke om x og y er like, og < kan defineres basert på en valgfri ordning (f.eks. sammenligne x først, deretter y).`,
+    options: [],
+  },
+
   // ─── DEL 2 ────────────────────────────────────────────────────────────────
   // Eksamensoppgaver fra V24v1, V24v2, V25v1, V25v2 – kortsvarsoppgaver
 
@@ -4506,12 +5174,20 @@ export function getRandomQuestions(count: number, recentIds?: Set<string>): Ques
 }
 
 export function getRandomDel1Questions(count: number, recentIds?: Set<string>): Question[] {
-  return pickFromGroups(questions.filter((q) => q.source !== "del2"), count, recentIds);
+  return pickFromGroups(questions.filter((q) => q.source !== "del2" && q.source !== "K24"), count, recentIds);
 }
 
 export function getRandomDel2Questions(count: number): Question[] {
-  const pool = [...questions.filter((q) => q.source === "del2")].sort(() => Math.random() - 0.5);
+  const pool = [...questions.filter((q) => q.source === "del2" && !q.examSet)].sort(() => Math.random() - 0.5);
   return pool.slice(0, count).map((q) => ({ ...q, options: [...q.options].sort(() => Math.random() - 0.5) }));
+}
+
+export function getExamSetDel1Questions(examSet: string): Question[] {
+  return questions.filter((q) => q.source === examSet && q.source !== "del2");
+}
+
+export function getExamSetDel2Questions(examSet: string): Question[] {
+  return questions.filter((q) => q.source === "del2" && q.examSet === examSet);
 }
 
 export function getQuestionById(id: string): Question | undefined {
