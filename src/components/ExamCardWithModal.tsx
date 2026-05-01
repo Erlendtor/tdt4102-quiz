@@ -56,7 +56,7 @@ export default function ExamCardWithModal({ hasSession, examSetGrades }: Props) 
     borderRadius: "var(--radius-md)",
     clipPath: "inset(0 round var(--radius-md))",
     aspectRatio: "auto",
-    minHeight: "340px",
+    minHeight: "320px",
     cursor: "pointer",
     border: "none",
     textAlign: "left",

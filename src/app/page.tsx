@@ -48,7 +48,7 @@ const glassStyle: React.CSSProperties = {
 
 const cardWrapStyle: React.CSSProperties = {
   flex: 1,
-  aspectRatio: "5 / 6",
+  height: "320px",
 };
 
 const cardStyle: React.CSSProperties = {
