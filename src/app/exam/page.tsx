@@ -450,28 +450,33 @@ function ExamPageInner() {
           </div>
 
           {/* Nav dots */}
-          <div className="exam-nav-dots" style={{ display: "flex", gap: "4px", flexWrap: "wrap", justifyContent: "center" }}>
-            {allQuestions.map((aq, i) => {
-              const isActive = i === current;
-              const isFlagged = flagged.has(aq.id);
-              const isDel2Q = aq.source === "del2";
-              const isAnswered = isDel2Q
-                ? isDel2Answered(aq)
-                : aq.subtype === "nedtrekk"
-                  ? isNedtrekkAnswered(aq)
-                  : answers.has(aq.id);
-              const dotClass = `nav-dot${isActive ? " active" : isFlagged ? " flagged" : isAnswered ? " answered" : ""}`;
-              return (
-                <button
-                  key={i}
-                  onClick={() => navigateTo(i)}
-                  className={dotClass}
-                  style={isActive && isFlagged ? { boxShadow: "inset 0 0 0 2px #3B82F6" } : undefined}
-                >
-                  {i + 1}
-                </button>
-              );
-            })}
+          <div className="exam-nav-dots" style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+            {[del1Questions, del2Questions].map((group, gi) => (
+              <div key={gi} style={{ display: "flex", gap: "4px", flexWrap: "wrap", justifyContent: "center" }}>
+                {group.map((aq) => {
+                  const i = allQuestions.indexOf(aq);
+                  const isActive = i === current;
+                  const isFlagged = flagged.has(aq.id);
+                  const isDel2Q = aq.source === "del2";
+                  const isAnswered = isDel2Q
+                    ? isDel2Answered(aq)
+                    : aq.subtype === "nedtrekk"
+                      ? isNedtrekkAnswered(aq)
+                      : answers.has(aq.id);
+                  const dotClass = `nav-dot${isActive ? " active" : isFlagged ? " flagged" : isAnswered ? " answered" : ""}`;
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => navigateTo(i)}
+                      className={dotClass}
+                      style={isActive && isFlagged ? { boxShadow: "inset 0 0 0 2px #3B82F6" } : undefined}
+                    >
+                      {i + 1}
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
           </div>
         </div>
       </div>
