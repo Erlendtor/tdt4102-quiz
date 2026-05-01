@@ -4863,6 +4863,533 @@ for(int i = 2; i * i < n; i++) {
 3. Hvis nei (full kapasitet): alloker et nytt, større minneområde (typisk dobbelt så stor kapasitet). Kopier eller flytt alle eksisterende elementer til det nye området. Legg til det nye elementet. Frigjør det gamle minneområdet. Oppdater interne pekere, size og capacity.`,
     options: [],
   },
+
+  // ─── INSP – INSPERAØVING 14. APRIL ───────────────────────────────────────
+
+  // DEL 1
+
+  {
+    id: "insp-q1",
+    variantGroupId: "insp-datatyper-1",
+    source: "INSP",
+    topic: "Datatyper",
+    stem: "Hvilke (en eller flere) av følgende utsagn er korrekte?",
+    maxPoints: 5,
+    options: [
+      { id: "a", text: "Å legge sammen to tall av samme datatype resulterer i et nytt tall som har samme datatype.", isCorrect: true, explanation: "Riktig. Aritmetisk operasjon mellom to int gir int, mellom to float gir float osv." },
+      { id: "b", text: "Addisjon eller multiplikasjon av tall av typen short kan føre til avrundingsfeil.", isCorrect: false, explanation: "Feil. short er en heltallstype og har ikke avrundingsfeil – det kan oppstå overflow, men ikke avrunding slik som for flytall." },
+      { id: "c", text: "Når du adder to tall med datatypene float og int, konverteres flyttallet automatisk til int", isCorrect: false, explanation: "Feil. Det er int som konverteres (implisitt) til float, ikke omvendt. Konvertering skjer til den mer presise typen." },
+      { id: "d", text: "Når et flyttall har den høyeste verdien som kan representeres, vil det å legge til tallet 1 føre til at svaret blir det lavest mulige tallet som kan representeres med flyttall.", isCorrect: false, explanation: "Feil. For IEEE 754 flytall fører overflow til +infinity, ikke wrap-around til minste verdi (det er heltallsoppførsel)." },
+    ],
+  },
+
+  {
+    id: "insp-q2",
+    variantGroupId: "insp-kopiering-1",
+    source: "INSP",
+    topic: "Kopiering",
+    stem: "Hvilke (en eller flere) av følgende utsagn er korrekte?",
+    maxPoints: 5,
+    options: [
+      { id: "a", text: "En kopikonstruktør kan opprettes ved å overlaste operator=.", isCorrect: false, explanation: "Feil. operator= er tilordningsoperatøren (copy assignment), ikke kopikonstruktøren. Kopikonstruktøren har signaturen Klasse(const Klasse&)." },
+      { id: "b", text: "Å spesifisere en funksjonsparameter som pass-by-value vil føre til at parameterverdien kopieres når funksjonen kalles.", isCorrect: true, explanation: "Riktig. Pass-by-value lager en lokal kopi av argumentet inne i funksjonen." },
+      { id: "c", text: "Å opprette en peker til en variabel oppretter en kopi av den variabelen.", isCorrect: false, explanation: "Feil. En peker lagrer adressen til variabelen – ingen kopi av variabelens verdi opprettes." },
+      { id: "d", text: "Standard-kopikonstruktøren for en klasse vil kopiere verdiene til alle medlemsvariabler, inkludert de som refereres til av pekere.", isCorrect: false, explanation: "Feil. Standard-kopikonstruktøren kopierer pekerens adresse, ikke innholdet den peker til (grunn kopi / shallow copy)." },
+    ],
+  },
+
+  {
+    id: "insp-q3",
+    variantGroupId: "insp-deklarasjon-1",
+    source: "INSP",
+    topic: "Deklarasjon og definisjon",
+    stem: "Hvilke (en eller flere) av følgende utsagn er korrekte?",
+    maxPoints: 5,
+    options: [
+      { id: "a", text: "Det er mulig å deklarere to variabler med samme navn i samme funksjon.", isCorrect: true, explanation: "Riktig (i ulike skop). En variabel i et indre skop kan skjule en variabel med samme navn i et ytre skop i samme funksjon." },
+      { id: "b", text: "Det er mulig å definere to funksjoner med samme navn.", isCorrect: true, explanation: "Riktig! Funksjonsoverlastning (overloading) tillater dette – to funksjoner med samme navn men ulike parameterlister er lovlig i C++." },
+      { id: "c", text: "En funksjon kan deklareres mer enn én gang.", isCorrect: true, explanation: "Riktig. En funksjon kan ha mange deklarasjoner (prototyper), men kun én definisjon per oversettingsenhet." },
+      { id: "d", text: "Funksjonsdefinisjoner plasseres vanligvis i headerfiler.", isCorrect: false, explanation: "Feil. Det er funksjonsdeklarasjoner (prototyper) som plasseres i headerfiler. Definisjoner plasseres i .cpp-filer." },
+    ],
+  },
+
+  {
+    id: "insp-q4",
+    variantGroupId: "insp-referanser-1",
+    source: "INSP",
+    topic: "Referanser",
+    stem: "Hvilke (en eller flere) av følgende utsagn er korrekte?",
+    maxPoints: 5,
+    options: [
+      { id: "a", text: "En referanse kan initialiseres til verdien `nullptr` for å indikere at den ikke refererer til noen bestemt verdi.", isCorrect: false, explanation: "Feil. Referanser kan IKKE være null – de må alltid referere til et gyldig objekt. Det er pekere som kan settes til nullptr." },
+      { id: "b", text: "Etter at en `const`-referanse er opprettet til en instans av `std::vector`, er det ikke lenger mulig å endre `std::vector`-instansen.", isCorrect: false, explanation: "Feil. En const-referanse hindrer kun endringer via den referansen – originalvariabelen kan fortsatt endres direkte eller via en ikke-const referanse." },
+      { id: "c", text: "En referanse må derefereres eksplisitt ved hjelp av * -operatoren.", isCorrect: false, explanation: "Feil. Referanser derefereres automatisk – du bruker referansen direkte som om det var variabelen den refererer til." },
+      { id: "d", text: "Det er ikke mulig å opprette en `std::vector` som inneholder referanser til andre forekomster av `std::vector`.", isCorrect: true, explanation: "Riktig. std::vector kan ikke inneholde referanser fordi referanser ikke er kopierbare/tilordnbare, noe som kreves av std::vector-elementer." },
+    ],
+  },
+
+  {
+    id: "insp-q5",
+    variantGroupId: "insp-allokering-1",
+    source: "INSP",
+    topic: "Allokering og deallokering",
+    stem: "For hver linje, angi hva slags minneallokering eller deallokering som skjer på den linjen.",
+    maxPoints: 10,
+    subtype: "nedtrekk",
+    code: `int main() {
+    int a = 10;
+    int* a_ptr = &a;
+    if(a > 5) {
+        a_ptr = new int{8};
+        std::vector<int> vec(a);
+        if(a > 3) {
+            int b = 3;
+        }
+    }
+    a_ptr = new int{9};
+}`,
+    nedtrekkOptions: [
+      "Stakk allokering",
+      "Stakk deallokering",
+      "Stakk allokering + heap deallokering",
+      "Heap allokering",
+      "Heap deallokering",
+      "Heap allokering + heap deallokering",
+      "Stakk + heap allokering",
+      "Stakk + heap deallokering",
+      "Ingen allokering eller deallokering",
+    ],
+    nedtrekkLines: [
+      { lineNumber: 1,  code: "int main() {",                      isQuestion: true, correctAnswer: "Ingen allokering eller deallokering" },
+      { lineNumber: 2,  code: "    int a = 10;",                   isQuestion: true, correctAnswer: "Stakk allokering" },
+      { lineNumber: 3,  code: "    int* a_ptr = &a;",              isQuestion: true, correctAnswer: "Stakk allokering" },
+      { lineNumber: 4,  code: "    if(a > 5) {",                   isQuestion: true, correctAnswer: "Ingen allokering eller deallokering" },
+      { lineNumber: 5,  code: "        a_ptr = new int{8};",       isQuestion: true, correctAnswer: "Heap allokering" },
+      { lineNumber: 6,  code: "        std::vector<int> vec(a);",  isQuestion: true, correctAnswer: "Stakk + heap allokering" },
+      { lineNumber: 7,  code: "        if(a > 3) {",               isQuestion: true, correctAnswer: "Ingen allokering eller deallokering" },
+      { lineNumber: 8,  code: "            int b = 3;",            isQuestion: true, correctAnswer: "Stakk allokering" },
+      { lineNumber: 9,  code: "        }",                         isQuestion: true, correctAnswer: "Stakk deallokering" },
+      { lineNumber: 10, code: "    }",                             isQuestion: true, correctAnswer: "Stakk + heap deallokering" },
+      { lineNumber: 11, code: "    a_ptr = new int{9};",           isQuestion: true, correctAnswer: "Heap allokering" },
+      { lineNumber: 12, code: "}",                                 isQuestion: true, correctAnswer: "Stakk deallokering" },
+    ],
+    options: [],
+  },
+
+  {
+    id: "insp-q6",
+    variantGroupId: "insp-unntak-1",
+    source: "INSP",
+    topic: "Unntak",
+    stem: "Hvilke (en eller flere) av følgende utsagn er korrekte?",
+    maxPoints: 5,
+    options: [
+      { id: "a", text: "Hver try-blokk kan maks ha én catch setning.", isCorrect: false, explanation: "Feil. En try-blokk kan ha flere catch-setninger for ulike unntakstyper." },
+      { id: "b", text: "Når en catch setning tar en referanse med type std::exception som argument, fanger/håndterer den også unntak med datatyper som arver fra std::exception.", isCorrect: false, explanation: "Dette var markert som feil på eksamen." },
+      { id: "c", text: "Et unntak er en feil som oppstår mens programmet kompileres.", isCorrect: true, explanation: "Dette var markert som riktig på eksamen." },
+      { id: "d", text: "throw setninger kan bare brukes inni en try-blokk, eller en funksjon som kalles fra en try-blokk.", isCorrect: true, explanation: "Riktig. Et throw utenfor enhver try-blokk fører til at std::terminate() kalles." },
+    ],
+  },
+
+  {
+    id: "insp-q7",
+    variantGroupId: "insp-adgang-1",
+    source: "INSP",
+    topic: "Adgang (friend og arv)",
+    stem: "Hvilke av de følgende kan endre `numWheels`-variabelen? (velg ett eller flere alternativer)",
+    maxPoints: 5,
+    code: `class Vehicle {
+    int numWheels = 4;
+
+    friend void printVehicle(Vehicle& vehicle);
+
+    void drive() {
+        /* contents removed for brevity */
+    }
+};
+
+class Car : public Vehicle {
+    /* contents removed for brevity */
+};
+
+void printVehicle(Vehicle& vehicle) {
+    /* contents removed for brevity */
+}
+
+std::ostream& operator<<(std::ostream& out, const Vehicle& vehicle) {
+    /* contents removed for brevity */
+}
+
+int main() {
+    /* contents removed for brevity */
+}`,
+    options: [
+      { id: "a", text: "Funksjonen `printVehicle()`", isCorrect: true, explanation: "Riktig. printVehicle er erklært som friend av Vehicle og har tilgang til private medlemmer, inkludert numWheels." },
+      { id: "b", text: "Funksjonen operator<<", isCorrect: false, explanation: "Feil. operator<< er ikke deklarert som friend av Vehicle og er heller ikke en memberfunction – den har ikke tilgang til private numWheels." },
+      { id: "c", text: "Funksjonen `main()`", isCorrect: false, explanation: "Feil. main() er verken friend eller member av Vehicle, og kan ikke aksessere private numWheels." },
+      { id: "d", text: "Medlemsfunksjoner i klassen `Car`", isCorrect: false, explanation: "Feil. Arvede klasser kan ikke aksessere private medlemmer i baseklassen." },
+      { id: "e", text: "Medlemsfunksjonen `drive()`", isCorrect: true, explanation: "Riktig. drive() er en memberfunction av Vehicle og har tilgang til alle Vehicle sine private medlemmer, inkludert numWheels." },
+    ],
+  },
+
+  {
+    id: "insp-q8a",
+    variantGroupId: "insp-feil-1",
+    source: "INSP",
+    topic: "Minnefeil",
+    stem: "For kodebiten nedenfor, angi om funksjonen kan forårsake noen av de gitte problemene når den kalles.\n\nVelg ett alternativ:",
+    maxPoints: 5,
+    code: `int* a() {
+    int value = 5;
+    return &value;
+}`,
+    options: [
+      { id: "a", text: "Dinglede peker/referanse", isCorrect: true, explanation: "Riktig. Funksjonen returnerer en peker til en lokal variabel som ødelegges når funksjonen returnerer – den resulterende pekeren peker til ugyldig minne." },
+      { id: "b", text: "Ingen av disse", isCorrect: false, explanation: "Feil. Se forklaring for riktig svar." },
+      { id: "c", text: "Minnelekkasje", isCorrect: false, explanation: "Feil. Problemet er en dinglede peker, ikke minnelekkasje." },
+      { id: "d", text: "Lenkerfeil", isCorrect: false, explanation: "Feil. Dette er en kjøretidsfeil, ikke en linkerfeil." },
+    ],
+  },
+
+  {
+    id: "insp-q8b",
+    variantGroupId: "insp-feil-2",
+    source: "INSP",
+    topic: "Minnefeil",
+    stem: "For kodebiten nedenfor, angi om funksjonen kan forårsake noen av de gitte problemene når den kalles.\n\nVelg ett alternativ:",
+    maxPoints: 5,
+    code: `void a(int& value) {
+    value = 5;
+}`,
+    options: [
+      { id: "a", text: "Lenkerfeil", isCorrect: false, explanation: "Feil. Det er ingen lenkerfeil her." },
+      { id: "b", text: "Ingen av disse", isCorrect: true, explanation: "Riktig. Funksjonen tar en referanse og endrer verdien – dette er gyldig C++ uten minneproblemer." },
+      { id: "c", text: "Dinglede peker/referanse", isCorrect: false, explanation: "Feil. Referansen er gyldig så lenge den opprinnelige variabelen lever." },
+      { id: "d", text: "Minnelekkasje", isCorrect: false, explanation: "Feil. Det er ingen heap-allokering her." },
+    ],
+  },
+
+  {
+    id: "insp-q8c",
+    variantGroupId: "insp-feil-3",
+    source: "INSP",
+    topic: "Minnefeil",
+    stem: "For kodebiten nedenfor, angi om funksjonen kan forårsake noen av de gitte problemene når den kalles.\n\nVelg ett alternativ:",
+    maxPoints: 5,
+    code: `int a() {
+    std::unique_ptr<int> ptr(new int{5});
+    return *ptr;
+}`,
+    options: [
+      { id: "a", text: "Dinglede peker/referanse", isCorrect: false, explanation: "Feil. Det returneres en verdi (kopi av *ptr), ikke en peker eller referanse." },
+      { id: "b", text: "Lenkerfeil", isCorrect: false, explanation: "Feil. Ingen lenkerfeil." },
+      { id: "c", text: "Minnelekkasje", isCorrect: false, explanation: "Feil. unique_ptr sin destruktør kaller automatisk delete når ptr går ut av skop. Minnet frigjøres korrekt." },
+      { id: "d", text: "Ingen av disse", isCorrect: true, explanation: "Riktig. unique_ptr håndterer friggjøring automatisk via RAII. Verdien *ptr kopieres og returneres. Ingen feil oppstår." },
+    ],
+  },
+
+  {
+    id: "insp-q9",
+    variantGroupId: "insp-input-1",
+    source: "INSP",
+    topic: "Input og filhåndtering",
+    stem: "Hvilket av de følgende påstandene er riktig?",
+    maxPoints: 5,
+    code: `std::string a;
+std::ifstream b("file.txt");
+b >> a;`,
+    options: [
+      { id: "a", text: "Denne kodebiten leser så mye av filen som kan lagres i std::string.", isCorrect: false, explanation: "Feil. >> leser ikke hele filen til en std::string." },
+      { id: "b", text: "Denne kodebiten vil alltid produsere en feil og leser ingenting.", isCorrect: false, explanation: "Feil. Koden er gyldig C++." },
+      { id: "c", text: "Denne kodebiten leser hele innholdet i file.txt", isCorrect: false, explanation: "Feil. >> leser kun til første mellomrom/linjeskift." },
+      { id: "d", text: "Denne kodebiten leser bare det første ordet fra file.txt", isCorrect: true, explanation: "Riktig. >> med std::string leser ett whitespace-avgrenset token (ord) – stopper ved mellomrom, tab eller linjeskift." },
+      { id: "e", text: "Denne kodebiten leser bare det første tegnet fra file.txt", isCorrect: false, explanation: "Feil. >> leser et helt token (ord), ikke bare ett tegn." },
+      { id: "f", text: "Denne kodebiten leser bare den første linjen fra file.txt", isCorrect: false, explanation: "Feil. For å lese en hel linje trengs std::getline(). >> stopper ved første mellomrom, ikke linjeskift." },
+    ],
+  },
+
+  {
+    id: "insp-q10",
+    variantGroupId: "insp-objekter-1",
+    source: "INSP",
+    topic: "Klasser og strukturer",
+    stem: "Forskjellen mellom en klasse (`class`) og en struktur (`struct`) er:",
+    maxPoints: 5,
+    options: [
+      { id: "a", text: "Det er ingen forskjell mellom dem.", isCorrect: false, explanation: "Feil. Det er en viktig forskjell i standard synlighet." },
+      { id: "b", text: "Standard synlighet til medlemmene deres.", isCorrect: true, explanation: "Riktig. I class er standard synlighet private, i struct er den public." },
+      { id: "c", text: "Bare klasser kan brukes til objektorientert programmering.", isCorrect: false, explanation: "Feil. struct kan også brukes til OOP, inkludert arv og virtuelle funksjoner." },
+      { id: "d", text: "En struktur kan ikke ha metoder (medlemsfunksjoner).", isCorrect: false, explanation: "Feil. struct kan ha metoder i C++." },
+      { id: "e", text: "En `struct` kan ikke ha en konstruktør.", isCorrect: false, explanation: "Feil. struct kan ha konstruktører." },
+      { id: "f", text: "Bare en klasse (`class`) kan brukes med arv.", isCorrect: false, explanation: "Feil. struct støtter også arv i C++." },
+    ],
+  },
+
+  {
+    id: "insp-q11",
+    variantGroupId: "insp-adresser-1",
+    source: "INSP",
+    topic: "Adresser og pekere",
+    stem: "Hvilke (en eller flere) av følgende utsagn er korrekte?",
+    maxPoints: 5,
+    options: [
+      { id: "a", text: "Verdier i en array er garantert å være ved siden av hverandre i minnet.", isCorrect: true, explanation: "Riktig. Array-elementer er alltid lagret i sammenhengende (contiguous) minneplasser." },
+      { id: "b", text: "Minneeierskap kan flyttes fra en std::unique_ptr til en annen std::unique_ptr ved bruk av std::move()-funksjonen.", isCorrect: true, explanation: "Riktig. std::move() overfører eierskapet og setter den opprinnelige unique_ptr til nullptr." },
+      { id: "c", text: "Operatorene new og new[] returnerer begge en minneadresse.", isCorrect: true, explanation: "Riktig. Begge returnerer en peker (minneadresse) til den allokerte minneblokken." },
+      { id: "d", text: "En verdi i minnet kan oppta flere minneadresser.", isCorrect: true, explanation: "Riktig. En verdi (f.eks. en int på 4 bytes) opptar flere minneadresser (én per byte)." },
+    ],
+  },
+
+  // DEL 2
+
+  {
+    id: "insp-del2-q1",
+    variantGroupId: "insp-del2-datatyper-1",
+    source: "del2",
+    examSet: "INSP",
+    topic: "Datatyper",
+    stem: "Forklar hvorfor det finnes flere heltallsdatatyper. Hva er forskjellene mellom dem, og hva kan være en grunn til å velge den ene fremfor den andre?",
+    maxPoints: 10,
+    modelAnswer: `Ulike heltallstyper (short, int, long, long long) skiller seg i størrelse (antall bytes) og dermed verdiområde:
+• short: typisk 2 bytes → −32 768 til 32 767
+• int: typisk 4 bytes → ca. ±2,1 milliarder
+• long long: typisk 8 bytes → svært stort område
+
+unsigned-varianter dobler den positive rekkevidden (ingen negative tall).
+
+Grunn til å velge:
+• Stor type (long long): unngå overflow ved store tall
+• Liten type (short/char): spare minne, f.eks. i store arrays eller innebygde systemer`,
+    options: [],
+  },
+
+  {
+    id: "insp-del2-q2",
+    variantGroupId: "insp-del2-smartpekere-1",
+    source: "del2",
+    examSet: "INSP",
+    topic: "Smarte pekere",
+    stem: "Hva er den primære mekanismen bak smarte pekere som skiller dem fra vanlige pekere, og under hvilke omstendigheter utløses den?",
+    maxPoints: 10,
+    modelAnswer: `Smarte pekere (std::unique_ptr, std::shared_ptr) har en destruktør som automatisk kaller delete på det pekede heap-minnet.
+
+Dette skiller dem fra vanlige (rå) pekere, som aldri kaller delete av seg selv.
+
+Mekanismen utløses:
+• Når den smarte pekeren går ut av skop (variabelen forlater sin {}-blokk)
+• Når objektet som eier pekeren blir ødelagt
+• For shared_ptr: når den siste kopien ødelegges (referansetelling → 0)
+
+Dette garanterer frigjøring av heap-minne uten manuell delete.`,
+    options: [],
+  },
+
+  {
+    id: "insp-del2-q3",
+    variantGroupId: "insp-del2-feilsoking-1",
+    source: "del2",
+    examSet: "INSP",
+    topic: "Feilsøking og include guards",
+    stem: "Programmet kompilerer ikke for øyeblikket. Uten å fjerne noe kode, hvilke endringer trengs for å løse disse problemene slik at det kompilerer? Hvorfor var disse endringene nødvendige?",
+    maxPoints: 10,
+    code: `// File: Coordinate.h
+struct Coordinate {
+    int value = 3;
+};
+
+// File: Point2D.h
+#include "Coordinate.h"
+
+struct Point2D {
+    Coordinate x;
+    Coordinate y;
+};
+
+// File: main.cpp
+#include "Coordinate.h"
+#include "Point2D.h"
+
+int main() {
+    Coordinate b;
+    return 0;
+};`,
+    modelAnswer: `Problemet: Coordinate.h inkluderes to ganger i main.cpp – én gang direkte og én gang indirekte via Point2D.h. Dette fører til at struct Coordinate defineres to ganger i samme oversettingsenhet, noe som er ulovlig i C++.
+
+Løsning: Legg til include guards i Coordinate.h (og Point2D.h):
+
+#pragma once   // øverst i filen
+
+eller klassisk:
+#ifndef COORDINATE_H
+#define COORDINATE_H
+// ... innhold ...
+#endif
+
+#pragma once sørger for at headerfilen kun inkluderes én gang per oversettingsenhet.`,
+    options: [],
+  },
+
+  {
+    id: "insp-del2-q4",
+    variantGroupId: "insp-del2-overlastning-1",
+    source: "del2",
+    examSet: "INSP",
+    topic: "Funksjonsoverlastning",
+    stem: "Hva er funksjonsoverlastning? Gi et eksempel der det kan være nyttig.",
+    maxPoints: 10,
+    modelAnswer: `Funksjonsoverlastning (function overloading) betyr at man definerer flere funksjoner med samme navn, men med ulike parameterlister (ulik type eller ulikt antall). Kompilatoren velger riktig versjon basert på argumentene.
+
+Eksempel:
+void print(int x)         { std::cout << x; }
+void print(double x)      { std::cout << x; }
+void print(std::string x) { std::cout << x; }
+
+print(42);    // kaller print(int)
+print(3.14);  // kaller print(double)
+print("hei"); // kaller print(std::string)
+
+Nyttig fordi man slipper unike navn (printInt, printDouble, ...) for konseptuelt like operasjoner.`,
+    options: [],
+  },
+
+  {
+    id: "insp-del2-q5",
+    variantGroupId: "insp-del2-abstrakte-1",
+    source: "del2",
+    examSet: "INSP",
+    topic: "Abstrakte klasser",
+    stem: "Gi et eksempel på en situasjon der man kanskje vil bruke en abstrakt klasse, og forklar hvorfor det er fornuftig å bruke en abstrakt klasse.",
+    maxPoints: 10,
+    modelAnswer: `En abstrakt klasse brukes når man vil ha et felles grensesnitt for relaterte klasser, men baseklassen selv ikke gir mening å instansiere.
+
+Eksempel:
+class Shape {
+public:
+    virtual double area() = 0;  // ren virtuell
+};
+class Circle : public Shape { ... };
+class Rectangle : public Shape { ... };
+
+Hvorfor fornuftig:
+• Det gir ikke mening å lage et generisk Shape-objekt uten konkret form.
+• Tvinger alle subklasser til å implementere area().
+• Polymorfisme: std::vector<Shape*> kan inneholde ulike former og kalle area() uten å kjenne eksakt type.`,
+    options: [],
+  },
+
+  {
+    id: "insp-del2-q6",
+    variantGroupId: "insp-del2-program-1",
+    source: "del2",
+    examSet: "INSP",
+    topic: "Kompilering og linking",
+    stem: "Hva er de viktigste trinnene for å gjøre C++-kildekode om til en kjørbar fil, og hva gjør hvert av disse trinnene?",
+    maxPoints: 10,
+    modelAnswer: `1. Preprosessering:
+   Behandler direktiver (#include, #define). Setter inn headerfiler og ekspanderer makroer.
+
+2. Kompilering:
+   Oversetter kildekode (.cpp) til objektkode (.o) per fil. Oppdager syntaks- og typefeil.
+
+3. Linking:
+   Kombinerer alle objektfiler og biblioteker til én kjørbar fil. Løser referanser mellom filer (funksjonskall på tvers av .cpp-filer). Oppdager udefinerte symboler. Produserer kjørbar fil.`,
+    options: [],
+  },
+
+  {
+    id: "insp-del2-q7",
+    variantGroupId: "insp-del2-sortering-1",
+    source: "del2",
+    examSet: "INSP",
+    topic: "Sortering",
+    stem: "Gi en implementasjon av sortVector()-funksjonen.",
+    maxPoints: 10,
+    subtype: "coding",
+    code: `#include "std_lib_facilities.h"
+
+int main() {
+    // Assume the vector can contain a random number of random numbers
+    // The contents here are just 6 random examples.
+    std::vector<int> arr = {7, 4, 8, 2, 9, 1};
+
+    sortVector(arr);
+
+    // vector should now be sorted (for this example: 1,2,4,7,8,9)
+}`,
+    modelAnswer: `void sortVector(std::vector<int>& arr) {
+    for (int i = 0; i < (int)arr.size() - 1; i++) {
+        for (int j = i + 1; j < (int)arr.size(); j++) {
+            if (arr[i] > arr[j]) {
+                std::swap(arr[i], arr[j]);
+            }
+        }
+    }
+}
+
+// Alternativt med std::sort:
+// void sortVector(std::vector<int>& arr) {
+//     std::sort(arr.begin(), arr.end());
+// }`,
+    options: [],
+  },
+
+  {
+    id: "insp-del2-q8",
+    variantGroupId: "insp-del2-sprak-1",
+    source: "del2",
+    examSet: "INSP",
+    topic: "Språkfunksjoner (templates)",
+    stem: "Hvilken mekanisme bruker std::map for å tillate bruk med alle mulige datatyper?",
+    maxPoints: 10,
+    modelAnswer: `std::map bruker templates (maler/generics). Det er deklarert som:
+std::map<Key, Value>
+der Key og Value er typeparametre spesifisert av brukeren.
+
+Kompilatoren genererer en spesialisert implementasjon for akkurat de typene som brukes – std::map<int, std::string>, std::map<std::string, double> osv. fungerer uten separate implementasjoner.
+
+Nøkkeltypen (Key) må støtte operator< for intern sortering (std::map bruker et rød-svart tre internt).`,
+    options: [],
+  },
+
+  {
+    id: "insp-del2-q9",
+    variantGroupId: "insp-del2-operator-1",
+    source: "del2",
+    examSet: "INSP",
+    topic: "Operatoren []",
+    stem: "Vi har generelt frarådet å bruke []-operatoren for å indeksere en std::vector eller std::map. For hver av disse to datatypene, forklar hvorfor bruk av []-operatoren kan være problematisk, og hvilken(e) metode(r) som bør brukes i stedet.",
+    maxPoints: 10,
+    modelAnswer: `std::vector:
+[]-operatoren gjør INGEN grensekontroll. Tilgang med ugyldig indeks gir udefinert atferd (memory corruption, krasj).
+Bruk heller: .at(i) – kaster std::out_of_range-unntak ved ugyldig indeks.
+
+std::map:
+[]-operatoren OPPRETTER automatisk et nytt element med standardverdi hvis nøkkelen ikke finnes. Dette kan gi uventede resultater og utilsiktet endring av kartet.
+Bruk heller:
+• .at(key) – kaster std::out_of_range hvis nøkkelen mangler
+• .find(key) – returnerer en iterator (sjekk om nøkkelen finnes uten å opprette)`,
+    options: [],
+  },
+
+  {
+    id: "insp-del2-q10",
+    variantGroupId: "insp-del2-vector-1",
+    source: "del2",
+    examSet: "INSP",
+    topic: "std::vector",
+    stem: "Hva er forskjellen mellom metodene `capacity()` og `size()` i `std::vector`, hva representerer verdiene de returnerer, og hvordan er de relatert til hverandre?",
+    maxPoints: 10,
+    modelAnswer: `size(): Antall elementer faktisk lagret i vektoren.
+
+capacity(): Antall elementer det er plass til i det allokerte minneområdet uten å reallokkere. Alltid ≥ size().
+
+Relasjon: size() ≤ capacity() alltid.
+
+Hva skjer ved push_back():
+• Hvis size() < capacity(): legg til element, øk size(). Rask – O(1).
+• Hvis size() == capacity(): alloker nytt, dobbelt så stort minneområde, kopier alle elementer, legg til nytt. capacity() øker. Amortisert O(1) over mange kall.`,
+    options: [],
+  },
 ];
 
 const hintMap: Record<string, string> = {

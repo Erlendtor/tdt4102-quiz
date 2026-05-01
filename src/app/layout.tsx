@@ -18,8 +18,8 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "C++ QUIZ del1",
-  description: "Øv til del 1 av C++ eksamen",
+  title: "C++ Quiz",
+  description: "Øv til C++ eksamen",
 };
 
 export const viewport: Viewport = {

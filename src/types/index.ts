@@ -5,6 +5,13 @@ export type Option = {
   explanation: string;
 };
 
+export type NedtrekkLine = {
+  lineNumber: number;
+  code: string;
+  isQuestion: boolean;
+  correctAnswer: string;
+};
+
 export type Question = {
   id: string;
   topic: string;
@@ -18,6 +25,9 @@ export type Question = {
   hint?: string;
   codeAnnotated?: string;
   modelAnswer?: string;
+  subtype?: "nedtrekk" | "coding";
+  nedtrekkLines?: NedtrekkLine[];
+  nedtrekkOptions?: string[];
 };
 
 export type Bucket = 0 | 1 | 2;

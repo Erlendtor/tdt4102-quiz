@@ -19,6 +19,7 @@ const EXAM_SET_LABELS: Record<string, string> = {
   V24V1: "Eksamen Vår 2024 v1",
   V24V2: "Eksamen Vår 2024 v2",
   K24:   "Eksamen Sommer 2024",
+  INSP:  "Insperaøving 14. april",
   random: "Tilfeldig eksamen",
 };
 
@@ -132,6 +133,7 @@ function ExamPageInner() {
 
   const q = allQuestions[current];
   const isDel2 = q.source === "del2";
+  const isNedtrekk = !isDel2 && q.subtype === "nedtrekk";
   const currentSelected = answers.get(q.id) ?? new Set<string>();
 
   function stemHasSubParts(stem: string) {
@@ -145,7 +147,15 @@ function ExamPageInner() {
     return !!del2TextAnswers.get(dq.id)?.trim();
   }
 
-  const del1Remaining = del1Questions.filter((dq) => !answers.has(dq.id)).length;
+  function isNedtrekkAnswered(dq: typeof q) {
+    const lines = dq.nedtrekkLines?.filter(l => l.isQuestion) ?? [];
+    return lines.length > 0 && lines.every(l => !!del2TextAnswers.get(`${dq.id}-line-${l.lineNumber}`)?.trim());
+  }
+
+  const del1Remaining = del1Questions.filter((dq) => {
+    if (dq.subtype === "nedtrekk") return !isNedtrekkAnswered(dq);
+    return !answers.has(dq.id);
+  }).length;
   const del2Remaining = del2Questions.filter((dq) => !isDel2Answered(dq)).length;
   const remaining = del1Remaining + del2Remaining;
 
@@ -202,12 +212,28 @@ function ExamPageInner() {
       "examResults",
       JSON.stringify({
         examSet,
-        del1Questions: del1Questions.map((question) => ({
-          id: question.id, topic: question.topic, stem: question.stem,
-          code: question.code, maxPoints: question.maxPoints, options: question.options,
-          source: question.source, selectedOptionIds: [...(answers.get(question.id) ?? [])],
-          score: scoreQuestion(question, [...(answers.get(question.id) ?? [])]),
-        })),
+        del1Questions: del1Questions.map((question) => {
+          if (question.subtype === "nedtrekk") {
+            const lines = question.nedtrekkLines?.filter(l => l.isQuestion) ?? [];
+            const total = lines.length;
+            const correct = lines.filter(l =>
+              del2TextAnswers.get(`${question.id}-line-${l.lineNumber}`) === l.correctAnswer
+            ).length;
+            const score = total > 0 ? Math.round((correct / total) * question.maxPoints * 10) / 10 : 0;
+            return {
+              id: question.id, topic: question.topic, stem: question.stem,
+              code: question.code, maxPoints: question.maxPoints, options: question.options,
+              source: question.source, selectedOptionIds: [],
+              score,
+            };
+          }
+          return {
+            id: question.id, topic: question.topic, stem: question.stem,
+            code: question.code, maxPoints: question.maxPoints, options: question.options,
+            source: question.source, selectedOptionIds: [...(answers.get(question.id) ?? [])],
+            score: scoreQuestion(question, [...(answers.get(question.id) ?? [])]),
+          };
+        }),
         del2Questions: del2Questions.map((question) => {
           const isSub = stemHasSubParts(question.stem);
           return {
@@ -270,7 +296,7 @@ function ExamPageInner() {
           )}
 
           {/* Del 1: multiple choice */}
-          {!isDel2 && (
+          {!isDel2 && !isNedtrekk && (
             <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: q.code ? "14px" : "0" }}>
               {q.options.map((opt, i) => (
                 <button
@@ -288,15 +314,61 @@ function ExamPageInner() {
             </div>
           )}
 
+          {/* Del 1: Nedtrekk — per-line dropdowns */}
+          {isNedtrekk && (
+            <div style={{ marginTop: "16px", display: "flex", flexDirection: "column", gap: "10px", ...enterStyle("55ms") }}>
+              {q.nedtrekkLines?.map((line) => {
+                const val = del2TextAnswers.get(`${q.id}-line-${line.lineNumber}`) ?? "";
+                return (
+                  <div key={line.lineNumber} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <span style={{
+                      fontFamily: "var(--font-mono)", fontSize: "12px",
+                      color: "var(--text-tertiary)", minWidth: "52px", flexShrink: 0,
+                    }}>
+                      Linje {line.lineNumber}:
+                    </span>
+                    <select
+                      value={val}
+                      onChange={(e) =>
+                        setDel2TextAnswers(prev => new Map(prev).set(`${q.id}-line-${line.lineNumber}`, e.target.value))
+                      }
+                      style={{
+                        flex: 1, padding: "7px 10px",
+                        borderRadius: "var(--radius-sm)",
+                        border: `1.5px solid ${val ? "var(--border)" : "var(--border)"}`,
+                        background: val ? "var(--surface)" : "var(--card)",
+                        fontFamily: "var(--font-sans)", fontSize: "13px",
+                        color: val ? "var(--text-primary)" : "var(--text-tertiary)",
+                        outline: "none", cursor: "pointer",
+                      }}
+                    >
+                      <option value="">Velg...</option>
+                      {q.nedtrekkOptions?.map(opt => (
+                        <option key={opt} value={opt}>{opt}</option>
+                      ))}
+                    </select>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
           {/* Del 2: text input(s) — grading happens after submission */}
           {isDel2 && (() => {
-            const isSubParts = stemHasSubParts(q.stem);
-            const textareaStyle: React.CSSProperties = {
+            const isCoding = q.subtype === "coding";
+            const isSubParts = !isCoding && stemHasSubParts(q.stem);
+            const baseTextareaStyle: React.CSSProperties = {
               width: "100%", boxSizing: "border-box",
               padding: "12px 14px", borderRadius: "var(--radius-sm)",
               border: "1.5px solid var(--border)", background: "var(--card)",
               fontFamily: "var(--font-sans)", fontSize: "14px", lineHeight: 1.6,
               color: "var(--text-primary)", resize: "vertical", outline: "none",
+            };
+            const codeTextareaStyle: React.CSSProperties = {
+              ...baseTextareaStyle,
+              fontFamily: "var(--font-mono)", fontSize: "13px", lineHeight: 1.6,
+              background: "#1a1b26", color: "#c0caf5", border: "1.5px solid #2a2b3d",
+              minHeight: "200px",
             };
             const labelStyle: React.CSSProperties = {
               fontSize: "12px", fontWeight: 700, fontFamily: "var(--font-mono)",
@@ -304,7 +376,16 @@ function ExamPageInner() {
             };
             return (
               <div style={{ marginTop: q.code ? "14px" : "0", ...enterStyle("55ms") }}>
-                {isSubParts ? (
+                {isCoding ? (
+                  <textarea
+                    value={del2TextAnswers.get(q.id) ?? ""}
+                    onChange={(e) => updateDel2Text(e.target.value)}
+                    placeholder="// Skriv C++-kode her..."
+                    rows={10}
+                    style={codeTextareaStyle}
+                    spellCheck={false}
+                  />
+                ) : isSubParts ? (
                   <>
                     <div style={{ marginBottom: "12px" }}>
                       <div style={labelStyle}>a)</div>
@@ -313,7 +394,7 @@ function ExamPageInner() {
                         onChange={(e) => updateDel2SubText("a", e.target.value)}
                         placeholder="Skriv svar på a)..."
                         rows={3}
-                        style={textareaStyle}
+                        style={baseTextareaStyle}
                       />
                     </div>
                     <div>
@@ -323,7 +404,7 @@ function ExamPageInner() {
                         onChange={(e) => updateDel2SubText("b", e.target.value)}
                         placeholder="Skriv svar på b)..."
                         rows={3}
-                        style={textareaStyle}
+                        style={baseTextareaStyle}
                       />
                     </div>
                   </>
@@ -333,7 +414,7 @@ function ExamPageInner() {
                     onChange={(e) => updateDel2Text(e.target.value)}
                     placeholder="Skriv svaret ditt..."
                     rows={4}
-                    style={textareaStyle}
+                    style={baseTextareaStyle}
                   />
                 )}
               </div>
@@ -376,7 +457,9 @@ function ExamPageInner() {
               const isDel2Q = aq.source === "del2";
               const isAnswered = isDel2Q
                 ? isDel2Answered(aq)
-                : answers.has(aq.id);
+                : aq.subtype === "nedtrekk"
+                  ? isNedtrekkAnswered(aq)
+                  : answers.has(aq.id);
               const dotClass = `nav-dot${isActive ? " active" : isFlagged ? " flagged" : isAnswered ? " answered" : ""}`;
               return (
                 <button
