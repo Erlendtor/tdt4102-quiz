@@ -380,6 +380,19 @@ function ExamPageInner() {
                   <textarea
                     value={del2TextAnswers.get(q.id) ?? ""}
                     onChange={(e) => updateDel2Text(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Tab") {
+                        e.preventDefault();
+                        const el = e.currentTarget;
+                        const start = el.selectionStart;
+                        const end = el.selectionEnd;
+                        const next = el.value.slice(0, start) + "    " + el.value.slice(end);
+                        updateDel2Text(next);
+                        requestAnimationFrame(() => {
+                          el.selectionStart = el.selectionEnd = start + 4;
+                        });
+                      }
+                    }}
                     placeholder="// Skriv C++-kode her..."
                     rows={10}
                     style={codeTextareaStyle}
