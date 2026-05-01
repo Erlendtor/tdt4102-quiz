@@ -4985,9 +4985,9 @@ for(int i = 2; i * i < n; i++) {
     maxPoints: 5,
     options: [
       { id: "a", text: "Hver try-blokk kan maks ha én catch setning.", isCorrect: false, explanation: "Feil. En try-blokk kan ha flere catch-setninger for ulike unntakstyper." },
-      { id: "b", text: "Når en catch setning tar en referanse med type std::exception som argument, fanger/håndterer den også unntak med datatyper som arver fra std::exception.", isCorrect: false, explanation: "Dette var markert som feil på eksamen." },
-      { id: "c", text: "Et unntak er en feil som oppstår mens programmet kompileres.", isCorrect: true, explanation: "Dette var markert som riktig på eksamen." },
-      { id: "d", text: "throw setninger kan bare brukes inni en try-blokk, eller en funksjon som kalles fra en try-blokk.", isCorrect: true, explanation: "Riktig. Et throw utenfor enhver try-blokk fører til at std::terminate() kalles." },
+      { id: "b", text: "Når en catch setning tar en referanse med type std::exception som argument, fanger/håndterer den også unntak med datatyper som arver fra std::exception.", isCorrect: true, explanation: "Riktig. catch(std::exception&) fanger alle unntak fra typer som arver fra std::exception, via C++ polymorfisme." },
+      { id: "c", text: "Et unntak er en feil som oppstår mens programmet kompileres.", isCorrect: false, explanation: "Feil. Unntak (exceptions) er et kjøretidsfenomen – de oppstår mens programmet kjører, ikke mens det kompileres. Kompilatoren oppdager syntaks- og typefeil, men ikke exceptions." },
+      { id: "d", text: "throw setninger kan bare brukes inni en try-blokk, eller en funksjon som kalles fra en try-blokk.", isCorrect: false, explanation: "Feil. throw kan syntaktisk brukes hvor som helst i koden. Hvis ingen try/catch fanger unntaket, kalles std::terminate() – men det er ikke en syntaktisk begrensning." },
     ],
   },
 
