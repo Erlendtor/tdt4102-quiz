@@ -19,7 +19,7 @@ const EXAM_SET_LABELS: Record<string, string> = {
   V24V1: "Eksamen Vår 2024 v1",
   V24V2: "Eksamen Vår 2024 v2",
   K24:   "Eksamen Sommer 2024",
-  INSP:  "Insperaøving 14. april",
+  INSP:  "Insperaøving 26",
   random: "Tilfeldig eksamen",
 };
 

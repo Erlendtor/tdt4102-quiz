@@ -19,7 +19,7 @@ const EXAM_SETS = [
   { key: "V24V1", label: "V24 – Vår 2024 (v1)", chip: "V24v1" },
   { key: "V24V2", label: "V24 – Vår 2024 (v2)", chip: "V24v2" },
   { key: "K24",   label: "K24 – Sommer 2024",   chip: "K24"   },
-  { key: "INSP",  label: "INSP – Insperaøving 14. april", chip: "INSP" },
+  { key: "INSP",  label: "INSP – Insperaøving 26", chip: "INSP" },
 ] as const;
 
 interface Props {
