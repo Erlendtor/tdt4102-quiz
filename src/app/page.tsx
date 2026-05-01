@@ -153,6 +153,14 @@ export default async function Home() {
         {/* Mode cards */}
         <HomeCardReveal>
 
+          {/* Eksamensmodus */}
+          <div className="exam-card-wrap" style={{ width: "100%" }}>
+            <ExamCardWithModal
+              hasSession={!!session?.user}
+              examSetGrades={examSetGrades}
+            />
+          </div>
+
           {/* Læringsmodus Del 1 */}
           <div className="top-card-wrap" style={cardWrapStyle}>
           <Link href="/learn" className="mode-card" style={cardStyle}>
@@ -213,14 +221,6 @@ export default async function Home() {
               <span className="card-cta">Start nå ⟶</span>
             </div>
           </Link>
-          </div>
-
-          {/* Eksamensmodus */}
-          <div className="exam-card-wrap" style={{ width: "100%" }}>
-            <ExamCardWithModal
-              hasSession={!!session?.user}
-              examSetGrades={examSetGrades}
-            />
           </div>
 
         </HomeCardReveal>
