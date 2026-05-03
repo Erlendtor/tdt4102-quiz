@@ -9,6 +9,7 @@ import { questions as allQuestions } from "@/lib/questions";
 import { getBucket } from "@/lib/scoring";
 import CodeBlock from "@/components/CodeBlock";
 import PageLoader from "@/components/PageLoader";
+import FireBar from "@/components/FireBar";
 
 type LearnMode = "input";
 type InputState = "answering" | "revealed";
@@ -87,6 +88,9 @@ function LearnDel2Inner() {
 
   const bucketDotRefs = useRef<Record<number, HTMLSpanElement | null>>({});
   const firstQuestionLoaded = useRef(false);
+  const [fireStreak, setFireStreak] = useState(0);
+  const [fireActivating, setFireActivating] = useState(false);
+  const prevOnFireRef = useRef(false);
 
   useEffect(() => {
     if (mode !== "input") return;
@@ -195,6 +199,7 @@ function LearnDel2Inner() {
         setSelectedGrade(null);
         setExiting(false);
         setEntering(true);
+        setFireStreak(prev => grade === "riktig" ? prev + 1 : 0);
         setTimeout(() => setEntering(false), 560);
       }, 110);
     }, 280);
@@ -206,6 +211,19 @@ function LearnDel2Inner() {
     2: activeQuestions.filter((q) => (progress.get(q.id)?.bucket ?? 0) === 2 && !masteredIds.has(q.id)).length,
     mastered: masteredIds.size,
   };
+
+  const isOnFire = fireStreak >= 3;
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (isOnFire && !prevOnFireRef.current) {
+      setFireActivating(true);
+      const t = setTimeout(() => setFireActivating(false), 700);
+      prevOnFireRef.current = true;
+      return () => clearTimeout(t);
+    }
+    if (!isOnFire) prevOnFireRef.current = false;
+  }, [isOnFire]);
 
   // ── DONE ────────────────────────────────────────────────────────────────────
   if (done) {
@@ -241,8 +259,30 @@ function LearnDel2Inner() {
   // ── INPUT MODE ──────────────────────────────────────────────────────────────
   return (
     <main className="page-shell-learn">
-      <div className="app-card app-card-learn" style={{ position: "relative" }}>
+      <div className="fire-wrap">
+
+        {isOnFire && (
+          <>
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 0, overflow: "visible", pointerEvents: "none", zIndex: 52 }}>
+              <FireBar />
+            </div>
+            <div style={{ position: "absolute", top: -24, left: 0, right: 0, display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", pointerEvents: "none", zIndex: 53, animation: "fire-label-in 0.45s cubic-bezier(0.34,1.56,0.64,1) both" }}>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", fontWeight: 700, letterSpacing: "0.22em", color: "#ff7700", animation: "fire-label-glow 1.3s ease-in-out 0.4s infinite" }}>
+                ON FIRE!
+              </span>
+              <span key={fireStreak} style={{ fontFamily: "var(--font-mono)", fontSize: "17px", fontWeight: 700, color: "#ffaa00", lineHeight: 1, animation: "fire-streak-pop 0.3s cubic-bezier(0.34,1.56,0.64,1) both, fire-label-glow 1.3s ease-in-out 0.3s infinite" }}>
+                {fireStreak}×
+              </span>
+            </div>
+          </>
+        )}
+
+        <div className={`app-card app-card-learn${isOnFire ? " on-fire" : ""}${fireActivating ? " on-fire-activating" : ""}`} style={{ position: "relative" }}>
         <PageLoader />
+
+        {fireActivating && (
+          <div style={{ position: "absolute", inset: 0, background: "rgba(255,80,0,0.1)", zIndex: 10, pointerEvents: "none", animation: "fire-flash 0.65s ease-out both" }} />
+        )}
 
         {/* Score badge — shown briefly after grading */}
         {scoreDisplay && (
@@ -404,6 +444,7 @@ function LearnDel2Inner() {
               );
             })}
           </div>
+        </div>
         </div>
       </div>
     </main>
