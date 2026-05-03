@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
+import VersionCheck from "@/components/VersionCheck";
 
 const ibmPlexSans = IBM_Plex_Sans({
   weight: ["300", "400", "500", "600"],
@@ -36,7 +37,10 @@ export default function RootLayout({
   return (
     <html lang="no" className={`${ibmPlexSans.variable} ${ibmPlexMono.variable}`}>
       <body>
-        <SessionProvider>{children}</SessionProvider>
+        <SessionProvider>
+          <VersionCheck />
+          {children}
+        </SessionProvider>
       </body>
     </html>
   );
