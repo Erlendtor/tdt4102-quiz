@@ -129,7 +129,7 @@ function LearnDel2Inner() {
     if (mode !== "input" || !current || firstQuestionLoaded.current) return;
     firstQuestionLoaded.current = true;
     setEntering(true);
-    const t = setTimeout(() => setEntering(false), 500);
+    const t = setTimeout(() => setEntering(false), 300);
     return () => clearTimeout(t);
   }, [mode, current]);
 
@@ -211,7 +211,7 @@ function LearnDel2Inner() {
           setFireStreak(newStreak);
           setFireWarning(newWarning);
         }
-        setTimeout(() => setEntering(false), 560);
+        setTimeout(() => setEntering(false), 300);
       }, 110);
     }, 280);
   }
@@ -306,20 +306,20 @@ function LearnDel2Inner() {
             <span className="tag">{current.topic}</span>
           </div>
 
-          <div style={{ marginBottom: "14px", ...(entering ? { animation: "slide-from-right 0.26s cubic-bezier(0.25, 0, 0.2, 1) both" } : {}) }}>
+          <div style={{ marginBottom: "14px", ...(entering ? { animation: "slide-from-right 0.15s cubic-bezier(0.25, 0, 0.2, 1) both" } : {}) }}>
             {current.stem.split("\n\n").map((part, i) => (
               <p key={i} className="heading-sm" style={{ marginTop: i > 0 ? "4px" : 0 }}>{part}</p>
             ))}
           </div>
 
           {current.code && (
-            <div style={entering ? { animation: "slide-from-right 0.26s cubic-bezier(0.25, 0, 0.2, 1) both", animationDelay: "35ms" } : {}}>
+            <div style={entering ? { animation: "slide-from-right 0.15s cubic-bezier(0.25, 0, 0.2, 1) both", animationDelay: "35ms" } : {}}>
               <CodeBlock code={current.code} />
             </div>
           )}
 
           {/* Textarea */}
-          <div style={{ marginTop: current.code ? "14px" : "0", ...(entering ? { animation: "slide-from-right 0.26s cubic-bezier(0.25, 0, 0.2, 1) both", animationDelay: "55ms" } : {}) }}>
+          <div style={{ marginTop: current.code ? "14px" : "0", ...(entering ? { animation: "slide-from-right 0.15s cubic-bezier(0.25, 0, 0.2, 1) both", animationDelay: "55ms" } : {}) }}>
             <textarea
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
