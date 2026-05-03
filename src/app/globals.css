@@ -767,13 +767,40 @@ body {
 }
 
 @keyframes flame-a {
-  0%   { transform: scaleX(1)    scaleY(1)    rotate(-1.5deg); filter: brightness(1);    }
-  100% { transform: scaleX(0.86) scaleY(1.09) rotate( 2.5deg); filter: brightness(1.18); }
+  0%   { transform: scaleX(1)    scaleY(1)    rotate(-2deg);  filter: brightness(1);    }
+  100% { transform: scaleX(0.82) scaleY(1.12) rotate( 3deg);  filter: brightness(1.22); }
 }
 
 @keyframes flame-b {
-  0%   { transform: scaleX(1)    scaleY(1)    rotate( 2deg); filter: brightness(1.12); }
-  100% { transform: scaleX(1.12) scaleY(0.92) rotate(-1deg); filter: brightness(0.96); }
+  0%   { transform: scaleX(1)    scaleY(1)    rotate( 2.5deg); filter: brightness(1.14); }
+  100% { transform: scaleX(1.16) scaleY(0.90) rotate(-1.5deg); filter: brightness(0.94); }
+}
+
+@keyframes flame-c {
+  0%   { transform: scaleX(0.96) scaleY(1.04) rotate(-3deg); filter: brightness(1.1);  }
+  50%  { transform: scaleX(1.08) scaleY(0.96) rotate( 1deg); filter: brightness(1);    }
+  100% { transform: scaleX(0.88) scaleY(1.1)  rotate( 4deg); filter: brightness(1.25); }
+}
+
+.app-card-learn.on-fire.on-fire-dim {
+  animation: fire-border-pulse-dim 2.2s ease-in-out infinite !important;
+}
+
+@keyframes fire-border-pulse-dim {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1.5px rgba(255,85,0,0.35),
+      0 0 0 1px rgba(255,255,255,0.04),
+      0 12px 48px rgba(0,0,0,0.5),
+      0 0 14px 3px rgba(255,80,0,0.15);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px rgba(255,130,0,0.5),
+      0 0 0 1px rgba(255,255,255,0.04),
+      0 12px 48px rgba(0,0,0,0.5),
+      0 0 24px 6px rgba(255,100,0,0.25);
+  }
 }
 
 @keyframes fire-label-in {

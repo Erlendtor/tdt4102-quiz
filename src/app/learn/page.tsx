@@ -179,6 +179,7 @@ function LearnPage() {
   const celebrationCanvasRef = useRef<HTMLCanvasElement>(null);
   const [resettingProgress, setResettingProgress] = useState(false);
   const [fireStreak, setFireStreak] = useState(0);
+  const [fireWarning, setFireWarning] = useState(false);
   const [fireActivating, setFireActivating] = useState(false);
   const [showOvingZero, setShowOvingZero] = useState(false);
   const prevOnFireRef = useRef(false);
@@ -397,7 +398,11 @@ function LearnPage() {
 
   function nextQuestion() {
     const pending = pendingUpdateRef.current;
-    const wasPerf = (pending?.newProgress.lastScore ?? 0) >= 100;
+    const lastScore = pending?.newProgress.lastScore ?? 0;
+    const wasPerf    = lastScore >= 100;
+    const wasPartial = !wasPerf && lastScore > 0;
+    const curStreak  = fireStreak;
+    const curWarning = fireWarning;
     const targetIdx = pending ? (pending.shouldMaster ? -1 : pending.bucket) : null;
     const dotEl = targetIdx !== null ? bucketDotRefs.current[targetIdx] : null;
     const scoreEl = scoreRef.current;
@@ -468,7 +473,14 @@ function LearnPage() {
         setHintOpen(false);
         setExiting(false);
         setEntering(true);
-        setFireStreak(prev => wasPerf ? prev + 1 : 0);
+        const newStreak = wasPerf
+          ? curStreak + 1
+          : (wasPartial && curStreak >= 3 && !curWarning)
+            ? curStreak   // first partial while on fire — keep streak
+            : 0;
+        const newWarning = !wasPerf && wasPartial && curStreak >= 3 && !curWarning;
+        setFireStreak(newStreak);
+        setFireWarning(newWarning);
         setTimeout(() => setEntering(false), 300);
       }, 110);
     }
@@ -667,24 +679,26 @@ function LearnPage() {
     <main className="page-shell-learn">
       <div className="fire-wrap">
 
-        {/* ON FIRE! decorations — outside the card so flames extend above */}
+        {/* Flames — behind the card (zIndex 0), card sits on top (zIndex 1) */}
         {isOnFire && (
-          <>
-            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 0, overflow: "visible", pointerEvents: "none", zIndex: 52 }}>
-              <FireBar />
-            </div>
-            <div style={{ position: "absolute", top: -24, left: 0, right: 0, display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", pointerEvents: "none", zIndex: 53, animation: "fire-label-in 0.45s cubic-bezier(0.34,1.56,0.64,1) both" }}>
-              <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", fontWeight: 700, letterSpacing: "0.22em", color: "#ff7700", animation: "fire-label-glow 1.3s ease-in-out 0.4s infinite" }}>
-                ON FIRE!
-              </span>
-              <span key={fireStreak} style={{ fontFamily: "var(--font-mono)", fontSize: "17px", fontWeight: 700, color: "#ffaa00", lineHeight: 1, animation: "fire-streak-pop 0.3s cubic-bezier(0.34,1.56,0.64,1) both, fire-label-glow 1.3s ease-in-out 0.3s infinite" }}>
-                {fireStreak}×
-              </span>
-            </div>
-          </>
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 0, overflow: "visible", pointerEvents: "none", zIndex: 0, opacity: fireWarning ? 0.38 : 1, transition: "opacity 0.5s ease" }}>
+            <FireBar />
+          </div>
         )}
 
-        <div className={`app-card app-card-learn${isOnFire ? " on-fire" : ""}${fireActivating ? " on-fire-activating" : ""}`} style={{ position: "relative" }}>
+        {/* ON FIRE! label — always in front */}
+        {isOnFire && (
+          <div style={{ position: "absolute", top: -24, left: 0, right: 0, display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", pointerEvents: "none", zIndex: 3, opacity: fireWarning ? 0.45 : 1, transition: "opacity 0.5s ease", animation: "fire-label-in 0.45s cubic-bezier(0.34,1.56,0.64,1) both" }}>
+            <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", fontWeight: 700, letterSpacing: "0.22em", color: "#ff7700", animation: "fire-label-glow 1.3s ease-in-out 0.4s infinite" }}>
+              ON FIRE!
+            </span>
+            <span key={fireStreak} style={{ fontFamily: "var(--font-mono)", fontSize: "17px", fontWeight: 700, color: "#ffaa00", lineHeight: 1, animation: "fire-streak-pop 0.3s cubic-bezier(0.34,1.56,0.64,1) both, fire-label-glow 1.3s ease-in-out 0.3s infinite" }}>
+              {fireStreak}×
+            </span>
+          </div>
+        )}
+
+        <div className={`app-card app-card-learn${isOnFire ? (fireWarning ? " on-fire on-fire-dim" : " on-fire") : ""}${fireActivating ? " on-fire-activating" : ""}`} style={{ position: "relative", zIndex: 1 }}>
         <PageLoader />
         <canvas ref={confettiCanvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 50 }} />
 
