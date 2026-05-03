@@ -668,7 +668,7 @@ function LearnPage() {
 
         {/* Flames — behind the card (zIndex 0), card sits on top (zIndex 1) */}
         {isOnFire && (
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 0, overflow: "visible", pointerEvents: "none", zIndex: 0, opacity: fireWarning ? 0.38 : 1, transition: "opacity 0.5s ease" }}>
+          <div style={{ position: "absolute", top: "220px", left: "-65px", right: "-65px", height: 0, overflow: "visible", pointerEvents: "none", zIndex: 0, opacity: fireWarning ? 0.38 : 1, transition: "opacity 0.5s ease" }}>
             <FireBar />
           </div>
         )}
