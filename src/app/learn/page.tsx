@@ -145,14 +145,11 @@ function LearnPage() {
   const [hintOpen, setHintOpen] = useState(false);
   const [exiting, setExiting] = useState(false);
   const [entering, setEntering] = useState(false);
-  const [pageLoaded, setPageLoaded] = useState(false);
-  const [contentVisible, setContentVisible] = useState(false);
   const [flyingScore, setFlyingScore] = useState<{
     sx: number; sy: number;
     label: string; color: string;
     keyframes: { transform: string; opacity: number; filter: string }[];
   } | null>(null);
-  const firstQuestionLoaded = useRef(false);
   const confettiCanvasRef = useRef<HTMLCanvasElement>(null);
   const flyingScoreRef = useRef<HTMLSpanElement>(null);
   const pendingUpdateRef = useRef<{
@@ -202,22 +199,6 @@ function LearnPage() {
     }
   }, [activeQuestions, current, progress, masteredIds]);
 
-  useEffect(() => {
-    const onLoaded = () => setPageLoaded(true);
-    window.addEventListener("page-loaded", onLoaded, { once: true });
-    return () => window.removeEventListener("page-loaded", onLoaded);
-  }, []);
-
-  useEffect(() => {
-    if (current && pageLoaded && !firstQuestionLoaded.current) {
-      firstQuestionLoaded.current = true;
-      // Batched: both fire in the same render so content never flashes un-animated
-      setContentVisible(true);
-      setEntering(true);
-      const t = setTimeout(() => setEntering(false), 560);
-      return () => clearTimeout(t);
-    }
-  }, [current, pageLoaded]);
 
   useEffect(() => {
     if (done) fireConfetti(confettiCanvasRef.current!);
@@ -448,7 +429,7 @@ function LearnPage() {
         setHintOpen(false);
         setExiting(false);
         setEntering(true);
-        setTimeout(() => setEntering(false), 560);
+        setTimeout(() => setEntering(false), 300);
       }, 110);
     }
 
@@ -679,12 +660,12 @@ function LearnPage() {
         )}
 
         {/* Question area */}
-        <div className={`question-content${exiting ? " exiting" : ""}`} style={{ flex: 1, overflowY: "auto", padding: "20px 20px 16px", opacity: contentVisible ? 1 : 0 }}>
+        <div className={`question-content${exiting ? " exiting" : ""}`} style={{ flex: 1, overflowY: "auto", padding: "20px 20px 16px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px", flexWrap: "wrap" }}>
             <span className="tag">{current.topic}</span>
           </div>
 
-          <div style={{ marginBottom: "14px", ...(entering ? { animation: "slide-from-right 0.26s cubic-bezier(0.25, 0, 0.2, 1) both" } : {}) }}>
+          <div style={{ marginBottom: "14px", ...(entering ? { animation: "slide-from-right 0.15s cubic-bezier(0.25, 0, 0.2, 1) both" } : {}) }}>
             {current.stem.split("\n\n").map((part, i) => (
               <p key={i} className="heading-sm" style={{ marginTop: i > 0 ? "4px" : 0 }}>
                 {part}
@@ -693,7 +674,7 @@ function LearnPage() {
           </div>
 
           {current.code && (
-            <div style={entering ? { animation: "slide-from-right 0.26s cubic-bezier(0.25, 0, 0.2, 1) both", animationDelay: "35ms" } : {}}>
+            <div style={entering ? { animation: "slide-from-right 0.15s cubic-bezier(0.25, 0, 0.2, 1) both", animationDelay: "35ms" } : {}}>
               <CodeBlock
                 code={state === "revealed" && score < current.maxPoints && current.codeAnnotated
                   ? current.codeAnnotated
@@ -777,7 +758,7 @@ function LearnPage() {
                   style={{
                     position: "relative",
                     cursor: state === "answering" ? "pointer" : "default",
-                    ...(entering ? { animation: "slide-from-right 0.26s cubic-bezier(0.25, 0, 0.2, 1) both", animationDelay: `${55 + i * 32}ms` } : {}),
+                    ...(entering ? { animation: "slide-from-right 0.15s cubic-bezier(0.25, 0, 0.2, 1) both", animationDelay: `${55 + i * 32}ms` } : {}),
                   }}
                 >
                   <div className={checkClass(opt.id)} style={{ flexShrink: 0 }}>

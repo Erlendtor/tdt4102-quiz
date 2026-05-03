@@ -446,7 +446,7 @@ body {
   to   { opacity: 1; transform: translateY(0); }
 }
 .page-enter {
-  animation: page-enter 0.32s cubic-bezier(0.25, 0, 0.2, 1) both;
+  animation: page-enter 0.18s cubic-bezier(0.25, 0, 0.2, 1) both;
 }
 
 /* Question content: fade out on exit, fade in on enter */
@@ -542,13 +542,13 @@ body {
   opacity: 0;
 }
 .cards-revealed > div:nth-child(1) .mode-card {
-  animation: page-enter 0.32s cubic-bezier(0.25, 0, 0.2, 1) both;
+  animation: page-enter 0.18s cubic-bezier(0.25, 0, 0.2, 1) both;
 }
 .cards-revealed > div:nth-child(2) .mode-card {
-  animation: page-enter 0.32s cubic-bezier(0.25, 0, 0.2, 1) 80ms both;
+  animation: page-enter 0.18s cubic-bezier(0.25, 0, 0.2, 1) 80ms both;
 }
 .cards-revealed > div:nth-child(3) .mode-card {
-  animation: page-enter 0.32s cubic-bezier(0.25, 0, 0.2, 1) 160ms both;
+  animation: page-enter 0.18s cubic-bezier(0.25, 0, 0.2, 1) 160ms both;
 }
 
 .card-image {
