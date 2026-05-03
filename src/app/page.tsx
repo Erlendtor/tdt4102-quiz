@@ -67,6 +67,8 @@ export default async function Home() {
   let bucketStats: BucketStats | null = null;
   let examSetGrades: Record<string, string[]> = {};
 
+  const del1Questions = questions.filter((q) => q.source !== "del2");
+
   if (session?.user?.id) {
     const [progressData, examResults] = await Promise.all([
       prisma.questionProgress.findMany({
@@ -81,16 +83,19 @@ export default async function Home() {
       }),
     ]);
 
+    const del1Ids = new Set(del1Questions.map((q) => q.id));
+    const del1Progress = progressData.filter((p) => del1Ids.has(p.questionId));
+
     const masteredIds = new Set(
-      progressData
+      del1Progress
         .filter((p) => p.bucket === 2 && p.timesInBucket2 >= 2)
         .map((p) => p.questionId)
     );
-    const notAttempted = Math.max(0, questions.length - progressData.length);
+    const notAttempted = Math.max(0, del1Questions.length - del1Progress.length);
     bucketStats = {
-      0: notAttempted + progressData.filter((p) => p.bucket === 0 && !masteredIds.has(p.questionId)).length,
-      1: progressData.filter((p) => p.bucket === 1 && !masteredIds.has(p.questionId)).length,
-      2: progressData.filter((p) => p.bucket === 2 && !masteredIds.has(p.questionId)).length,
+      0: notAttempted + del1Progress.filter((p) => p.bucket === 0 && !masteredIds.has(p.questionId)).length,
+      1: del1Progress.filter((p) => p.bucket === 1 && !masteredIds.has(p.questionId)).length,
+      2: del1Progress.filter((p) => p.bucket === 2 && !masteredIds.has(p.questionId)).length,
       mastered: masteredIds.size,
     };
 
@@ -163,7 +168,7 @@ export default async function Home() {
             <LearnDel1Card
               isLoggedIn={!!session?.user}
               bucketStats={bucketStats}
-              questionCount={questions.length}
+              questionCount={del1Questions.length}
             />
           </div>
 
