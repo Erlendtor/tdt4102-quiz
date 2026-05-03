@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { questions } from "@/lib/questions";
 
 export async function GET() {
   const session = await auth();
@@ -36,4 +37,15 @@ export async function POST(req: Request) {
     },
   });
   return NextResponse.json(record);
+}
+
+export async function DELETE() {
+  const session = await auth();
+  if (!session?.user?.id) return NextResponse.json({}, { status: 401 });
+
+  const del1Ids = questions.filter((q) => q.source !== "del2").map((q) => q.id);
+  await prisma.questionProgress.deleteMany({
+    where: { userId: session.user.id, questionId: { in: del1Ids } },
+  });
+  return NextResponse.json({ ok: true });
 }

@@ -9,12 +9,7 @@ import HomeFooter from "@/components/HomeFooter";
 import HomeLoader from "@/components/HomeLoader";
 import HomeCardReveal from "@/components/HomeCardReveal";
 import ExamCardWithModal from "@/components/ExamCardWithModal";
-
-const BUCKET_ITEMS = [
-  { color: "var(--wrong)",    label: "Øving",  key: 0  },
-  { color: "var(--correct)",  label: "Klart",  key: 2  },
-  { color: "var(--mastered)", label: "Ferdig", key: -1 },
-] as const;
+import LearnDel1Card from "@/components/LearnDel1Card";
 
 const GRADE_COLORS: Record<string, string> = {
   A: "var(--correct)",
@@ -165,43 +160,11 @@ export default async function Home() {
 
           {/* Læringsmodus Del 1 */}
           <div className="top-card-wrap" style={cardWrapStyle}>
-          <Link href="/learn" className="mode-card" style={cardStyle}>
-            <div className="card-image">
-              <Image src="/øving3.jpg" alt="Læringsmodus Del 1" fill sizes="50vw" style={{ objectFit: "cover" }} />
-            </div>
-
-            <div className="card-glass" style={glassStyle}>
-              <div className="card-glass-content">
-                <div style={{ fontSize: "25px", fontWeight: 700, letterSpacing: "-0.3px", lineHeight: 1.2, color: "var(--text-primary)", marginBottom: "4px" }}>
-                  Læringsmodus Del 1
-                </div>
-                <p style={{ fontSize: "14px", lineHeight: 1.4, color: "var(--text-secondary)", marginBottom: "14px" }}>
-                  Tilbakemeldinger underveis + forklaringer
-                </p>
-
-                {bucketStats ? (
-                  <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", rowGap: "6px" }}>
-                    {BUCKET_ITEMS.map(({ color, label, key }) => {
-                      const count = key === -1 ? bucketStats!.mastered : bucketStats![key as 0 | 1 | 2];
-                      return (
-                        <span key={label} style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                          <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: color, flexShrink: 0, display: "inline-block" }} />
-                          <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--text-secondary)", whiteSpace: "nowrap" }}>
-                            {label} <strong style={{ color: "var(--text-primary)", fontWeight: 600 }}>{count}</strong>
-                          </span>
-                        </span>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--text-tertiary)" }}>
-                    {questions.length} spørsmål
-                  </span>
-                )}
-              </div>
-              <span className="card-cta">Start nå ⟶</span>
-            </div>
-          </Link>
+            <LearnDel1Card
+              isLoggedIn={!!session?.user}
+              bucketStats={bucketStats}
+              questionCount={questions.length}
+            />
           </div>
 
           {/* Læringsmodus Del 2 */}

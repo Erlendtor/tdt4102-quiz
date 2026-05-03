@@ -135,6 +135,7 @@ function LearnPage() {
   const [masteredIds, setMasteredIds] = useState<Set<string>>(new Set());
   const [current, setCurrent] = useState<Question | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [nedtrekkAnswers, setNedtrekkAnswers] = useState<Map<number, string>>(new Map());
   const [state, setState] = useState<State>("answering");
   const [score, setScore] = useState<number>(0);
   const [done, setDone] = useState(false);
@@ -259,11 +260,31 @@ function LearnPage() {
   }
 
   function checkAnswer() {
-    if (!current || selected.size === 0) return;
+    if (!current) return;
+    const isNedtrekk = current.subtype === "nedtrekk";
+    if (!isNedtrekk && selected.size === 0) return;
+    if (isNedtrekk && nedtrekkAnswers.size === 0) return;
+
     scoreHiddenRef.current = false;
-    flipTops.current = optionRefs.current.map(el => el?.getBoundingClientRect().top ?? 0);
-    const pct = scorePercent(current, [...selected]);
-    const rawScore = scoreQuestion(current, [...selected]);
+
+    let pct: number;
+    let rawScore: number;
+
+    if (isNedtrekk) {
+      const lines = current.nedtrekkLines ?? [];
+      const pointsPerLine = lines.length > 0 ? current.maxPoints / lines.length : 0;
+      let s = 0;
+      for (const line of lines) {
+        if (nedtrekkAnswers.get(line.lineNumber) === line.correctAnswer) s += pointsPerLine;
+      }
+      rawScore = Math.round(s * 100) / 100;
+      pct = lines.length > 0 ? (rawScore / current.maxPoints) * 100 : 0;
+    } else {
+      flipTops.current = optionRefs.current.map(el => el?.getBoundingClientRect().top ?? 0);
+      pct = scorePercent(current, [...selected]);
+      rawScore = scoreQuestion(current, [...selected]);
+    }
+
     setScore(rawScore);
     setState("revealed");
     if (rawScore === current.maxPoints) fireConfetti(confettiCanvasRef.current!, true);
@@ -290,13 +311,15 @@ function LearnPage() {
       shouldMaster: bucket === 2 && newTimes >= 2,
     };
 
-    // Default open: wrong selections + correct answers the user missed
-    const defaultOpen = new Set(
-      current.options
-        .filter((o) => (!o.isCorrect && selected.has(o.id)) || (o.isCorrect && !selected.has(o.id)))
-        .map((o) => o.id)
-    );
-    setOpenExplanations(defaultOpen);
+    if (!isNedtrekk) {
+      // Default open: wrong selections + correct answers the user missed
+      const defaultOpen = new Set(
+        current.options
+          .filter((o) => (!o.isCorrect && selected.has(o.id)) || (o.isCorrect && !selected.has(o.id)))
+          .map((o) => o.id)
+      );
+      setOpenExplanations(defaultOpen);
+    }
   }
 
   function nextQuestion() {
@@ -365,6 +388,7 @@ function LearnPage() {
         );
         setCurrent(next ? shuffleOptions(next) : null);
         setSelected(new Set());
+        setNedtrekkAnswers(new Map());
         setState("answering");
         setOpenExplanations(new Set());
         setHintOpen(false);
@@ -442,6 +466,7 @@ function LearnPage() {
       const next = pickNextQuestion(activeQuestions, progress, masteredIds);
       setCurrent(next ? shuffleOptions(next) : null);
       setSelected(new Set());
+      setNedtrekkAnswers(new Map());
       setState("answering");
       setOpenExplanations(new Set());
       setHintOpen(false);
@@ -581,7 +606,67 @@ function LearnPage() {
             </div>
           )}
 
+          {/* Nedtrekk (dropdown) questions */}
+          {current.subtype === "nedtrekk" && (
+            <div style={{ marginTop: "16px", display: "flex", flexDirection: "column", gap: "10px" }}>
+              {current.nedtrekkLines?.map((line) => {
+                const val = nedtrekkAnswers.get(line.lineNumber) ?? "";
+                const isRevealed = state === "revealed";
+                const isCorrect = val === line.correctAnswer;
+                return (
+                  <div key={line.lineNumber} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "12px", color: "var(--text-tertiary)", minWidth: "52px", flexShrink: 0 }}>
+                      Linje {line.lineNumber}:
+                    </span>
+                    {isRevealed ? (
+                      <div style={{
+                        flex: 1, padding: "7px 10px",
+                        borderRadius: "var(--radius-sm)",
+                        border: `1.5px solid ${isCorrect ? "var(--correct)" : "var(--wrong)"}`,
+                        background: isCorrect ? "rgba(48,209,88,0.08)" : "rgba(255,69,58,0.06)",
+                        fontFamily: "var(--font-sans)", fontSize: "13px",
+                        color: isCorrect ? "var(--correct)" : "var(--text-primary)",
+                      }}>
+                        {isCorrect ? val : (
+                          <span>
+                            <span style={{ color: "var(--wrong)", textDecoration: "line-through", opacity: 0.7 }}>
+                              {val || "Ikke valgt"}
+                            </span>
+                            <span style={{ color: "var(--text-tertiary)", margin: "0 6px" }}>→</span>
+                            <span style={{ color: "var(--correct)" }}>{line.correctAnswer}</span>
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <select
+                        value={val}
+                        onChange={(e) =>
+                          setNedtrekkAnswers((prev) => new Map(prev).set(line.lineNumber, e.target.value))
+                        }
+                        style={{
+                          flex: 1, padding: "7px 10px",
+                          borderRadius: "var(--radius-sm)",
+                          border: "1.5px solid var(--border)",
+                          background: val ? "var(--surface)" : "var(--card)",
+                          fontFamily: "var(--font-sans)", fontSize: "13px",
+                          color: val ? "var(--text-primary)" : "var(--text-tertiary)",
+                          outline: "none", cursor: "pointer",
+                        }}
+                      >
+                        <option value="">Velg...</option>
+                        {current.nedtrekkOptions?.map((opt) => (
+                          <option key={opt} value={opt}>{opt}</option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
           {/* Options */}
+          {current.subtype !== "nedtrekk" && (
           <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: current.code ? "14px" : "0" }}>
             {current.options.map((opt, i) => {
               const isCorrect = correctIds.has(opt.id);
@@ -672,6 +757,7 @@ function LearnPage() {
               );
             })}
           </div>
+          )}
 
           {/* Hint toggle — only shown while answering */}
           {state === "answering" && current.hint && (
@@ -734,7 +820,12 @@ function LearnPage() {
             </Link>
 
             {state === "answering" ? (
-              <button onClick={checkAnswer} disabled={selected.size === 0} className="btn-primary" style={{ flex: 1 }}>
+              <button
+                onClick={checkAnswer}
+                disabled={current.subtype === "nedtrekk" ? nedtrekkAnswers.size === 0 : selected.size === 0}
+                className="btn-primary"
+                style={{ flex: 1 }}
+              >
                 Sjekk svar
               </button>
             ) : (
