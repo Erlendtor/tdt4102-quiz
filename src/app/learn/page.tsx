@@ -675,7 +675,7 @@ function LearnPage() {
 
         {/* ON FIRE! label — always in front */}
         {isOnFire && (
-          <div style={{ position: "absolute", top: -24, left: 0, right: 0, display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", pointerEvents: "none", zIndex: 3, opacity: fireWarning ? 0.45 : 1, transition: "opacity 0.5s ease", animation: "fire-label-in 0.45s cubic-bezier(0.34,1.56,0.64,1) both" }}>
+          <div className="fire-label" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", pointerEvents: "none", zIndex: 3, opacity: fireWarning ? 0.45 : 1, transition: "opacity 0.5s ease", animation: "fire-label-in 0.45s cubic-bezier(0.34,1.56,0.64,1) both" }}>
             <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", fontWeight: 700, letterSpacing: "0.22em", color: "#ff7700", animation: "fire-label-glow 1.3s ease-in-out 0.4s infinite" }}>
               ON FIRE!
             </span>
