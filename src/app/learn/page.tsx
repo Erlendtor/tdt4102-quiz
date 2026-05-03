@@ -715,9 +715,12 @@ function LearnPage() {
             <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 0, overflow: "visible", pointerEvents: "none", zIndex: 52 }}>
               <FireBar />
             </div>
-            <div style={{ position: "absolute", top: -24, left: 0, right: 0, textAlign: "center", pointerEvents: "none", zIndex: 53, animation: "fire-label-in 0.45s cubic-bezier(0.34,1.56,0.64,1) both" }}>
+            <div style={{ position: "absolute", top: -24, left: 0, right: 0, display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", pointerEvents: "none", zIndex: 53, animation: "fire-label-in 0.45s cubic-bezier(0.34,1.56,0.64,1) both" }}>
               <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", fontWeight: 700, letterSpacing: "0.22em", color: "#ff7700", animation: "fire-label-glow 1.3s ease-in-out 0.4s infinite" }}>
                 ON FIRE!
+              </span>
+              <span key={fireStreak} style={{ fontFamily: "var(--font-mono)", fontSize: "17px", fontWeight: 700, color: "#ffaa00", lineHeight: 1, animation: "fire-streak-pop 0.3s cubic-bezier(0.34,1.56,0.64,1) both, fire-label-glow 1.3s ease-in-out 0.3s infinite" }}>
+                {fireStreak}×
               </span>
             </div>
           </>
