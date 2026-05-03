@@ -3,7 +3,7 @@
 import { useState, useEffect, useLayoutEffect, useRef, Suspense } from "react";
 import confetti from "canvas-confetti";
 import { useSession } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Question, QuestionProgress } from "@/types";
 import { scoreQuestion, scorePercent, getBucket } from "@/lib/scoring";
 import { questions as allQuestions } from "@/lib/questions";
@@ -167,6 +167,8 @@ function LearnPage() {
   const twinPriorityRef = useRef<string | null>(null);
   const blockedIdsRef = useRef<Set<string>>(new Set());
   const twinMapRef = useRef<Map<string, string>>(new Map());
+  const celebrationCanvasRef = useRef<HTMLCanvasElement>(null);
+  const [resettingProgress, setResettingProgress] = useState(false);
 
   useEffect(() => {
     const pool = isDel2
@@ -235,12 +237,54 @@ function LearnPage() {
     });
   }, [state]);
 
+  const router = useRouter();
+
+  // Group-based mastery: a variant group is mastered if any question in it is mastered.
+  // This makes in-game counts consistent with twin questions and with the homepage.
+  const masteredVariantGroups = new Set(
+    allQuestions.filter(q => masteredIds.has(q.id)).map(q => q.variantGroupId)
+  );
+  const isGroupMastered = (q: Question) => masteredVariantGroups.has(q.variantGroupId);
+
   const bucketCounts = {
-    0: activeQuestions.filter((q) => (progress.get(q.id)?.bucket ?? 0) === 0 && !masteredIds.has(q.id)).length,
-    1: activeQuestions.filter((q) => (progress.get(q.id)?.bucket ?? 0) === 1 && !masteredIds.has(q.id)).length,
-    2: activeQuestions.filter((q) => (progress.get(q.id)?.bucket ?? 0) === 2 && !masteredIds.has(q.id)).length,
-    mastered: masteredIds.size,
+    0: activeQuestions.filter((q) => (progress.get(q.id)?.bucket ?? 0) === 0 && !isGroupMastered(q)).length,
+    1: activeQuestions.filter((q) => (progress.get(q.id)?.bucket ?? 0) === 1 && !isGroupMastered(q)).length,
+    2: activeQuestions.filter((q) => (progress.get(q.id)?.bucket ?? 0) === 2 && !isGroupMastered(q)).length,
+    mastered: activeQuestions.filter(isGroupMastered).length,
   };
+
+  const isAllDone = done || (activeQuestions.length > 0 && activeQuestions.every(isGroupMastered));
+
+  useEffect(() => {
+    if (!isAllDone) return;
+    const canvas = celebrationCanvasRef.current;
+    if (!canvas) return;
+    const fire = confetti.create(canvas, { resize: true });
+    const endTime = Date.now() + 10000;
+    const interval = setInterval(() => {
+      if (Date.now() >= endTime) { clearInterval(interval); return; }
+      [
+        { x: Math.random(), y: Math.random() * 0.65 },
+        { x: Math.random(), y: Math.random() * 0.65 },
+        { x: Math.random(), y: Math.random() * 0.65 },
+      ].forEach(origin => {
+        fire({
+          particleCount: 90,
+          angle: Math.random() * 360,
+          spread: 140,
+          startVelocity: 30 + Math.random() * 35,
+          origin,
+          colors: CONFETTI_COLORS,
+          shapes: ["square", "circle"],
+          gravity: 0.55,
+          scalar: 0.85 + Math.random() * 0.7,
+          ticks: 320,
+          drift: (Math.random() - 0.5) * 0.8,
+        });
+      });
+    }, 220);
+    return () => clearInterval(interval);
+  }, [isAllDone]);
 
   function toggleOption(id: string) {
     if (state === "revealed") return;
@@ -474,18 +518,60 @@ function LearnPage() {
     }, 140);
   }
 
-  if (done || (activeQuestions.length > 0 && masteredIds.size >= activeQuestions.length)) {
+  if (isAllDone) {
+    const handleResetProgress = async () => {
+      setResettingProgress(true);
+      try {
+        await fetch("/api/progress", { method: "DELETE" });
+        router.push("/");
+      } finally {
+        setResettingProgress(false);
+      }
+    };
+
     return (
-      <main className="page-shell">
-        <div className="app-card">
-          <div style={{ padding: "48px 28px", textAlign: "center" }}>
-            <h2 className="heading-lg" style={{ marginBottom: "8px" }}>Alle spørsmål mestret</h2>
-            <p className="body-text" style={{ marginBottom: "28px" }}>
-              Du har gått gjennom alle {activeQuestions.length} spørsmålene.
-            </p>
-            <Link href="/" className="btn-primary" style={{ maxWidth: "220px", margin: "0 auto" }}>
-              Tilbake til start
-            </Link>
+      <main className="page-shell-learn">
+        <div className="app-card app-card-learn" style={{ position: "relative", overflow: "hidden" }}>
+          <canvas
+            ref={celebrationCanvasRef}
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 1 }}
+          />
+          <div style={{
+            position: "absolute", inset: 0, display: "flex",
+            alignItems: "center", justifyContent: "center",
+            zIndex: 10, padding: "20px",
+          }}>
+            <div style={{
+              background: "var(--card)",
+              borderRadius: "var(--radius-lg)",
+              padding: "28px 24px",
+              maxWidth: "320px",
+              width: "100%",
+              boxShadow: "0 24px 80px rgba(0,0,0,0.5)",
+              textAlign: "center",
+            }}>
+              <div style={{ fontSize: "17px", fontWeight: 700, letterSpacing: "-0.2px", color: "var(--text-primary)", marginBottom: "10px", lineHeight: 1.3 }}>
+                Du har lært deg alle læringskortene.
+              </div>
+              <p style={{ fontSize: "13px", color: "var(--text-secondary)", marginBottom: "20px", lineHeight: 1.5 }}>
+                Alle {activeQuestions.length} spørsmål er mestret.
+              </p>
+              <div style={{ display: "flex", gap: "8px" }}>
+                <Link href="/" className="btn-secondary" style={{ flex: 1, textAlign: "center" }}>
+                  Hjem
+                </Link>
+                {session?.user?.id && (
+                  <button
+                    className="btn-primary"
+                    onClick={handleResetProgress}
+                    disabled={resettingProgress}
+                    style={{ flex: 1, background: "var(--wrong)" }}
+                  >
+                    {resettingProgress ? "Resetter..." : "Reset kortstokk"}
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </main>

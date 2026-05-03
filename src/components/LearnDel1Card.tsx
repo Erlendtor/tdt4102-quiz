@@ -103,25 +103,11 @@ export default function LearnDel1Card({ isLoggedIn, bucketStats, questionCount }
         {/* Transparent link overlay — covers the full card, behind the reset button */}
         <Link href="/learn" style={{ position: "absolute", inset: 0, zIndex: 1 }} aria-label="Start Læringsmodus Del 1" />
 
-        {/* Reset link — only for logged-in users, sits on top of the Link overlay */}
+        {/* Reset link — only for logged-in users, slides up on hover like "Start nå" */}
         {isLoggedIn && (
           <button
+            className="card-reset"
             onClick={(e) => { e.stopPropagation(); setShowConfirm(true); }}
-            style={{
-              position: "absolute",
-              bottom: "10px",
-              left: "16px",
-              zIndex: 2,
-              background: "none",
-              border: "none",
-              padding: 0,
-              cursor: "pointer",
-              fontSize: "11px",
-              color: "var(--wrong)",
-              textDecoration: "underline",
-              fontFamily: "var(--font-sans)",
-              lineHeight: 1,
-            }}
           >
             reset
           </button>

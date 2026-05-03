@@ -85,18 +85,33 @@ export default async function Home() {
 
     const del1Ids = new Set(del1Questions.map((q) => q.id));
     const del1Progress = progressData.filter((p) => del1Ids.has(p.questionId));
+    const del1ProgressMap = new Map(del1Progress.map((p) => [p.questionId, p]));
 
-    const masteredIds = new Set(
-      del1Progress
-        .filter((p) => p.bucket === 2 && p.timesInBucket2 >= 2)
-        .map((p) => p.questionId)
-    );
-    const notAttempted = Math.max(0, del1Questions.length - del1Progress.length);
+    // Group-based counting: one entry per variant group (same logic as learn page)
+    const del1ByGroup = new Map<string, string[]>();
+    for (const q of del1Questions) {
+      const ids = del1ByGroup.get(q.variantGroupId) ?? [];
+      ids.push(q.id);
+      del1ByGroup.set(q.variantGroupId, ids);
+    }
+
+    let masteredGroups = 0, klartGroups = 0, ovingGroups = 0;
+    for (const [, ids] of del1ByGroup) {
+      const records = ids.map((id) => del1ProgressMap.get(id));
+      if (records.some((r) => r && r.bucket === 2 && r.timesInBucket2 >= 2)) {
+        masteredGroups++;
+      } else if (records.some((r) => r && r.bucket === 2)) {
+        klartGroups++;
+      } else {
+        ovingGroups++;
+      }
+    }
+
     bucketStats = {
-      0: notAttempted + del1Progress.filter((p) => p.bucket === 0 && !masteredIds.has(p.questionId)).length,
-      1: del1Progress.filter((p) => p.bucket === 1 && !masteredIds.has(p.questionId)).length,
-      2: del1Progress.filter((p) => p.bucket === 2 && !masteredIds.has(p.questionId)).length,
-      mastered: masteredIds.size,
+      0: ovingGroups,
+      1: 0,
+      2: klartGroups,
+      mastered: masteredGroups,
     };
 
     for (const r of examResults) {
