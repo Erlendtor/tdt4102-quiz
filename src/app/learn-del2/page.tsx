@@ -10,6 +10,7 @@ import { getBucket } from "@/lib/scoring";
 import CodeBlock from "@/components/CodeBlock";
 import PageLoader from "@/components/PageLoader";
 import FireBar from "@/components/FireBar";
+import { useFireStreak } from "@/hooks/useFireStreak";
 
 type LearnMode = "input";
 type InputState = "answering" | "revealed";
@@ -88,10 +89,8 @@ function LearnDel2Inner() {
 
   const bucketDotRefs = useRef<Record<number, HTMLSpanElement | null>>({});
   const firstQuestionLoaded = useRef(false);
-  const [fireStreak, setFireStreak] = useState(0);
-  const [fireWarning, setFireWarning] = useState(false);
-  const [fireActivating, setFireActivating] = useState(false);
-  const prevOnFireRef = useRef(false);
+  const { fireStreak, fireWarning, fireActivating, isOnFire,
+          setFireStreak, setFireWarning } = useFireStreak("del2");
 
   useEffect(() => {
     if (mode !== "input") return;
@@ -223,19 +222,6 @@ function LearnDel2Inner() {
     2: activeQuestions.filter((q) => (progress.get(q.id)?.bucket ?? 0) === 2 && !masteredIds.has(q.id)).length,
     mastered: masteredIds.size,
   };
-
-  const isOnFire = fireStreak >= 3;
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    if (isOnFire && !prevOnFireRef.current) {
-      setFireActivating(true);
-      const t = setTimeout(() => setFireActivating(false), 700);
-      prevOnFireRef.current = true;
-      return () => clearTimeout(t);
-    }
-    if (!isOnFire) prevOnFireRef.current = false;
-  }, [isOnFire]);
 
   // ── DONE ────────────────────────────────────────────────────────────────────
   if (done) {

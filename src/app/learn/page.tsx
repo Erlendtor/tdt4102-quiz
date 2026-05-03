@@ -11,6 +11,7 @@ import CodeBlock from "@/components/CodeBlock";
 import Link from "next/link";
 import PageLoader from "@/components/PageLoader";
 import FireBar from "@/components/FireBar";
+import { useFireStreak } from "@/hooks/useFireStreak";
 
 type State = "answering" | "revealed";
 
@@ -178,11 +179,9 @@ function LearnPage() {
   const twinMapRef = useRef<Map<string, string>>(new Map());
   const celebrationCanvasRef = useRef<HTMLCanvasElement>(null);
   const [resettingProgress, setResettingProgress] = useState(false);
-  const [fireStreak, setFireStreak] = useState(0);
-  const [fireWarning, setFireWarning] = useState(false);
-  const [fireActivating, setFireActivating] = useState(false);
+  const { fireStreak, fireWarning, fireActivating, isOnFire,
+          setFireStreak, setFireWarning } = useFireStreak("del1");
   const [showOvingZero, setShowOvingZero] = useState(false);
-  const prevOnFireRef = useRef(false);
   const prevOvingRef = useRef(-1);
 
   useEffect(() => {
@@ -292,18 +291,6 @@ function LearnPage() {
     }, 220);
     return () => clearInterval(interval);
   }, [isAllDone]);
-
-  const isOnFire = fireStreak >= 3;
-
-  useEffect(() => {
-    if (isOnFire && !prevOnFireRef.current) {
-      setFireActivating(true);
-      const t = setTimeout(() => setFireActivating(false), 700);
-      prevOnFireRef.current = true;
-      return () => clearTimeout(t);
-    }
-    if (!isOnFire) prevOnFireRef.current = false;
-  }, [isOnFire]);
 
   const ovingCount = bucketCounts[0];
   useEffect(() => {
