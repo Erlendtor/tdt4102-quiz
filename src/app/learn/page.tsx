@@ -24,11 +24,19 @@ function pickNextQuestion(
   priorityId?: string | null,
   blocked?: Set<string>
 ): Question | null {
+  // Expand mastery to whole variant group: if any twin is mastered, the whole group is done.
+  const masteredGroups = new Set<string>();
+  for (const id of masteredIds) {
+    const q = allQuestions.find(x => x.id === id);
+    if (q) masteredGroups.add(q.variantGroupId);
+  }
+  const isMastered = (q: Question) => masteredIds.has(q.id) || masteredGroups.has(q.variantGroupId);
+
   if (priorityId) {
-    const p = allQs.find((q) => q.id === priorityId && !masteredIds.has(q.id));
+    const p = allQs.find((q) => q.id === priorityId && !isMastered(q));
     if (p) return p;
   }
-  const active = allQs.filter((q) => !masteredIds.has(q.id) && !blocked?.has(q.id));
+  const active = allQs.filter((q) => !isMastered(q) && !blocked?.has(q.id));
   if (active.length === 0) return null;
 
   const bucket0 = active.filter((q) => (progress.get(q.id)?.bucket ?? 0) === 0);
@@ -76,6 +84,50 @@ function XIcon() {
     <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
       <path d="M2 2L8 8M8 2L2 8" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
     </svg>
+  );
+}
+
+const FLAMES = [
+  { l: "4%",  h: 30, w: 12, d: 50,  kf: "flame-a" },
+  { l: "14%", h: 44, w: 17, d: 0,   kf: "flame-b" },
+  { l: "24%", h: 34, w: 14, d: 170, kf: "flame-a" },
+  { l: "35%", h: 50, w: 20, d: 90,  kf: "flame-b" },
+  { l: "47%", h: 58, w: 23, d: 130, kf: "flame-a" },
+  { l: "59%", h: 48, w: 20, d: 60,  kf: "flame-b" },
+  { l: "70%", h: 36, w: 15, d: 200, kf: "flame-a" },
+  { l: "82%", h: 46, w: 19, d: 110, kf: "flame-b" },
+  { l: "92%", h: 28, w: 11, d: 40,  kf: "flame-a" },
+];
+
+function FireBar() {
+  return (
+    <>
+      {FLAMES.map((f, i) => (
+        <div key={i} style={{ position: "absolute", left: f.l, bottom: 0, transform: "translateX(-50%)", pointerEvents: "none" }}>
+          <svg
+            width={f.w} height={f.h} viewBox="0 0 24 48" fill="none"
+            style={{
+              display: "block",
+              transformOrigin: "50% 100%",
+              animation: `${f.kf} ${0.45 + (i % 3) * 0.12}s ease-in-out infinite alternate`,
+              animationDelay: `${f.d}ms`,
+            }}
+          >
+            <defs>
+              <linearGradient id={`fire-fg-${i}`} x1="0" y1="0%" x2="0" y2="100%">
+                <stop offset="0%"   stopColor="#ffff80" stopOpacity="0.55" />
+                <stop offset="18%"  stopColor="#ffdd00" stopOpacity="0.95" />
+                <stop offset="52%"  stopColor="#ff7700" stopOpacity="1"    />
+                <stop offset="82%"  stopColor="#ff3300" stopOpacity="0.9"  />
+                <stop offset="100%" stopColor="#cc1100" stopOpacity="0"    />
+              </linearGradient>
+            </defs>
+            <path d="M12 0 C15 6 21 14 20 25 C19 35 15 43 12 48 C9 43 5 35 4 25 C3 14 9 6 12 0 Z" fill={`url(#fire-fg-${i})`} />
+            <path d="M12 10 C14 15 16 21 15 28 C14 35 12 41 12 46 C10 41 8 35 8 28 C7 22 10 15 12 10 Z" fill="rgba(255,240,80,0.32)" />
+          </svg>
+        </div>
+      ))}
+    </>
   );
 }
 
@@ -168,6 +220,11 @@ function LearnPage() {
   const twinMapRef = useRef<Map<string, string>>(new Map());
   const celebrationCanvasRef = useRef<HTMLCanvasElement>(null);
   const [resettingProgress, setResettingProgress] = useState(false);
+  const [fireStreak, setFireStreak] = useState(0);
+  const [fireActivating, setFireActivating] = useState(false);
+  const [showOvingZero, setShowOvingZero] = useState(false);
+  const prevOnFireRef = useRef(false);
+  const prevOvingRef = useRef(-1);
 
   useEffect(() => {
     const pool = isDel2
@@ -277,6 +334,29 @@ function LearnPage() {
     return () => clearInterval(interval);
   }, [isAllDone]);
 
+  const isOnFire = fireStreak >= 3;
+
+  useEffect(() => {
+    if (isOnFire && !prevOnFireRef.current) {
+      setFireActivating(true);
+      const t = setTimeout(() => setFireActivating(false), 700);
+      prevOnFireRef.current = true;
+      return () => clearTimeout(t);
+    }
+    if (!isOnFire) prevOnFireRef.current = false;
+  }, [isOnFire]);
+
+  const ovingCount = bucketCounts[0];
+  useEffect(() => {
+    if (prevOvingRef.current > 0 && ovingCount === 0 && !isAllDone && activeQuestions.length > 0) {
+      setShowOvingZero(true);
+      prevOvingRef.current = 0;
+      const t = setTimeout(() => setShowOvingZero(false), 4500);
+      return () => clearTimeout(t);
+    }
+    if (ovingCount > 0) prevOvingRef.current = ovingCount;
+  }, [ovingCount, isAllDone, activeQuestions.length]);
+
   function toggleOption(id: string) {
     if (state === "revealed") return;
     setSelected((prev) => {
@@ -359,6 +439,7 @@ function LearnPage() {
 
   function nextQuestion() {
     const pending = pendingUpdateRef.current;
+    const wasPerf = (pending?.newProgress.lastScore ?? 0) >= 100;
     const targetIdx = pending ? (pending.shouldMaster ? -1 : pending.bucket) : null;
     const dotEl = targetIdx !== null ? bucketDotRefs.current[targetIdx] : null;
     const scoreEl = scoreRef.current;
@@ -429,6 +510,7 @@ function LearnPage() {
         setHintOpen(false);
         setExiting(false);
         setEntering(true);
+        setFireStreak(prev => wasPerf ? prev + 1 : 0);
         setTimeout(() => setEntering(false), 300);
       }, 110);
     }
@@ -625,9 +707,44 @@ function LearnPage() {
 
   return (
     <main className="page-shell-learn">
-      <div className="app-card app-card-learn" style={{ position: "relative" }}>
+      <div className="fire-wrap">
+
+        {/* ON FIRE! decorations — outside the card so flames extend above */}
+        {isOnFire && (
+          <>
+            <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 0, overflow: "visible", pointerEvents: "none", zIndex: 52 }}>
+              <FireBar />
+            </div>
+            <div style={{ position: "absolute", top: -24, left: 0, right: 0, textAlign: "center", pointerEvents: "none", zIndex: 53, animation: "fire-label-in 0.45s cubic-bezier(0.34,1.56,0.64,1) both" }}>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: "11px", fontWeight: 700, letterSpacing: "0.22em", color: "#ff7700", animation: "fire-label-glow 1.3s ease-in-out 0.4s infinite" }}>
+                ON FIRE!
+              </span>
+            </div>
+          </>
+        )}
+
+        <div className={`app-card app-card-learn${isOnFire ? " on-fire" : ""}${fireActivating ? " on-fire-activating" : ""}`} style={{ position: "relative" }}>
         <PageLoader />
         <canvas ref={confettiCanvasRef} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 50 }} />
+
+        {/* Activation flash */}
+        {fireActivating && (
+          <div style={{ position: "absolute", inset: 0, background: "rgba(255,80,0,0.1)", zIndex: 10, pointerEvents: "none", animation: "fire-flash 0.65s ease-out both" }} />
+        )}
+
+        {/* Øving = 0 toast */}
+        {showOvingZero && (
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 20, pointerEvents: "none", animation: "toast-slide-in 0.4s cubic-bezier(0.34,1.4,0.64,1) both" }}>
+            <div style={{ background: "var(--correct)", padding: "12px 20px 14px", borderBottomLeftRadius: "var(--radius-md)", borderBottomRightRadius: "var(--radius-md)" }}>
+              <div style={{ fontSize: "14px", fontWeight: 700, color: "#fff", marginBottom: "3px" }}>
+                Du har gått gjennom og klart alle!
+              </div>
+              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.82)", lineHeight: 1.4 }}>
+                Nå mangler du bare å klare resten én gang til!
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Score — flush top-right corner, white background */}
         {state === "revealed" && (
@@ -945,6 +1062,7 @@ function LearnPage() {
           </div>
         </div>
 
+        </div>
       </div>
 
       {/* Flying score arc clone — fixed overlay, animates to bucket dot */}
