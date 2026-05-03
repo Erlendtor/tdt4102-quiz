@@ -659,7 +659,7 @@ body {
 .learn-sq-btn:hover { color: var(--text-primary); border-color: var(--text-primary); }
 
 @media (max-width: 600px) {
-  body { background: #FFFFFF; }
+  body { background: #FFFFFF; overflow-x: hidden; }
 
   .page-shell, .page-shell-top {
     padding: 0;
@@ -843,25 +843,38 @@ body {
 }
 
 @media (max-width: 600px) {
-  .fire-wrap { max-width: none; }
+  .fire-wrap { max-width: none; overflow-x: hidden; }
+
+  /* No flames on mobile — they extend ±65px outside the viewport and cause horizontal scroll */
+  .fire-flames { display: none; }
 
   /* Label moves inside the card top since there's no room above */
   .fire-label { top: 10px; }
 
-  /* Outer glow is clipped on full-bleed card — use inset shadow instead */
+  /* Reset outer-glow on the card — the ::after overlay handles it instead.
+     Inset box-shadow paints behind children, so the footer's white bg hides
+     it; the ::after with z-index:100 paints above everything in the card. */
   .app-card-learn.on-fire {
     border-radius: 0;
-    box-shadow:
-      inset 0 0 0 3px #ff5500,
-      inset 0 0 32px 8px rgba(255,80,0,0.28);
+    box-shadow: none;
+    animation: none;
+  }
+  .app-card-learn.on-fire-activating { animation: none !important; }
+  .app-card-learn.on-fire.on-fire-dim { animation: none !important; }
+
+  /* Overlay: absolute, full-card, pointer-events off, above all children */
+  .app-card-learn.on-fire::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
     animation: fire-border-pulse-mobile 1.6s ease-in-out infinite;
   }
-
-  .app-card-learn.on-fire-activating {
+  .app-card-learn.on-fire-activating::after {
     animation: fire-activate-mobile 0.65s cubic-bezier(0.34,1.4,0.64,1) both !important;
   }
-
-  .app-card-learn.on-fire.on-fire-dim {
+  .app-card-learn.on-fire.on-fire-dim::after {
     animation: fire-border-pulse-dim-mobile 2.2s ease-in-out infinite !important;
   }
 }
@@ -893,7 +906,7 @@ body {
 }
 
 @keyframes fire-activate-mobile {
-  0%   { box-shadow: inset 0 0 0 0 rgba(255,80,0,0); transform: scale(1); }
-  30%  { box-shadow: inset 0 0 0 5px #ff5500, inset 0 0 70px 20px rgba(255,100,0,0.58); transform: scale(1.012); }
-  100% { box-shadow: inset 0 0 0 3px #ff5500, inset 0 0 32px 8px rgba(255,80,0,0.28); transform: scale(1); }
+  0%   { box-shadow: inset 0 0 0 0 rgba(255,80,0,0); }
+  30%  { box-shadow: inset 0 0 0 5px #ff5500, inset 0 0 70px 20px rgba(255,100,0,0.58); }
+  100% { box-shadow: inset 0 0 0 3px #ff5500, inset 0 0 32px 8px rgba(255,80,0,0.28); }
 }
