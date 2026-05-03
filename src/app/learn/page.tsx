@@ -145,6 +145,7 @@ function LearnPage() {
   const [hintOpen, setHintOpen] = useState(false);
   const [exiting, setExiting] = useState(false);
   const [entering, setEntering] = useState(false);
+  const [pageLoaded, setPageLoaded] = useState(false);
   const [flyingScore, setFlyingScore] = useState<{
     sx: number; sy: number;
     label: string; color: string;
@@ -201,13 +202,19 @@ function LearnPage() {
   }, [activeQuestions, current, progress, masteredIds]);
 
   useEffect(() => {
-    if (current && !firstQuestionLoaded.current) {
+    const onLoaded = () => setPageLoaded(true);
+    window.addEventListener("page-loaded", onLoaded, { once: true });
+    return () => window.removeEventListener("page-loaded", onLoaded);
+  }, []);
+
+  useEffect(() => {
+    if (current && pageLoaded && !firstQuestionLoaded.current) {
       firstQuestionLoaded.current = true;
       setEntering(true);
-      const t = setTimeout(() => setEntering(false), 500);
+      const t = setTimeout(() => setEntering(false), 560);
       return () => clearTimeout(t);
     }
-  }, [current]);
+  }, [current, pageLoaded]);
 
   useEffect(() => {
     if (done) fireConfetti(confettiCanvasRef.current!);
@@ -765,6 +772,7 @@ function LearnPage() {
                   className={optionClass(opt.id)}
                   onClick={() => state === "answering" && toggleOption(opt.id)}
                   style={{
+                    position: "relative",
                     cursor: state === "answering" ? "pointer" : "default",
                     ...(entering ? { animation: "slide-from-right 0.26s cubic-bezier(0.25, 0, 0.2, 1) both", animationDelay: `${55 + i * 32}ms` } : {}),
                   }}
@@ -777,22 +785,6 @@ function LearnPage() {
 
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <span>{opt.text}</span>
-
-                    {state === "revealed" && selected.has(opt.id) && (
-                      <span style={{
-                        display: "block",
-                        fontFamily: "var(--font-mono)",
-                        fontSize: "13px",
-                        fontWeight: 700,
-                        letterSpacing: "-0.3px",
-                        lineHeight: 1,
-                        marginTop: "5px",
-                        color: isCorrect ? "var(--correct)" : "var(--wrong)",
-                        opacity: isCorrect ? 1 : 0.75,
-                      }}>
-                        {fmtOptionPts(isCorrect)}
-                      </span>
-                    )}
 
                     {state === "revealed" && (
                       <div style={{ marginTop: "8px" }}>
@@ -839,6 +831,25 @@ function LearnPage() {
                       </div>
                     )}
                   </div>
+
+                  {/* Points badge — absolute top-right corner */}
+                  {state === "revealed" && selected.has(opt.id) && (
+                    <span style={{
+                      position: "absolute",
+                      top: "10px",
+                      right: "12px",
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "12px",
+                      fontWeight: 700,
+                      letterSpacing: "-0.3px",
+                      lineHeight: 1,
+                      color: isCorrect ? "var(--correct)" : "var(--wrong)",
+                      opacity: isCorrect ? 1 : 0.75,
+                      pointerEvents: "none",
+                    }}>
+                      {fmtOptionPts(isCorrect)}
+                    </span>
+                  )}
                 </div>
               );
             })}

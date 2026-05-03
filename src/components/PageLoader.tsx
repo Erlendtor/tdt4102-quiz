@@ -9,7 +9,10 @@ export default function PageLoader() {
   useEffect(() => {
     const t = setTimeout(() => {
       setFading(true);
-      setTimeout(() => setGone(true), 340);
+      setTimeout(() => {
+        setGone(true);
+        window.dispatchEvent(new Event("page-loaded"));
+      }, 340);
     }, 500);
     return () => clearTimeout(t);
   }, []);
