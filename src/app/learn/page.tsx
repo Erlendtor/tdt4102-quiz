@@ -146,6 +146,7 @@ function LearnPage() {
   const [exiting, setExiting] = useState(false);
   const [entering, setEntering] = useState(false);
   const [pageLoaded, setPageLoaded] = useState(false);
+  const [contentVisible, setContentVisible] = useState(false);
   const [flyingScore, setFlyingScore] = useState<{
     sx: number; sy: number;
     label: string; color: string;
@@ -210,6 +211,8 @@ function LearnPage() {
   useEffect(() => {
     if (current && pageLoaded && !firstQuestionLoaded.current) {
       firstQuestionLoaded.current = true;
+      // Batched: both fire in the same render so content never flashes un-animated
+      setContentVisible(true);
       setEntering(true);
       const t = setTimeout(() => setEntering(false), 560);
       return () => clearTimeout(t);
@@ -676,7 +679,7 @@ function LearnPage() {
         )}
 
         {/* Question area */}
-        <div className={`question-content${exiting ? " exiting" : ""}`} style={{ flex: 1, overflowY: "auto", padding: "20px 20px 16px" }}>
+        <div className={`question-content${exiting ? " exiting" : ""}`} style={{ flex: 1, overflowY: "auto", padding: "20px 20px 16px", opacity: contentVisible ? 1 : 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px", flexWrap: "wrap" }}>
             <span className="tag">{current.topic}</span>
           </div>
